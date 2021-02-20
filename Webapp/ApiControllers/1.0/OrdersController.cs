@@ -10,49 +10,50 @@ using Domain;
 
 namespace Webapp.ApiControllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class TemplatesController : ControllerBase
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    public class OrdersController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public TemplatesController(AppDbContext context)
+        public OrdersController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Templates
+        // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
+        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Templates.ToListAsync();
+            return await _context.Orders.ToListAsync();
         }
 
-        // GET: api/Templates/5
+        // GET: api/Orders/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Template>> GetTemplate(long id)
+        public async Task<ActionResult<Order>> GetOrder(long id)
         {
-            var template = await _context.Templates.FindAsync(id);
+            var order = await _context.Orders.FindAsync(id);
 
-            if (template == null)
+            if (order == null)
             {
                 return NotFound();
             }
 
-            return template;
+            return order;
         }
 
-        // PUT: api/Templates/5
+        // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTemplate(long id, Template template)
+        public async Task<IActionResult> PutOrder(long id, Order order)
         {
-            if (id != template.Id)
+            if (id != order.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(template).State = EntityState.Modified;
+            _context.Entry(order).State = EntityState.Modified;
 
             try
             {
@@ -60,7 +61,7 @@ namespace Webapp.ApiControllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TemplateExists(id))
+                if (!OrderExists(id))
                 {
                     return NotFound();
                 }
@@ -73,36 +74,36 @@ namespace Webapp.ApiControllers
             return NoContent();
         }
 
-        // POST: api/Templates
+        // POST: api/Orders
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Template>> PostTemplate(Template template)
+        public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            _context.Templates.Add(template);
+            _context.Orders.Add(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTemplate", new { id = template.Id }, template);
+            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }
 
-        // DELETE: api/Templates/5
+        // DELETE: api/Orders/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTemplate(long id)
+        public async Task<IActionResult> DeleteOrder(long id)
         {
-            var template = await _context.Templates.FindAsync(id);
-            if (template == null)
+            var order = await _context.Orders.FindAsync(id);
+            if (order == null)
             {
                 return NotFound();
             }
 
-            _context.Templates.Remove(template);
+            _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool TemplateExists(long id)
+        private bool OrderExists(long id)
         {
-            return _context.Templates.Any(e => e.Id == id);
+            return _context.Orders.Any(e => e.Id == id);
         }
     }
 }

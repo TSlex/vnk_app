@@ -10,8 +10,9 @@ using Domain;
 
 namespace Webapp.ApiControllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class OrderAttributesController : ControllerBase
     {
         private readonly AppDbContext _context;

@@ -7,53 +7,53 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
 using Domain;
-using Attribute = Domain.Attribute;
 
 namespace Webapp.ApiControllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class AttributesController : ControllerBase
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    public class TemplatesController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public AttributesController(AppDbContext context)
+        public TemplatesController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/Attributes
+        // GET: api/Templates
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Attribute>>> GetAttributes()
+        public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
         {
-            return await _context.Attributes.ToListAsync();
+            return await _context.Templates.ToListAsync();
         }
 
-        // GET: api/Attributes/5
+        // GET: api/Templates/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Attribute>> GetAttribute(long id)
+        public async Task<ActionResult<Template>> GetTemplate(long id)
         {
-            var attribute = await _context.Attributes.FindAsync(id);
+            var template = await _context.Templates.FindAsync(id);
 
-            if (attribute == null)
+            if (template == null)
             {
                 return NotFound();
             }
 
-            return attribute;
+            return template;
         }
 
-        // PUT: api/Attributes/5
+        // PUT: api/Templates/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAttribute(long id, Attribute attribute)
+        public async Task<IActionResult> PutTemplate(long id, Template template)
         {
-            if (id != attribute.Id)
+            if (id != template.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(attribute).State = EntityState.Modified;
+            _context.Entry(template).State = EntityState.Modified;
 
             try
             {
@@ -61,7 +61,7 @@ namespace Webapp.ApiControllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AttributeExists(id))
+                if (!TemplateExists(id))
                 {
                     return NotFound();
                 }
@@ -74,36 +74,36 @@ namespace Webapp.ApiControllers
             return NoContent();
         }
 
-        // POST: api/Attributes
+        // POST: api/Templates
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Attribute>> PostAttribute(Attribute attribute)
+        public async Task<ActionResult<Template>> PostTemplate(Template template)
         {
-            _context.Attributes.Add(attribute);
+            _context.Templates.Add(template);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetAttribute", new { id = attribute.Id }, attribute);
+            return CreatedAtAction("GetTemplate", new { id = template.Id }, template);
         }
 
-        // DELETE: api/Attributes/5
+        // DELETE: api/Templates/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAttribute(long id)
+        public async Task<IActionResult> DeleteTemplate(long id)
         {
-            var attribute = await _context.Attributes.FindAsync(id);
-            if (attribute == null)
+            var template = await _context.Templates.FindAsync(id);
+            if (template == null)
             {
                 return NotFound();
             }
 
-            _context.Attributes.Remove(attribute);
+            _context.Templates.Remove(template);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool AttributeExists(long id)
+        private bool TemplateExists(long id)
         {
-            return _context.Attributes.Any(e => e.Id == id);
+            return _context.Templates.Any(e => e.Id == id);
         }
     }
 }
