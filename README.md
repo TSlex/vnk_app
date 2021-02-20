@@ -8,6 +8,11 @@
 2) Register them as DbSet<Entity>'s
 3) Update database
 
+```
+dotnet ef migrations add <name> --project DAL.App.EF --startup-project WebApp
+dotnet ef database update --project DAL.App.EF --startup-project WebApp
+```
+
 2 Generate API and MVC controllers
 -
 * MVC

@@ -10,7 +10,7 @@ using Attribute = Domain.Attribute;
 
 namespace DAL.App.EF
 {
-    public class AppDbContext : IdentityDbContext
+    public class AppDbContext : IdentityDbContext<AppUser, AppRole, long>
     {
         public DbSet<Attribute> Attributes { get; set; } = default!;
         public DbSet<AttributeType> AttributeTypes { get; set; } = default!;
