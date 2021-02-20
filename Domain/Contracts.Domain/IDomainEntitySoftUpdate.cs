@@ -7,8 +7,8 @@ namespace Contracts.Domain
     }
     
     public interface IDomainEntitySoftUpdate<TKey>
-    where TKey : IEquatable<TKey>
+    where TKey : struct, IEquatable<TKey>
     {
-        TKey MasterId { get; set; }
+        TKey? MasterId { get; set; }
     }
 }
