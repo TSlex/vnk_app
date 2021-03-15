@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -95,7 +96,7 @@ namespace Webapp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
             SetupDatabase(app, env, Configuration);
-            
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -140,7 +141,7 @@ namespace Webapp
                 endpoints.MapRazorPages();
             });
         }
-        
+
         private static void SetupDatabase(IApplicationBuilder app, IWebHostEnvironment env,
             IConfiguration configuration)
         {
@@ -149,7 +150,7 @@ namespace Webapp
             using var ctx = serviceScope.ServiceProvider.GetService<AppDbContext>();
             using var userManager = serviceScope.ServiceProvider.GetService<UserManager<AppUser>>();
             using var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<AppRole>>();
-            
+
             var logger = serviceScope.ServiceProvider.GetService<ILogger<Startup>>();
 
             if (configuration["AppDataInitialization:DropDatabase"] == "True")
@@ -161,7 +162,7 @@ namespace Webapp
             {
                 DAL.Helpers.DataInitializers.MigrateDatabase(ctx, logger);
             }
-            
+
             if (configuration["AppDataInitialization:SeedIdentity"] == "True")
             {
                 DAL.Helpers.DataInitializers.SeedIdentity(userManager, roleManager, logger);

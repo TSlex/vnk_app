@@ -66,7 +66,7 @@ namespace WebApp.Helpers
                     new List<string>()
                 }
             });
-
+            
             // include xml comments (enable creation in csproj file)
             /*var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
