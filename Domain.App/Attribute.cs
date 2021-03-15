@@ -13,8 +13,8 @@ namespace Domain
         public long AttributeTypeId { get; set; } = default!;
         [JsonIgnore] public AttributeType? AttributeType { get; set; }
 
-        private ICollection<OrderAttribute>? OrderAttributes { get; set; }
-        private ICollection<TemplateAttribute>? TemplateAttributes { get; set; }
+        public ICollection<OrderAttribute>? OrderAttributes { get; set; }
+        public ICollection<TemplateAttribute>? TemplateAttributes { get; set; }
 
         public string? DeletedBy { get; set; }
         public DateTime? DeletedAt { get; set; }

@@ -10,7 +10,7 @@ namespace Domain
     {
         public bool Completed { get; set; }
 
-        private ICollection<OrderAttribute>? OrderAttributes { get; set; }
+        public ICollection<OrderAttribute>? OrderAttributes { get; set; }
 
         public string? DeletedBy { get; set; }
         public DateTime? DeletedAt { get; set; }

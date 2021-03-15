@@ -7,8 +7,10 @@ namespace Domain
 {
     public class AttributeType : DomainEntityIdMetadata, IDomainEntitySoftDelete
     {
-        private ICollection<Attribute>? Attributes { get; set; }
-        private ICollection<TypeValue>? TypeValues { get; set; }
+        public string Name { get; set; } = default!;
+        
+        public ICollection<Attribute>? Attributes { get; set; }
+        public ICollection<TypeValue>? TypeValues { get; set; }
 
         public string? DeletedBy { get; set; }
         public DateTime? DeletedAt { get; set; }

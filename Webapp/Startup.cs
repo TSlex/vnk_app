@@ -94,7 +94,7 @@ namespace Webapp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
-            UpdateDatabase(app, env, Configuration);
+            SetupDatabase(app, env, Configuration);
             
             if (env.IsDevelopment())
             {
@@ -141,10 +141,9 @@ namespace Webapp
             });
         }
         
-        private static void UpdateDatabase(IApplicationBuilder app, IWebHostEnvironment env,
+        private static void SetupDatabase(IApplicationBuilder app, IWebHostEnvironment env,
             IConfiguration configuration)
         {
-            // give me the scoped services (everyhting created by it will be closed at the end of service scope life).
             using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
 
             using var ctx = serviceScope.ServiceProvider.GetService<AppDbContext>();

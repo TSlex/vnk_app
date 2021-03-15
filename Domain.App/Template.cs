@@ -7,6 +7,6 @@ namespace Domain
 {
     public class Template : DomainEntityIdMetadata
     {
-        private ICollection<TemplateAttribute>? TemplateAttributes { get; set; }
+        public ICollection<TemplateAttribute>? TemplateAttributes { get; set; }
     }
 }
