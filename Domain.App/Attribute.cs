@@ -8,6 +8,8 @@ namespace Domain
 {
     public class Attribute : DomainEntityIdMetadata, IDomainEntitySoftDelete
     {
+        public string Name { get; set; } = default!;
+        
         public bool Displayed { get; set; }
 
         public long AttributeTypeId { get; set; } = default!;

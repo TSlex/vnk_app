@@ -6,13 +6,15 @@ using Domain.Base;
 
 namespace Domain
 {
-    public class TypeValue: DomainEntityIdMetadata, IDomainEntitySoftDelete
+    public class TypeValue : DomainEntityIdMetadata, IDomainEntitySoftDelete
     {
+        public string Value { get; set; } = default!;
+
         public long AttributeTypeId { get; set; } = default!;
         [JsonIgnore] public AttributeType? AttributeType { get; set; }
-        
+
         public ICollection<OrderAttribute>? OrderAttributes { get; set; }
-        
+
         public string? DeletedBy { get; set; }
         public DateTime? DeletedAt { get; set; }
     }
