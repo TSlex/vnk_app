@@ -26,14 +26,12 @@ namespace Webapp.ApiControllers
             _context = context;
         }
 
-        // GET: api/TypeValues
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TypeValue>>> GetTypeValues()
         {
             return await _context.TypeValues.ToListAsync();
         }
 
-        // GET: api/TypeValues/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TypeValue>> GetTypeValue(long id)
         {
@@ -47,8 +45,6 @@ namespace Webapp.ApiControllers
             return typeValue;
         }
 
-        // PUT: api/TypeValues/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTypeValue(long id, TypeValue typeValue)
         {
@@ -78,8 +74,6 @@ namespace Webapp.ApiControllers
             return NoContent();
         }
 
-        // POST: api/TypeValues
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<TypeValue>> PostTypeValue(TypeValue typeValue)
         {
@@ -89,7 +83,6 @@ namespace Webapp.ApiControllers
             return CreatedAtAction("GetTypeValue", new { id = typeValue.Id }, typeValue);
         }
 
-        // DELETE: api/TypeValues/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTypeValue(long id)
         {

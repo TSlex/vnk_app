@@ -26,14 +26,12 @@ namespace Webapp.ApiControllers
             _context = context;
         }
 
-        // GET: api/AttributeTypes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AttributeType>>> GetAttributeTypes()
         {
             return await _context.AttributeTypes.ToListAsync();
         }
 
-        // GET: api/AttributeTypes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<AttributeType>> GetAttributeType(long id)
         {
@@ -47,8 +45,6 @@ namespace Webapp.ApiControllers
             return attributeType;
         }
 
-        // PUT: api/AttributeTypes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAttributeType(long id, AttributeType attributeType)
         {
@@ -78,8 +74,6 @@ namespace Webapp.ApiControllers
             return NoContent();
         }
 
-        // POST: api/AttributeTypes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<AttributeType>> PostAttributeType(AttributeType attributeType)
         {
@@ -89,7 +83,6 @@ namespace Webapp.ApiControllers
             return CreatedAtAction("GetAttributeType", new { id = attributeType.Id }, attributeType);
         }
 
-        // DELETE: api/AttributeTypes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAttributeType(long id)
         {

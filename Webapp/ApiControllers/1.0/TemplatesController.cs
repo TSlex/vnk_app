@@ -26,14 +26,12 @@ namespace Webapp.ApiControllers
             _context = context;
         }
 
-        // GET: api/Templates
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Template>>> GetTemplates()
         {
             return await _context.Templates.ToListAsync();
         }
 
-        // GET: api/Templates/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Template>> GetTemplate(long id)
         {
@@ -47,8 +45,6 @@ namespace Webapp.ApiControllers
             return template;
         }
 
-        // PUT: api/Templates/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTemplate(long id, Template template)
         {
@@ -78,8 +74,6 @@ namespace Webapp.ApiControllers
             return NoContent();
         }
 
-        // POST: api/Templates
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Template>> PostTemplate(Template template)
         {
@@ -89,7 +83,6 @@ namespace Webapp.ApiControllers
             return CreatedAtAction("GetTemplate", new { id = template.Id }, template);
         }
 
-        // DELETE: api/Templates/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTemplate(long id)
         {

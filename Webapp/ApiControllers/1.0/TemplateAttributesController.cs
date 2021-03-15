@@ -26,14 +26,12 @@ namespace Webapp.ApiControllers
             _context = context;
         }
 
-        // GET: api/TemplateAttributes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TemplateAttribute>>> GetTemplateAttributes()
         {
             return await _context.TemplateAttributes.ToListAsync();
         }
 
-        // GET: api/TemplateAttributes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TemplateAttribute>> GetTemplateAttribute(long id)
         {
@@ -47,8 +45,6 @@ namespace Webapp.ApiControllers
             return templateAttribute;
         }
 
-        // PUT: api/TemplateAttributes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTemplateAttribute(long id, TemplateAttribute templateAttribute)
         {
@@ -78,8 +74,6 @@ namespace Webapp.ApiControllers
             return NoContent();
         }
 
-        // POST: api/TemplateAttributes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<TemplateAttribute>> PostTemplateAttribute(TemplateAttribute templateAttribute)
         {

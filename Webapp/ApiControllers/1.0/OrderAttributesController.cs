@@ -26,14 +26,12 @@ namespace Webapp.ApiControllers
             _context = context;
         }
 
-        // GET: api/OrderAttributes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderAttribute>>> GetOrderAttributes()
         {
             return await _context.OrderAttributes.ToListAsync();
         }
 
-        // GET: api/OrderAttributes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<OrderAttribute>> GetOrderAttribute(long id)
         {
@@ -47,8 +45,6 @@ namespace Webapp.ApiControllers
             return orderAttribute;
         }
 
-        // PUT: api/OrderAttributes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutOrderAttribute(long id, OrderAttribute orderAttribute)
         {
@@ -78,8 +74,6 @@ namespace Webapp.ApiControllers
             return NoContent();
         }
 
-        // POST: api/OrderAttributes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<OrderAttribute>> PostOrderAttribute(OrderAttribute orderAttribute)
         {
@@ -89,7 +83,6 @@ namespace Webapp.ApiControllers
             return CreatedAtAction("GetOrderAttribute", new { id = orderAttribute.Id }, orderAttribute);
         }
 
-        // DELETE: api/OrderAttributes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrderAttribute(long id)
         {
