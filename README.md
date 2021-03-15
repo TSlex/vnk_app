@@ -12,6 +12,8 @@
 
 ```
 dotnet ef migrations add <name> --project DAL.App.EF --startup-project WebApp
+dotnet ef migrations add --project DAL.App.EF --startup-project WebApp
+
 dotnet ef database update --project DAL.App.EF --startup-project WebApp
 ```
 

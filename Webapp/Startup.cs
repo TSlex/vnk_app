@@ -10,9 +10,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -92,6 +94,8 @@ namespace Webapp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
+            UpdateDatabase(app, env, Configuration);
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -135,6 +139,39 @@ namespace Webapp
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
+        }
+        
+        private static void UpdateDatabase(IApplicationBuilder app, IWebHostEnvironment env,
+            IConfiguration configuration)
+        {
+            // give me the scoped services (everyhting created by it will be closed at the end of service scope life).
+            using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
+
+            using var ctx = serviceScope.ServiceProvider.GetService<AppDbContext>();
+            using var userManager = serviceScope.ServiceProvider.GetService<UserManager<AppUser>>();
+            using var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<AppRole>>();
+            
+            var logger = serviceScope.ServiceProvider.GetService<ILogger<Startup>>();
+
+            if (configuration["AppDataInitialization:DropDatabase"] == "True")
+            {
+                DAL.Helpers.DataInitializers.DeleteDatabase(ctx, logger);
+            }
+
+            if (configuration["AppDataInitialization:MigrateDatabase"] == "True")
+            {
+                DAL.Helpers.DataInitializers.MigrateDatabase(ctx, logger);
+            }
+            
+            if (configuration["AppDataInitialization:SeedIdentity"] == "True")
+            {
+                DAL.Helpers.DataInitializers.SeedIdentity(userManager, roleManager, logger);
+            }
+
+            if (configuration.GetValue<bool>("AppDataInitialization:SeedData"))
+            {
+                DAL.Helpers.DataInitializers.SeedData(ctx, logger);
+            }
         }
     }
 }
