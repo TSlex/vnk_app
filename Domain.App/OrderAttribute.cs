@@ -13,8 +13,8 @@ namespace Domain
         public long AttributeId { get; set; } = default!;
         [JsonIgnore] public Attribute? Attribute { get; set; }
 
-        public long TypeValueId { get; set; } = default!;
-        [JsonIgnore] public TypeValue? TypeValue { get; set; }
+        public long AttributeTypeValueId { get; set; } = default!;
+        [JsonIgnore] public AttributeTypeValue? AttributeTypeValue { get; set; }
 
         public string? DeletedBy { get; set; }
         public DateTime? DeletedAt { get; set; }

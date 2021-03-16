@@ -186,6 +186,44 @@ namespace DAL.App.EF.Migrations
                     b.ToTable("AttributeTypes");
                 });
 
+            modelBuilder.Entity("Domain.AttributeTypeValue", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("AttributeTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ChangedBy")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttributeTypeId");
+
+                    b.ToTable("TypeValues");
+                });
+
             modelBuilder.Entity("Domain.Order", b =>
                 {
                     b.Property<long>("Id")
@@ -213,6 +251,9 @@ namespace DAL.App.EF.Migrations
                     b.Property<string>("DeletedBy")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<DateTime>("ExecutionDateTime")
+                        .HasColumnType("datetime(6)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Orders");
@@ -225,6 +266,9 @@ namespace DAL.App.EF.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<long>("AttributeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("AttributeTypeValueId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("ChangedAt")
@@ -248,16 +292,13 @@ namespace DAL.App.EF.Migrations
                     b.Property<long>("OrderId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("TypeValueId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AttributeId");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("AttributeTypeValueId");
 
-                    b.HasIndex("TypeValueId");
+                    b.HasIndex("OrderId");
 
                     b.ToTable("OrderAttributes");
                 });
@@ -316,44 +357,6 @@ namespace DAL.App.EF.Migrations
                     b.HasIndex("TemplateId");
 
                     b.ToTable("TemplateAttributes");
-                });
-
-            modelBuilder.Entity("Domain.TypeValue", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("AttributeTypeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ChangedBy")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AttributeTypeId");
-
-                    b.ToTable("TypeValues");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
@@ -466,11 +469,28 @@ namespace DAL.App.EF.Migrations
                     b.Navigation("AttributeType");
                 });
 
+            modelBuilder.Entity("Domain.AttributeTypeValue", b =>
+                {
+                    b.HasOne("Domain.AttributeType", "AttributeType")
+                        .WithMany("TypeValues")
+                        .HasForeignKey("AttributeTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AttributeType");
+                });
+
             modelBuilder.Entity("Domain.OrderAttribute", b =>
                 {
                     b.HasOne("Domain.Attribute", "Attribute")
                         .WithMany("OrderAttributes")
                         .HasForeignKey("AttributeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.AttributeTypeValue", "AttributeTypeValue")
+                        .WithMany("OrderAttributes")
+                        .HasForeignKey("AttributeTypeValueId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -480,17 +500,11 @@ namespace DAL.App.EF.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.TypeValue", "TypeValue")
-                        .WithMany("OrderAttributes")
-                        .HasForeignKey("TypeValueId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Attribute");
 
-                    b.Navigation("Order");
+                    b.Navigation("AttributeTypeValue");
 
-                    b.Navigation("TypeValue");
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Domain.TemplateAttribute", b =>
@@ -510,17 +524,6 @@ namespace DAL.App.EF.Migrations
                     b.Navigation("Attribute");
 
                     b.Navigation("Template");
-                });
-
-            modelBuilder.Entity("Domain.TypeValue", b =>
-                {
-                    b.HasOne("Domain.AttributeType", "AttributeType")
-                        .WithMany("TypeValues")
-                        .HasForeignKey("AttributeTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AttributeType");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<long>", b =>
@@ -588,6 +591,11 @@ namespace DAL.App.EF.Migrations
                     b.Navigation("TypeValues");
                 });
 
+            modelBuilder.Entity("Domain.AttributeTypeValue", b =>
+                {
+                    b.Navigation("OrderAttributes");
+                });
+
             modelBuilder.Entity("Domain.Order", b =>
                 {
                     b.Navigation("OrderAttributes");
@@ -596,11 +604,6 @@ namespace DAL.App.EF.Migrations
             modelBuilder.Entity("Domain.Template", b =>
                 {
                     b.Navigation("TemplateAttributes");
-                });
-
-            modelBuilder.Entity("Domain.TypeValue", b =>
-                {
-                    b.Navigation("OrderAttributes");
                 });
 #pragma warning restore 612, 618
         }

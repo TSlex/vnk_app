@@ -30,6 +30,7 @@ namespace Webapp.ApiControllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderGetDTO>))]
         public async Task<ActionResult<IEnumerable<OrderGetDTO>>> GetOrders()
         {
             var orders = await _context.Orders.Select(o => new OrderGetDTO()
@@ -39,7 +40,7 @@ namespace Webapp.ApiControllers
                 Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO()
                 {
                     Name = oa.Attribute!.Name,
-                    Value = oa.TypeValue!.Value
+                    Value = oa.AttributeTypeValue!.Value
                 }).ToList()
             }).ToListAsync();
 
@@ -47,6 +48,9 @@ namespace Webapp.ApiControllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderGetDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<OrderGetDTO>> GetOrder(long id)
         {
             var order = await _context.Orders
@@ -58,7 +62,7 @@ namespace Webapp.ApiControllers
                     Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO()
                     {
                         Name = oa.Attribute!.Name,
-                        Value = oa.TypeValue!.Value
+                        Value = oa.AttributeTypeValue!.Value
                     }).ToList()
                 }).FirstOrDefaultAsync();
 
@@ -71,6 +75,9 @@ namespace Webapp.ApiControllers
         }
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OrderGetDTO))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<OrderGetDTO>> PostOrder(OrderPostDTO orderPostDTO)
         {
             var order = new Order()
@@ -81,7 +88,7 @@ namespace Webapp.ApiControllers
                     new OrderAttribute()
                     {
                         AttributeId = dto.AttributeId,
-                        TypeValueId = dto.TypeValueId
+                        AttributeTypeValueId = dto.AttributeTypeValueId
                     }).ToList()
             };
 

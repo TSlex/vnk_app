@@ -19,23 +19,23 @@ namespace Webapp.ApiControllers
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class TypeValuesController : ControllerBase
+    public class AttributeTypeValuesController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public TypeValuesController(AppDbContext context)
+        public AttributeTypeValuesController(AppDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TypeValue>>> GetTypeValues()
+        public async Task<ActionResult<IEnumerable<AttributeTypeValue>>> GetTypeValues()
         {
             return await _context.TypeValues.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TypeValue>> GetTypeValue(long id)
+        public async Task<ActionResult<AttributeTypeValue>> GetTypeValue(long id)
         {
             var typeValue = await _context.TypeValues.FindAsync(id);
 
@@ -48,14 +48,14 @@ namespace Webapp.ApiControllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTypeValue(long id, TypeValue typeValue)
+        public async Task<IActionResult> PutTypeValue(long id, AttributeTypeValue attributeTypeValue)
         {
-            if (id != typeValue.Id)
+            if (id != attributeTypeValue.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(typeValue).State = EntityState.Modified;
+            _context.Entry(attributeTypeValue).State = EntityState.Modified;
 
             try
             {
@@ -77,12 +77,12 @@ namespace Webapp.ApiControllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TypeValue>> PostTypeValue(TypeValue typeValue)
+        public async Task<ActionResult<AttributeTypeValue>> PostTypeValue(AttributeTypeValue attributeTypeValue)
         {
-            _context.TypeValues.Add(typeValue);
+            _context.TypeValues.Add(attributeTypeValue);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetTypeValue", new { id = typeValue.Id }, typeValue);
+            return CreatedAtAction("GetTypeValue", new { id = attributeTypeValue.Id }, attributeTypeValue);
         }
 
         [HttpDelete("{id}")]

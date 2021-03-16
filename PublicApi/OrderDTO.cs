@@ -35,7 +35,7 @@ namespace PublicApi.v1
     public class OrderAttributePostDTO
     {
         [Required] public long AttributeId { get; set; } = default!;
-        [Required] public long TypeValueId { get; set; } = default!;
+        [Required] public long AttributeTypeValueId { get; set; } = default!;
     }
 
     #endregion

@@ -13,7 +13,7 @@ namespace Domain
         public AttributeDataType DataType { get; set; } = default!;
         
         public ICollection<Attribute>? Attributes { get; set; }
-        public ICollection<TypeValue>? TypeValues { get; set; }
+        public ICollection<AttributeTypeValue>? TypeValues { get; set; }
 
         public string? DeletedBy { get; set; }
         public DateTime? DeletedAt { get; set; }

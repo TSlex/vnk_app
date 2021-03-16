@@ -6,7 +6,7 @@ using Domain.Base;
 
 namespace Domain
 {
-    public class TypeValue : DomainEntityIdMetadata, IDomainEntitySoftDelete
+    public class AttributeTypeValue : DomainEntityIdMetadata, IDomainEntitySoftDelete
     {
         public string Value { get; set; } = default!;
 
