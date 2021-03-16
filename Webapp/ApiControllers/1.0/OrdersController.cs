@@ -9,12 +9,15 @@ using DAL.App.EF;
 using Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using PublicApi.v1;
 
 namespace Webapp.ApiControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    [Consumes("application/json")]
+    [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrdersController : ControllerBase
@@ -27,15 +30,37 @@ namespace Webapp.ApiControllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderGetDTO>>> GetOrders()
         {
-            return await _context.Orders.ToListAsync();
+            var orders = await _context.Orders.Select(o => new OrderGetDTO()
+            {
+                Completed = o.Completed,
+                ExecutionDateTime = o.ExecutionDateTime,
+                Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO()
+                {
+                    Name = oa.Attribute!.Name,
+                    Value = oa.TypeValue!.Value
+                }).ToList()
+            }).ToListAsync();
+
+            return orders;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(long id)
+        public async Task<ActionResult<OrderGetDTO>> GetOrder(long id)
         {
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _context.Orders
+                .Where(o => o.Id == id)
+                .Select(o => new OrderGetDTO()
+                {
+                    Completed = o.Completed,
+                    ExecutionDateTime = o.ExecutionDateTime,
+                    Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO()
+                    {
+                        Name = oa.Attribute!.Name,
+                        Value = oa.TypeValue!.Value
+                    }).ToList()
+                }).FirstOrDefaultAsync();
 
             if (order == null)
             {
@@ -43,6 +68,29 @@ namespace Webapp.ApiControllers
             }
 
             return order;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<OrderGetDTO>> PostOrder(OrderPostDTO orderPostDTO)
+        {
+            var order = new Order()
+            {
+                Completed = orderPostDTO.Completed,
+                ExecutionDateTime = orderPostDTO.ExecutionDateTime,
+                OrderAttributes = orderPostDTO.Attributes?.Select(dto =>
+                    new OrderAttribute()
+                    {
+                        AttributeId = dto.AttributeId,
+                        TypeValueId = dto.TypeValueId
+                    }).ToList()
+            };
+
+            await _context.Orders.AddAsync(order);
+            await _context.SaveChangesAsync();
+
+            var result = await GetOrder(order.Id);
+
+            return CreatedAtAction("GetOrder", result);
         }
 
         [HttpPut("{id}")]
@@ -72,15 +120,6 @@ namespace Webapp.ApiControllers
             }
 
             return NoContent();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
-        {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOrder", new { id = order.Id }, order);
         }
 
         [HttpDelete("{id}")]
