@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PublicApi.v1.Identity;
 
-namespace Webapp.ApiControllers.Identity
+namespace Webapp.ApiControllers._1._0.Identity
 {
     [ApiController]
     [ApiVersion("1.0")]
