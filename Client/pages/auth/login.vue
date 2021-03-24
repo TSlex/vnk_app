@@ -12,7 +12,7 @@
           <v-text-field label="Пароль" required></v-text-field>
           <v-checkbox label="Запомнить меня"></v-checkbox>
           <v-btn rounded block large color="primary mb-6">Войти</v-btn>
-          <a href="#" class="text-decoration-none">На главную</a>
+          <nuxt-link to="/" class="text-decoration-none">На главную</nuxt-link>
         </v-form>
       </v-card>
     </v-col>
