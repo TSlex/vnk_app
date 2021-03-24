@@ -1,89 +1,56 @@
 <template>
-  <v-row justify="center" align="center">
-    <v-col cols="12" sm="8" md="6">
-      <div class="text-center">
-        <logo />
-        <vuetify-logo />
-      </div>
-      <v-card>
-        <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
-        </v-card-title>
-        <v-card-text>
-          <p>Vuetify is a progressive Material Design component framework for Vue.js. It was designed to empower developers to create amazing applications.</p>
-          <p>
-            For more information on Vuetify, check out the <a
-              href="https://vuetifyjs.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              documentation
-            </a>.
-          </p>
-          <p>
-            If you have questions, please join the official <a
-              href="https://chat.vuetifyjs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="chat"
-            >
-              discord
-            </a>.
-          </p>
-          <p>
-            Find a bug? Report it on the github <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="contribute"
-            >
-              issue board
-            </a>.
-          </p>
-          <p>Thank you for developing with Vuetify and I look forward to bringing more exciting features in the future.</p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3">
-          <a
-            href="https://nuxtjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt Documentation
-          </a>
-          <br>
-          <a
-            href="https://github.com/nuxt/nuxt.js"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Nuxt GitHub
-          </a>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            color="primary"
-            nuxt
-            to="/inspire"
-          >
-            Continue
+  <v-row dense class="pa-4 fill-height">
+    <v-col>
+      <v-sheet>
+        <v-toolbar flat>
+          <v-btn fab text small color="grey darken-2">
+            <v-icon small> mdi-chevron-left </v-icon>
           </v-btn>
-        </v-card-actions>
-      </v-card>
+          <v-btn fab text small color="grey darken-2">
+            <v-icon small> mdi-chevron-right </v-icon>
+          </v-btn>
+          <v-toolbar-title> </v-toolbar-title>
+          <v-spacer></v-spacer>
+        </v-toolbar>
+      </v-sheet>
+      <v-sheet height="600" class="pa-1">
+        <v-calendar
+          ref="calendar"
+          :weekdays="weekdays"
+          :show-month-on-first="false"
+          locale="ru"
+          :short-weekdays="false"
+        ></v-calendar>
+      </v-sheet>
+    </v-col>
+    <v-col cols="3">
+      <v-sheet height="600" rounded="lg">
+        <v-list-item v-for="attribute in attributes" :key="attribute.name">
+          <v-list-item-content>
+            <v-list-item-title v-text="attribute.name"></v-list-item-title>
+            <v-list-item-subtitle
+              v-text="attribute.value"
+            ></v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-sheet>
     </v-col>
   </v-row>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-import VuetifyLogo from '~/components/VuetifyLogo.vue'
-
 export default {
-  components: {
-    Logo,
-    VuetifyLogo
-  }
-}
+  data: () => ({
+    weekdays: [1, 2, 3, 4, 5],
+    attributes: [
+      { name: "Время погрузки", value: "8:00" },
+      { name: "Название фирмы", value: "BlablaCompany LTD" },
+      { name: "Место доставки", value: "Marselle, France" },
+      { name: "Продукт", value: "HCR-105" },
+      { name: "Упаковка", value: "500 kg bags" },
+      { name: "Номер заказа", value: "134561363452345" },
+      { name: "Перевозчик", value: "NOVOTRADE LOGISTICS" },
+    ],
+  }),
+};
 </script>
