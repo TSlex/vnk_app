@@ -2,20 +2,15 @@
   <v-sheet color="transparent">
     <v-sheet rounded="lg" class="pt-1">
       <v-toolbar flat>
-        <v-btn outlined text>Добавить заказ</v-btn>
+        <v-btn outlined text large>Добавить заказ</v-btn>
         <v-spacer></v-spacer>
-        <v-text-field
-          rounded
-          outlined
-          single-line
-          hide-details
-          dense
-          flat
-        ></v-text-field>
+        <v-text-field rounded outlined single-line hide-details dense flat placeholder="Поиск" prepend-icon="mdi-magnify" clear-icon="mdi-close" clearable
+          ></v-text-field
+        >
         <v-spacer></v-spacer>
-          <v-toolbar-title v-if="loaded">{{
-            $refs.calendar.title
-          }}</v-toolbar-title>
+        <v-toolbar-title v-if="loaded">{{
+          $refs.calendar.title
+        }}</v-toolbar-title>
         <v-btn fab text color="grey darken-2" @click="prevMonth()">
           <v-icon> mdi-chevron-left </v-icon>
         </v-btn>
@@ -37,14 +32,19 @@
         <!-- Date -->
         <template v-slot:day-label="{ date }">
           <template>
-            <span>{{ date }}</span>
+            <div class="grey lighten-3 text-subtitle-2">{{ date }}</div>
             <v-divider></v-divider>
           </template>
         </template>
         <!-- Day content slot -->
         <template v-slot:day="{ date }">
-          <template>
-            <v-chip v-for="order in getDayOrders(date)" :key="Math.random(order)">
+          <div class="pa-2 text-center">
+            <v-chip
+              v-for="order in getDayOrders(date)"
+              :key="Math.random(order)"
+              class="mb-1 d-flex justify-center"
+              style="width: 100%"
+            >
               <span
                 v-for="attribute in order.featured"
                 :key="attribute.name"
@@ -52,7 +52,7 @@
                 >{{ attribute.value }}</span
               >
             </v-chip>
-          </template>
+          </div>
         </template>
       </v-calendar>
     </v-sheet>
@@ -80,6 +80,12 @@ export default {
   mounted() {
     this.$refs.calendar.checkChange();
     this.loaded = true;
-  }
+  },
 };
 </script>
+
+<style>
+.v-calendar-weekly__day-label {
+  margin: 0;
+}
+</style>

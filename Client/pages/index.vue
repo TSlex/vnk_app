@@ -1,4 +1,5 @@
 <template>
+<client-only>
   <v-row dense class="py-4 px-6 fill-height">
     <v-col>
       <Calendar :weekdays="weekdays" :orders="orders"/>
@@ -16,6 +17,7 @@
       </v-sheet>
     </v-col>
   </v-row>
+  </client-only>
 </template>
 
 <script>

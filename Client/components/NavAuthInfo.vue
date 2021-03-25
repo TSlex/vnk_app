@@ -1,5 +1,5 @@
 <template>
-  <div class="text-body-1">Николай Максимович</div>
+  <div class="text-h6 font-weight-medium">Александр Иванов</div>
 </template>
 
 <script>
