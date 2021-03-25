@@ -1,36 +1,10 @@
 <template>
-  <v-row dense class="pa-4 fill-height">
+  <v-row dense class="py-4 px-6 fill-height">
     <v-col>
-      <!-- calendar -->
-      <v-sheet rounded="lg" class="pt-1">
-        <v-toolbar flat>
-          <v-btn outlined text>Добавить заказ</v-btn>
-          <v-spacer></v-spacer>
-          <v-text-field rounded outlined single-line hide-details dense flat></v-text-field>
-          <v-spacer></v-spacer>
-          <v-toolbar-title>Март</v-toolbar-title>
-          <v-btn fab text color="grey darken-2">
-            <v-icon> mdi-chevron-left </v-icon>
-          </v-btn>
-          <v-btn fab text color="grey darken-2">
-            <v-icon> mdi-chevron-right </v-icon>
-          </v-btn>
-        </v-toolbar>
-      </v-sheet>
-      <v-sheet height="600" class="pa-2" rounded="b-lg">
-        <v-calendar
-          ref="calendar"
-          :weekdays="weekdays"
-          :show-month-on-first="false"
-          locale="ru"
-          :short-weekdays="false"
-        ></v-calendar>
-      </v-sheet>
+      <Calendar :weekdays="weekdays" :orders="orders"/>
     </v-col>
-
-    <!-- info bar -->
     <v-col cols="3">
-      <v-sheet height="600" rounded="lg">
+      <v-sheet height="700" rounded="lg">
         <v-list-item v-for="attribute in attributes" :key="attribute.name">
           <v-list-item-content>
             <v-list-item-title v-text="attribute.name"></v-list-item-title>
@@ -45,6 +19,8 @@
 </template>
 
 <script>
+import Calendar from "@/components/Calendar";
+
 export default {
   data: () => ({
     weekdays: [1, 2, 3, 4, 5],
@@ -57,6 +33,51 @@ export default {
       { name: "Номер заказа", value: "134561363452345" },
       { name: "Перевозчик", value: "NOVOTRADE LOGISTICS" },
     ],
+    orders: [
+      {
+        date: "2021-03-19",
+        featured: [
+          { name: "Фирма", value: "БляИндустриес" },
+          { name: "Продукт", value: "XML" },
+          { name: "Количество", value: "blah" },
+        ],
+      },
+      {
+        date: "2021-03-17",
+        featured: [
+          { name: "Фирма", value: "БляИндустриес" },
+          { name: "Продукт", value: "XML" },
+          { name: "Количество", value: "blah" },
+        ],
+      },
+      {
+        date: "2021-03-19",
+        featured: [
+          { name: "Фирма", value: "БляИндустриес" },
+          { name: "Продукт", value: "XML" },
+          { name: "Количество", value: "blah" },
+        ],
+      },
+      {
+        date: "2021-03-04",
+        featured: [
+          { name: "Фирма", value: "БляИндустриес" },
+          { name: "Продукт", value: "XML" },
+          { name: "Количество", value: "blah" },
+        ],
+      },
+      {
+        date: "2021-03-31",
+        featured: [
+          { name: "Фирма", value: "БляИндустриес" },
+          { name: "Продукт", value: "XML" },
+          { name: "Количество", value: "blah" },
+        ],
+      },
+    ],
   }),
+  components: {
+    Calendar,
+  },
 };
 </script>
