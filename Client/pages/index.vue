@@ -1,19 +1,23 @@
 <template>
   <v-row dense class="pa-4 fill-height">
     <v-col>
-      <v-sheet>
+      <!-- calendar -->
+      <v-sheet rounded="lg" class="pt-1">
         <v-toolbar flat>
-          <v-btn fab text small color="grey darken-2">
-            <v-icon small> mdi-chevron-left </v-icon>
-          </v-btn>
-          <v-btn fab text small color="grey darken-2">
-            <v-icon small> mdi-chevron-right </v-icon>
-          </v-btn>
-          <v-toolbar-title> </v-toolbar-title>
+          <v-btn outlined text>Добавить заказ</v-btn>
           <v-spacer></v-spacer>
+          <v-text-field rounded outlined single-line hide-details dense flat></v-text-field>
+          <v-spacer></v-spacer>
+          <v-toolbar-title>Март</v-toolbar-title>
+          <v-btn fab text color="grey darken-2">
+            <v-icon> mdi-chevron-left </v-icon>
+          </v-btn>
+          <v-btn fab text color="grey darken-2">
+            <v-icon> mdi-chevron-right </v-icon>
+          </v-btn>
         </v-toolbar>
       </v-sheet>
-      <v-sheet height="600" class="pa-1">
+      <v-sheet height="600" class="pa-2" rounded="b-lg">
         <v-calendar
           ref="calendar"
           :weekdays="weekdays"
@@ -23,6 +27,8 @@
         ></v-calendar>
       </v-sheet>
     </v-col>
+
+    <!-- info bar -->
     <v-col cols="3">
       <v-sheet height="600" rounded="lg">
         <v-list-item v-for="attribute in attributes" :key="attribute.name">

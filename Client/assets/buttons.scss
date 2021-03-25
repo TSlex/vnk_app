@@ -1,0 +1,10 @@
+.v-btn--hide-active {
+  &:before {
+    opacity: 0.08 !important;
+  }
+  &:not(:hover) {
+    &:before {
+      opacity: 0 !important;
+    }
+  }
+}

@@ -2,8 +2,11 @@
   <v-app-bar app flat>
     <NavAuthInfo />
     <v-spacer></v-spacer>
-    <NavButton>Календарь</NavButton>
-    <NavButton>Структура</NavButton>
+    <NavButton to="/">Календарь</NavButton>
+    <NavButton to="/orders">Заказы</NavButton>
+    <NavButton>Шаблоны</NavButton>
+    <NavButton>Аттрибуты</NavButton>
+    <NavButton>Типы аттрибутов</NavButton>
     <NavButton>Настройки</NavButton>
     <v-spacer></v-spacer>
     <NavAuth />
