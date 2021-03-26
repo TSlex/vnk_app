@@ -4,9 +4,18 @@
       <v-toolbar flat>
         <v-btn outlined text large>Добавить заказ</v-btn>
         <v-spacer></v-spacer>
-        <v-text-field rounded outlined single-line hide-details dense flat placeholder="Поиск" prepend-icon="mdi-magnify" clear-icon="mdi-close" clearable
-          ></v-text-field
-        >
+        <v-text-field
+          rounded
+          outlined
+          single-line
+          hide-details
+          dense
+          flat
+          placeholder="Поиск"
+          prepend-icon="mdi-magnify"
+          clear-icon="mdi-close"
+          clearable
+        ></v-text-field>
         <v-spacer></v-spacer>
         <v-toolbar-title v-if="loaded">{{
           $refs.calendar.title
@@ -44,13 +53,9 @@
               :key="Math.random(order)"
               class="mb-1 d-flex justify-center"
               style="width: 100%"
+              small
             >
-              <span
-                v-for="attribute in order.featured"
-                :key="attribute.name"
-                class="text-caption"
-                >{{ attribute.value }}</span
-              >
+              <span>{{ getOrderFeaturesInline(order) }}</span>
             </v-chip>
           </div>
         </template>
@@ -59,29 +64,42 @@
   </v-sheet>
 </template>
 
-<script>
-export default {
-  data: () => ({
-    start: new Date().toISOString(),
-    loaded: false,
-  }),
-  props: ["weekdays", "orders"],
-  methods: {
-    getDayOrders(date) {
-      return this.orders.filter((order) => order.date == date);
-    },
-    prevMonth() {
-      this.$refs.calendar.prev();
-    },
-    nextMonth() {
-      this.$refs.calendar.next();
-    },
-  },
+<script lang="ts">
+import { Component, Prop, Vue } from "nuxt-property-decorator";
+
+@Component
+export default class Calendar extends Vue {
+  $refs!: {
+    calendar: any;
+  };
+
+  start = new Date().toISOString();
+  loaded = false;
+
+  @Prop() weekdays!: any[];
+  @Prop() orders!: any[];
+
+  getDayOrders(date: string) {
+    return this.orders.filter((order) => order.date == date);
+  }
+
+  getOrderFeaturesInline(order: any) {
+    return order.featured.map((feature: any) => feature.value).join(", ");
+  }
+
+  prevMonth() {
+    this.$refs.calendar.prev();
+  }
+
+  nextMonth() {
+    this.$refs.calendar.next();
+  }
+
   mounted() {
     this.$refs.calendar.checkChange();
     this.loaded = true;
-  },
-};
+  }
+}
 </script>
 
 <style>

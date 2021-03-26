@@ -1,85 +1,44 @@
 <template>
-<client-only>
-  <v-row dense class="py-4 px-6 fill-height">
-    <v-col>
-      <Calendar :weekdays="weekdays" :orders="orders"/>
-    </v-col>
-    <v-col cols="3">
-      <v-sheet height="700" rounded="lg">
-        <v-list-item v-for="attribute in attributes" :key="attribute.name">
-          <v-list-item-content>
-            <v-list-item-title v-text="attribute.name"></v-list-item-title>
-            <v-list-item-subtitle
-              v-text="attribute.value"
-            ></v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-sheet>
-    </v-col>
-  </v-row>
+  <client-only>
+    <v-row dense class="py-4 px-6 fill-height">
+      <v-col>
+        <Calendar :weekdays="weekdays" :orders="orders" />
+      </v-col>
+      <v-col cols="3">
+        <v-sheet height="700" rounded="lg">
+          <v-list-item v-for="attribute in attributes" :key="attribute.name">
+            <v-list-item-content>
+              <v-list-item-title v-text="attribute.name"></v-list-item-title>
+              <v-list-item-subtitle
+                v-text="attribute.value"
+              ></v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-sheet>
+      </v-col>
+    </v-row>
   </client-only>
 </template>
 
-<script>
-import Calendar from "@/components/Calendar";
+<script lang="ts">
+import Calendar from "@/components/Calendar.vue";
 
-export default {
-  data: () => ({
-    weekdays: [1, 2, 3, 4, 5],
-    attributes: [
-      { name: "Время погрузки", value: "8:00" },
-      { name: "Название фирмы", value: "BlablaCompany LTD" },
-      { name: "Место доставки", value: "Marselle, France" },
-      { name: "Продукт", value: "HCR-105" },
-      { name: "Упаковка", value: "500 kg bags" },
-      { name: "Номер заказа", value: "134561363452345" },
-      { name: "Перевозчик", value: "NOVOTRADE LOGISTICS" },
-    ],
-    orders: [
-      {
-        date: "2021-03-19",
-        featured: [
-          { name: "Фирма", value: "БляИндустриес" },
-          { name: "Продукт", value: "XML" },
-          { name: "Количество", value: "blah" },
-        ],
-      },
-      {
-        date: "2021-03-17",
-        featured: [
-          { name: "Фирма", value: "БляИндустриес" },
-          { name: "Продукт", value: "XML" },
-          { name: "Количество", value: "blah" },
-        ],
-      },
-      {
-        date: "2021-03-19",
-        featured: [
-          { name: "Фирма", value: "БляИндустриес" },
-          { name: "Продукт", value: "XML" },
-          { name: "Количество", value: "blah" },
-        ],
-      },
-      {
-        date: "2021-03-04",
-        featured: [
-          { name: "Фирма", value: "БляИндустриес" },
-          { name: "Продукт", value: "XML" },
-          { name: "Количество", value: "blah" },
-        ],
-      },
-      {
-        date: "2021-03-31",
-        featured: [
-          { name: "Фирма", value: "БляИндустриес" },
-          { name: "Продукт", value: "XML" },
-          { name: "Количество", value: "blah" },
-        ],
-      },
-    ],
-  }),
+import { Component, Prop, Vue } from "nuxt-property-decorator";
+
+@Component({
   components: {
     Calendar,
   },
-};
+})
+export default class IndexPage extends Vue {
+  weekdays = [1, 2, 3, 4, 5];
+
+  get orders(){
+    return this.$store.getters["orders/getOrders"]
+  }
+
+  get attributes(){
+    return this.$store.getters["attributes/getAttributes"]
+  }
+}
 </script>
