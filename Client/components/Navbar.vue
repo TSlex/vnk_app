@@ -4,9 +4,10 @@
     <v-spacer></v-spacer>
     <NavButton to="/">Календарь</NavButton>
     <NavButton to="/orders">Заказы</NavButton>
+    <NavButton to="/attributes">Атрибуты</NavButton>
     <NavButton>Шаблоны</NavButton>
-    <NavButton>Аттрибуты</NavButton>
-    <NavButton>Типы аттрибутов</NavButton>
+    <NavButton>Типы атрибутов</NavButton>
+    <NavButton>Единицы измерения</NavButton>
     <NavButton>Настройки</NavButton>
     <v-spacer></v-spacer>
     <NavAuth />

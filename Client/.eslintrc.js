@@ -5,11 +5,15 @@ module.exports = {
     node: true
   },
   extends: [
+    'plugin:vue/base',
     '@nuxtjs/eslint-config-typescript',
     'plugin:nuxt/recommended'
   ],
   plugins: [
+    'vuetify'
   ],
   // add your custom rules here
-  rules: {}
+  rules: {
+    'vuetify/no-deprecated-classes': 'error'
+  }
 }
