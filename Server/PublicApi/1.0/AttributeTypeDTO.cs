@@ -37,7 +37,7 @@ namespace PublicApi.v1
         public long UnitsCount { get; set; }
 
         public ICollection<AttributeTypeValueDetailsDTO>? Values { get; set; }
-        public ICollection<AttributeTypeUnitsDetailsDTO>? Units { get; set; }
+        public ICollection<AttributeTypeUnitDetailsDTO>? Units { get; set; }
     }
 
     public class AttributeTypeValueDetailsDTO : DomainEntityId
@@ -45,7 +45,7 @@ namespace PublicApi.v1
         public string Value { get; set; } = default!;
     }
     
-    public class AttributeTypeUnitsDetailsDTO : DomainEntityId
+    public class AttributeTypeUnitDetailsDTO : DomainEntityId
     {
         public string Value { get; set; } = default!;
     }
@@ -54,7 +54,7 @@ namespace PublicApi.v1
     {
         [Required] public string Name { get; set; } = default!;
         
-        public string DefaultCustomValue { get; set; } = default!;
+        public string? DefaultCustomValue { get; set; }
         
         [Required] public AttributeDataType DataType { get; set; } = default!;
         
@@ -72,7 +72,7 @@ namespace PublicApi.v1
     {
         [Required] public string Name { get; set; } = default!;
         
-        public string DefaultCustomValue { get; set; } = default!;
+        public string? DefaultCustomValue { get; set; }
         
         [Required] public AttributeDataType DataType { get; set; } = default!;
         

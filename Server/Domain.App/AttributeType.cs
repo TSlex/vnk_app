@@ -9,6 +9,7 @@ namespace Domain
     public class AttributeType : DomainEntityIdMetadata, IDomainEntitySoftDelete
     {
         public string Name { get; set; } = default!;
+        public string? DefaultCustomValue { get; set; }
 
         public bool SystemicType { get; set; }
         public bool UsesDefinedValues { get; set; }
