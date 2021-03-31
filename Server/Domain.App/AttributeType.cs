@@ -10,6 +10,8 @@ namespace Domain
     {
         public string Name { get; set; } = default!;
         
+        public bool PreDefinedValues { get; set; }
+        
         public AttributeDataType DataType { get; set; }
         
         public long DefaultValueId { get; set; }

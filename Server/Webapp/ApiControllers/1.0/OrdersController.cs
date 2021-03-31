@@ -40,7 +40,7 @@ namespace Webapp.ApiControllers._1._0
                 Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO()
                 {
                     Name = oa.Attribute!.Name,
-                    Value = oa.AttributeTypeValue!.Value
+                    Value = oa.CustomValue ?? ""
                 }).ToList()
             }).ToListAsync();
 
@@ -62,7 +62,7 @@ namespace Webapp.ApiControllers._1._0
                     Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO()
                     {
                         Name = oa.Attribute!.Name,
-                        Value = oa.AttributeTypeValue!.Value
+                        Value = oa.CustomValue ?? ""
                     }).ToList()
                 }).FirstOrDefaultAsync();
 
@@ -88,7 +88,6 @@ namespace Webapp.ApiControllers._1._0
                     new OrderAttribute()
                     {
                         AttributeId = dto.AttributeId,
-                        AttributeTypeValueId = dto.AttributeTypeValueId
                     }).ToList()
             };
 

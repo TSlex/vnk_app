@@ -136,9 +136,6 @@ namespace DAL.App.EF.Migrations
                     b.Property<string>("DeletedBy")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<bool>("Displayed")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -171,6 +168,12 @@ namespace DAL.App.EF.Migrations
                     b.Property<int>("DataType")
                         .HasColumnType("int");
 
+                    b.Property<long>("DefaultUnitId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("DefaultValueId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
 
@@ -181,9 +184,50 @@ namespace DAL.App.EF.Migrations
                         .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<bool>("PreDefinedValues")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("Id");
 
                     b.ToTable("AttributeTypes");
+                });
+
+            modelBuilder.Entity("Domain.AttributeTypeUnit", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("AttributeTypeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("ChangedBy")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttributeTypeId");
+
+                    b.ToTable("AttributeTypeUnit");
                 });
 
             modelBuilder.Entity("Domain.AttributeTypeValue", b =>
@@ -268,9 +312,6 @@ namespace DAL.App.EF.Migrations
                     b.Property<long>("AttributeId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("AttributeTypeValueId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime>("ChangedAt")
                         .HasColumnType("datetime(6)");
 
@@ -283,22 +324,36 @@ namespace DAL.App.EF.Migrations
                     b.Property<string>("CreatedBy")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<string>("CustomValue")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("DeletedBy")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<bool>("Featured")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<long>("OrderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("UnitId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ValueId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AttributeId");
 
-                    b.HasIndex("AttributeTypeValueId");
-
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("UnitId");
+
+                    b.HasIndex("ValueId");
 
                     b.ToTable("OrderAttributes");
                 });
@@ -319,6 +374,10 @@ namespace DAL.App.EF.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
@@ -469,6 +528,17 @@ namespace DAL.App.EF.Migrations
                     b.Navigation("AttributeType");
                 });
 
+            modelBuilder.Entity("Domain.AttributeTypeUnit", b =>
+                {
+                    b.HasOne("Domain.AttributeType", "AttributeType")
+                        .WithMany("TypeUnits")
+                        .HasForeignKey("AttributeTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AttributeType");
+                });
+
             modelBuilder.Entity("Domain.AttributeTypeValue", b =>
                 {
                     b.HasOne("Domain.AttributeType", "AttributeType")
@@ -488,23 +558,29 @@ namespace DAL.App.EF.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.AttributeTypeValue", "AttributeTypeValue")
-                        .WithMany("OrderAttributes")
-                        .HasForeignKey("AttributeTypeValueId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Domain.Order", "Order")
                         .WithMany("OrderAttributes")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Domain.AttributeTypeUnit", "Unit")
+                        .WithMany()
+                        .HasForeignKey("UnitId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Domain.AttributeTypeValue", "Value")
+                        .WithMany()
+                        .HasForeignKey("ValueId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Attribute");
 
-                    b.Navigation("AttributeTypeValue");
-
                     b.Navigation("Order");
+
+                    b.Navigation("Unit");
+
+                    b.Navigation("Value");
                 });
 
             modelBuilder.Entity("Domain.TemplateAttribute", b =>
@@ -588,12 +664,9 @@ namespace DAL.App.EF.Migrations
                 {
                     b.Navigation("Attributes");
 
-                    b.Navigation("TypeValues");
-                });
+                    b.Navigation("TypeUnits");
 
-            modelBuilder.Entity("Domain.AttributeTypeValue", b =>
-                {
-                    b.Navigation("OrderAttributes");
+                    b.Navigation("TypeValues");
                 });
 
             modelBuilder.Entity("Domain.Order", b =>
