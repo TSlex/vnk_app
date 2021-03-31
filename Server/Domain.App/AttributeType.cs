@@ -10,10 +10,14 @@ namespace Domain
     {
         public string Name { get; set; } = default!;
         
-        public AttributeDataType DataType { get; set; } = default!;
+        public AttributeDataType DataType { get; set; }
+        
+        public long DefaultValueId { get; set; }
+        public long DefaultUnitId { get; set; }
         
         public ICollection<Attribute>? Attributes { get; set; }
         public ICollection<AttributeTypeValue>? TypeValues { get; set; }
+        public ICollection<AttributeTypeUnit>? TypeUnits { get; set; }
 
         public string? DeletedBy { get; set; }
         public DateTime? DeletedAt { get; set; }

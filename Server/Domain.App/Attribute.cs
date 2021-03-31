@@ -10,8 +10,6 @@ namespace Domain
     {
         public string Name { get; set; } = default!;
         
-        public bool Displayed { get; set; }
-
         public long AttributeTypeId { get; set; } = default!;
         [JsonIgnore] public AttributeType? AttributeType { get; set; }
 
