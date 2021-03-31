@@ -7,6 +7,9 @@
           ><span>ALL<v-icon dense>mdi-pencil</v-icon></span>
         </div>
         <div class="d-flex justify-space-between">
+          <span>Формат данных:</span><v-chip small>строка</v-chip>
+        </div>
+        <div class="d-flex justify-space-between">
           <span>Количество использований:</span><span>23</span>
         </div>
         <div class="d-flex justify-space-between">

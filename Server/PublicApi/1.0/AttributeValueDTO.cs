@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Base;
 
-namespace PublicApi
+namespace PublicApi.v1
 {
     public class AttributeValueGetDTO
     {
