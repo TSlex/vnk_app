@@ -38,17 +38,20 @@ namespace Webapp.ApiControllers._1._0
             var items = new CollectionDTO<AttributeTypeGetDTO>
             {
                 PageIndex = page,
-                PagesCount = (long) Math.Ceiling(await _context.AttributeTypes.CountAsync() / (1.0f * itemsCount)),
+                TotalCount = await _context.AttributeTypes.CountAsync(),
+                // PagesCount = (long) Math.Ceiling(await _context.AttributeTypes.CountAsync() / (1.0f * itemsCount)),
                 Items = await _context.AttributeTypes.Select(at => new AttributeTypeGetDTO
-                {
-                    Id = at.Id,
-                    Name = at.Name,
-                    DataType = (AttributeDataType) at.DataType,
-                    SystemicType = at.SystemicType,
-                    UsedCount = at.Attributes!.Count,
-                    UsesDefinedUnits = at.UsesDefinedUnits,
-                    UsesDefinedValues = at.UsesDefinedValues
-                }).Take(itemsCount).ToListAsync()
+                    {
+                        Id = at.Id,
+                        Name = at.Name,
+                        DataType = (AttributeDataType) at.DataType,
+                        SystemicType = at.SystemicType,
+                        UsedCount = at.Attributes!.Count,
+                        UsesDefinedUnits = at.UsesDefinedUnits,
+                        UsesDefinedValues = at.UsesDefinedValues
+                    }).OrderBy(at => at.Name)
+                    .Take(itemsCount)
+                    .ToListAsync()
             };
 
             return items;
@@ -67,15 +70,19 @@ namespace Webapp.ApiControllers._1._0
                     Id = at.Id,
                     Name = at.Name,
                     Units = at.TypeUnits!.Select(u => new AttributeTypeUnitDetailsDTO
-                    {
-                        Id = u.Id,
-                        Value = u.Value
-                    }).Take(unitsCount).ToList(),
+                        {
+                            Id = u.Id,
+                            Value = u.Value
+                        }).OrderBy(u => u.Value)
+                        .Take(unitsCount)
+                        .ToList(),
                     Values = at.TypeValues!.Select(v => new AttributeTypeValueDetailsDTO
-                    {
-                        Id = v.Id,
-                        Value = v.Value
-                    }).Take(valuesCount).ToList(),
+                        {
+                            Id = v.Id,
+                            Value = v.Value
+                        }).OrderBy(v => v.Value)
+                        .Take(valuesCount)
+                        .ToList(),
                     DataType = (AttributeDataType) at.DataType,
                     SystemicType = at.SystemicType,
                     UnitsCount = at.TypeUnits!.Count,
@@ -106,8 +113,8 @@ namespace Webapp.ApiControllers._1._0
             {
                 Name = dto.Name,
                 DataType = (Domain.Enums.AttributeDataType) dto.DataType,
-                TypeUnits = dto.Units!.Select(s => new AttributeTypeUnit {Value = s}).ToList(),
-                TypeValues = dto.Values!.Select(s => new AttributeTypeValue {Value = s}).ToList(),
+                TypeUnits = dto.Units?.Select(s => new AttributeTypeUnit {Value = s}).ToList(),
+                TypeValues = dto.Values?.Select(s => new AttributeTypeValue {Value = s}).ToList(),
                 DefaultCustomValue = dto.DefaultCustomValue,
                 DefaultUnitId = dto.DefaultUnitId,
                 DefaultValueId = dto.DefaultValueId,
