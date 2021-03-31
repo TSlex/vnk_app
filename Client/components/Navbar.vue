@@ -5,9 +5,8 @@
     <NavButton to="/">Календарь</NavButton>
     <NavButton to="/orders">Заказы</NavButton>
     <NavButton to="/attributes">Атрибуты</NavButton>
+    <NavButton to="/types">Типы атрибутов</NavButton>
     <NavButton>Шаблоны</NavButton>
-    <NavButton>Типы атрибутов</NavButton>
-    <NavButton>Единицы измерения</NavButton>
     <NavButton>Настройки</NavButton>
     <v-spacer></v-spacer>
     <NavAuth />
