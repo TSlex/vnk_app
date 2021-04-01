@@ -70,5 +70,9 @@ export default class AttributesIndex extends Vue {
   ];
   page = 1;
   pageCount = 200;
+
+  mounted() {
+    this.$hello("lol")
+  }
 }
 </script>

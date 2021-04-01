@@ -21,7 +21,8 @@ namespace Webapp.ApiControllers._1._0
     [Consumes("application/json")]
     [Produces("application/json")]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
     public class AttributeTypesController : ControllerBase
     {
         private readonly AppDbContext _context;
