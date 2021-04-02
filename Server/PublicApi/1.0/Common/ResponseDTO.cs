@@ -1,7 +1,8 @@
 ﻿namespace PublicApi.v1.Common
 {
-    public class OKResponseDTO
+    public class ResponseDTO<TKey>
     {
-        
+        public string? Message { get; set; }
+        public TKey? Data { get; set; }
     }
 }

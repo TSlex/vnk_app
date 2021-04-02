@@ -89,7 +89,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<string>> Register([FromBody] RegisterDTO model)
+        public async Task<ActionResult<string>> Register([FromBody] UserPostDTO model)
         {
             var appUser = await _userManager.FindByEmailAsync(model.Email);
             if (appUser != null)

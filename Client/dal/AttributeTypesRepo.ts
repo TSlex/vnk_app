@@ -1,11 +1,10 @@
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
+import BaseRepo from './BaseRepo';
 
-export default class AttributeTypesRepo{
-  axios: NuxtAxiosInstance;
-  resourseURL = "attributetypes"
+export default class AttributeTypesRepo extends BaseRepo {
 
-  constructor(axios: NuxtAxiosInstance){
-    this.axios = axios;
+  constructor(axios: NuxtAxiosInstance) {
+    super(axios, "attributetypes");
   }
 
   async getAll() {
