@@ -1,6 +1,18 @@
 import { Context, Plugin } from "@nuxt/types";
 import { Inject } from "@nuxt/types/app";
 
+import AttributeTypesRepo from "@/dal/AttributeTypesRepo"
+
+const AppUnitOfWork: Plugin = (ctx: Context, inject: Inject) => {
+  const repositories = {
+    attributeTypes: new AttributeTypesRepo(ctx.$axios)
+  }
+
+  inject('uow', repositories)
+}
+
+export default AppUnitOfWork
+
 declare module 'vue/types/vue' {
   interface Vue {
     $uow(message: string): void
@@ -11,7 +23,7 @@ declare module '@nuxt/types' {
   interface NuxtAppOptions {
     $uow(message: string): void
   }
-  // nuxtContext.$myInjectedFunction
+
   interface Context {
     $uow(message: string): void
   }
@@ -22,12 +34,3 @@ declare module 'vuex/types/index' {
     $uow(message: string): void
   }
 }
-
-const AppUnitOfWork: Plugin = (ctx: Context, inject: Inject) => {
-  const repositories = {
-  }
-
-  inject('uow', (msg: string) => console.log(`Hello ${msg}!`))
-}
-
-export default AppUnitOfWork

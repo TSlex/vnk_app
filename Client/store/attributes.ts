@@ -16,6 +16,7 @@ export const state = () => ({
 
 export const getters = {
   getAttributes(state: IState){
+
     return state.attributes;
   }
 }
