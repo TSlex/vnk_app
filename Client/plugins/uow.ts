@@ -3,8 +3,12 @@ import { Inject } from "@nuxt/types/app";
 
 import AttributeTypesRepo from "@/dal/AttributeTypesRepo"
 
+interface IRepo {
+  attributeTypes: AttributeTypesRepo
+}
+
 const AppUnitOfWork: Plugin = (ctx: Context, inject: Inject) => {
-  const repositories = {
+  const repositories: IRepo = {
     attributeTypes: new AttributeTypesRepo(ctx.$axios)
   }
 
@@ -15,22 +19,22 @@ export default AppUnitOfWork
 
 declare module 'vue/types/vue' {
   interface Vue {
-    $uow(message: string): void
+    $uow: IRepo
   }
 }
 
 declare module '@nuxt/types' {
   interface NuxtAppOptions {
-    $uow(message: string): void
+    $uow: IRepo
   }
 
   interface Context {
-    $uow(message: string): void
+    $uow: IRepo
   }
 }
 
 declare module 'vuex/types/index' {
   interface Store<S> {
-    $uow(message: string): void
+    $uow: IRepo
   }
 }
