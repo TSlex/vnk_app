@@ -1,29 +1,31 @@
 import JwtDecode from 'jwt-decode';
+import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
+import { $ctx } from "@/utils/vue-context"
+import { LoginDTO } from '~/types/Identity/LoginDTO';
 
-interface IState {
-  jwt: string | null
-}
+@Module({
+  namespaced: true,
+  stateFactory: true,
+  name: "attributetypes"
+})
+export default class IdentityStore extends VuexModule {
+  private jwt: string | null = null
 
-export const state = () => ({
-  jwt: null,
-} as IState)
+  get isAuthenticated() {
+    return this.verifiedJwt !== null;
+  }
 
-export const getters = {
-  isAuthenticated(state: IState, getters: any): boolean {
-    return getters.getJwt !== null;
-  },
-
-  getJwt(state: IState): string | null {
-    if (!state.jwt && process.browser) {
-      state.jwt = localStorage.getItem('jwt')
+  get verifiedJwt(): string | null {
+    if (!this.jwt && process.browser) {
+      this.jwt = localStorage.getItem('jwt')
     }
 
-    if (state.jwt) {
-      const decode = JwtDecode(state.jwt!) as Record<string, string>;
+    if (this.jwt) {
+      const decode = JwtDecode(this.jwt!) as Record<string, string>;
       const jwtExpires = parseInt(decode.exp)
 
       if (Date.now() >= jwtExpires * 1000) {
-        state.jwt = null
+        this.jwt = null
 
         if (process.browser) {
           localStorage.removeItem('jwt')
@@ -31,12 +33,11 @@ export const getters = {
       }
     }
 
-    return state.jwt;
-  },
-}
+    return this.jwt;
+  }
 
-export const mutations = {
-  setJwt(state: IState, jwt: string | null) {
+  @Mutation
+  setJwt(jwt: string) {
     if (process.browser) {
       if (jwt) {
         localStorage.setItem('jwt', jwt)
@@ -45,13 +46,16 @@ export const mutations = {
       }
     }
 
-    state.jwt = jwt;
-  },
-}
+    this.jwt = jwt
+  }
 
-export const actions = {
-  clearJwt({ commit }: any): void {
-    commit('setJwt', null);
-  },
-}
+  @Action({ commit: "setJwt" })
+  async login(loginDTO: LoginDTO) {
+    return await $ctx.$uow.identity.login(loginDTO)
+  }
 
+  @Action({ commit: "setJwt" })
+  async logout() {
+    return null
+  }
+}

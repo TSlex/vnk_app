@@ -8,7 +8,7 @@ export default class AttributeTypesRepo extends BaseRepo {
   }
 
   async getAll() {
-    return await this.axios.$get(this.resourseURL);
+    return await this.axios.$get(this.baseURL);
   }
 
   async getById() {

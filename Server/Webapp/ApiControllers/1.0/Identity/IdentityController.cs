@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using PublicApi.v1.Common;
 using PublicApi.v1.Identity;
 
 namespace Webapp.ApiControllers._1._0.Identity
@@ -15,8 +16,6 @@ namespace Webapp.ApiControllers._1._0.Identity
     [ApiController]
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class IdentityController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -44,16 +43,16 @@ namespace Webapp.ApiControllers._1._0.Identity
         [AllowAnonymous]
         [Produces("application/json")]
         [Consumes("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<string>> Login([FromBody] LoginDTO model)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> Login([FromBody] LoginDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             if (user == null)
             {
                 _logger.LogInformation($"Web-Api login. AppUser with credentials: {model.Email} - was not found!");
-                return NotFound();
+                return NotFound(new ErrorResponseDTO {ErrorMessage = "Данные для входа неверны"});
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
@@ -69,12 +68,13 @@ namespace Webapp.ApiControllers._1._0.Identity
                 );
 
                 _logger.LogInformation($"Token generated for user {model.Email}");
-                return Ok(jwt);
+                return Ok(new ResponseDTO<string> {Data = jwt});
             }
 
             _logger.LogInformation(
                 $"Web-Api login. AppUser with credentials: {model.Email} - was attempted to log-in with bad password!");
-            return NotFound();
+
+            return NotFound(new ErrorResponseDTO {ErrorMessage = "Данные для входа неверны"});
         }
 
         /// <summary>

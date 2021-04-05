@@ -9,8 +9,4 @@
       <ProjectReference Include="..\Domain\Domain.Base\Domain.Base.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="1.0\Response" />
-    </ItemGroup>
-
 </Project>

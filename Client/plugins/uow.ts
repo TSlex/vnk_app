@@ -2,14 +2,17 @@ import { Context, Plugin } from "@nuxt/types";
 import { Inject } from "@nuxt/types/app";
 
 import AttributeTypesRepo from "@/dal/AttributeTypesRepo"
+import IdentityRepo from "@/dal/IdentityRepo"
 
 interface IRepo {
-  attributeTypes: AttributeTypesRepo
+  attributeTypes: AttributeTypesRepo,
+  identity: IdentityRepo
 }
 
 const AppUnitOfWork: Plugin = (ctx: Context, inject: Inject) => {
   const repositories: IRepo = {
-    attributeTypes: new AttributeTypesRepo(ctx.$axios)
+    attributeTypes: new AttributeTypesRepo(ctx.$axios),
+    identity: new IdentityRepo(ctx.$axios)
   }
 
   inject('uow', repositories)
