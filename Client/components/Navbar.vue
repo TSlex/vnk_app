@@ -6,8 +6,9 @@
     <NavButton to="/orders">Заказы</NavButton>
     <NavButton to="/attributes">Атрибуты</NavButton>
     <NavButton to="/types">Типы атрибутов</NavButton>
-    <NavButton>Шаблоны</NavButton>
-    <NavButton>Настройки</NavButton>
+    <NavButton to="/templates">Шаблоны</NavButton>
+    <NavButton to="/users">Пользователи</NavButton>
+    <NavButton to="/settings">Настройки</NavButton>
     <v-spacer></v-spacer>
     <NavAuth />
   </v-app-bar>
