@@ -49,6 +49,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
+import { attributeTypesStore } from '~/store'
 
 @Component({})
 export default class AttributesIndex extends Vue {
@@ -72,7 +73,9 @@ export default class AttributesIndex extends Vue {
   pageCount = 200;
 
   mounted() {
-    console.log(this.$store.getters["attributes/getAttributes"])
+    attributeTypesStore.getAll().then(() => {
+      console.log(attributeTypesStore.attributeTypes)
+    })
   }
 }
 </script>
