@@ -9,6 +9,7 @@ let identityStore: identity
 
 function initialiseStores(store: Store<any>): void {
   attributeTypesStore = getModule(attributeTypes, store)
+  identityStore = getModule(identity, store)
 }
 
 export {

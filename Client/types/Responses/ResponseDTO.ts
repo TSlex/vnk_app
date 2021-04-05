@@ -7,3 +7,6 @@ export interface ResponseDTO<TKey> {
     value: string
   }[]
 }
+
+export interface ResponseAnyDTO extends ResponseDTO<any>{
+}

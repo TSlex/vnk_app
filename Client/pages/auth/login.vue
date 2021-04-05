@@ -6,12 +6,24 @@
         <span class="info--text">
           <v-icon color="info" size="16">mdi-information-outline</v-icon>
           Для регистрации обратитесь к администратору
-          </span>
-        <v-form class="mt-6">
-          <v-text-field label="Эл. адрес" required></v-text-field>
-          <v-text-field label="Пароль" required></v-text-field>
-          <v-checkbox label="Запомнить меня"></v-checkbox>
-          <v-btn rounded block large color="primary mb-6">Войти</v-btn>
+        </span>
+        <v-form class="mt-6" @submit.prevent="login()">
+          <v-text-field
+            label="Эл. адрес"
+            v-model="model.email"
+            required
+          ></v-text-field>
+          <v-text-field
+            :type="showPassword ? 'text' : 'password'"
+            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            label="Пароль"
+            v-model="model.password"
+            required
+            @click:append="showPassword = !showPassword"
+          ></v-text-field>
+          <v-btn rounded block large color="primary mb-6" type="submit"
+            >Войти</v-btn
+          >
           <nuxt-link to="/" class="text-decoration-none">На главную</nuxt-link>
         </v-form>
       </v-card>
@@ -19,10 +31,33 @@
   </v-row>
 </template>
 
-<script>
-export default {
-  layout: "auth",
-};
+<script lang="ts">
+import { Component, Vue } from "nuxt-property-decorator";
+import { identityStore } from "~/store";
+import { LoginDTO } from "~/types/Identity/LoginDTO";
+import { ResponseAnyDTO } from "~/types/Responses/ResponseDTO";
+
+@Component({})
+export default class Login extends Vue {
+  showPassword = false;
+
+  model: LoginDTO = {
+    email: "aaaa",
+    password: "ccc",
+  };
+
+  login() {
+    identityStore.login(this.model).then((response: ResponseAnyDTO) => {
+      // if (!response.errorMessage){
+      //   this.$router.push("/")
+      // }
+    })
+  }
+
+  layout() {
+    return "auth";
+  }
+}
 </script>
 
 <style>

@@ -6,10 +6,10 @@ import { LoginDTO } from '~/types/Identity/LoginDTO';
 @Module({
   namespaced: true,
   stateFactory: true,
-  name: "attributetypes"
+  name: "identitystore"
 })
 export default class IdentityStore extends VuexModule {
-  private jwt: string | null = null
+  jwt: string | null = null
 
   get isAuthenticated() {
     return this.verifiedJwt !== null;
