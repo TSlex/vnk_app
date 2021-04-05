@@ -72,7 +72,7 @@ export default class AttributesIndex extends Vue {
   pageCount = 200;
 
   mounted() {
-    console.log(this.$uow.attributeTypes.getAll())
+    console.log(this.$store.getters["attributes/getAttributes"])
   }
 }
 </script>

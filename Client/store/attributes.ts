@@ -1,3 +1,5 @@
+import { $ctx } from "@/utils/vue-context"
+
 interface IState {
   attributes: any[]
 }
@@ -15,9 +17,8 @@ export const state = () => ({
 } as IState)
 
 export const getters = {
-  getAttributes(state: IState){
-
-    return state.attributes;
+  getAttributes(state: IState) {
+    return $ctx.$uow.attributeTypes.getAll()
   }
 }
 
