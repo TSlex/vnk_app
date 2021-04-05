@@ -7,21 +7,23 @@
           <v-icon color="info" size="16">mdi-information-outline</v-icon>
           Для регистрации обратитесь к администратору
         </span>
-        <v-form class="mt-6" @submit.prevent="login()">
+        <v-form class="mt-6" @submit.prevent="login()" ref="form">
           <v-text-field
-            label="Эл. адрес"
-            v-model="model.email"
+            label="Эл.адрес"
+            v-model.trim="model.email"
+            :rules="rules.email"
             required
           ></v-text-field>
           <v-text-field
             :type="showPassword ? 'text' : 'password'"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             label="Пароль"
-            v-model="model.password"
+            v-model.trim="model.password"
+            :rules="rules.password"
             required
             @click:append="showPassword = !showPassword"
           ></v-text-field>
-          <v-btn rounded block large color="primary mb-6" type="submit"
+          <v-btn rounded block large color="primary mb-6 mt-4" type="submit"
             >Войти</v-btn
           >
           <nuxt-link to="/" class="text-decoration-none">На главную</nuxt-link>
@@ -36,22 +38,32 @@ import { Component, Vue } from "nuxt-property-decorator";
 import { identityStore } from "~/store";
 import { LoginDTO } from "~/types/Identity/LoginDTO";
 import { ResponseAnyDTO } from "~/types/Responses/ResponseDTO";
+import { validate, required, email } from "~/utils/form-validation";
 
 @Component({})
 export default class Login extends Vue {
   showPassword = false;
 
   model: LoginDTO = {
-    email: "aaaa",
-    password: "ccc",
+    email: "",
+    password: "",
+  };
+
+  rules = {
+    email: validate(required, email),
+    password: validate(required),
   };
 
   login() {
-    identityStore.login(this.model).then((response: ResponseAnyDTO) => {
-      // if (!response.errorMessage){
-      //   this.$router.push("/")
-      // }
-    })
+    if ((this.$refs.form as any).validate()) {
+      identityStore.login(this.model).then((response: ResponseAnyDTO) => {
+        if (!response.errorMessage) {
+          this.$router.push("/");
+        } else {
+          console.log(response.errorMessage);
+        }
+      });
+    }
   }
 
   layout() {

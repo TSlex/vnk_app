@@ -28,8 +28,12 @@
       >
         <template v-slot:[`item.type`]="{ item }">
           <v-chip color="blue" dark v-if="item.protected">системный</v-chip>
-          <v-chip color="lime" v-if="item.hasUnits">с единицами измерения</v-chip>
-          <v-chip color="amber" v-if="item.hasValues">с определенными значениями</v-chip>
+          <v-chip color="lime" v-if="item.hasUnits"
+            >с единицами измерения</v-chip
+          >
+          <v-chip color="amber" v-if="item.hasValues"
+            >с определенными значениями</v-chip
+          >
         </template>
         <template v-slot:[`item.actions`]>
           <v-icon> mdi-pencil </v-icon>
@@ -49,7 +53,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
-import { attributeTypesStore } from '~/store'
+import { attributeTypesStore } from "~/store";
 
 @Component({})
 export default class AttributesIndex extends Vue {
@@ -74,8 +78,8 @@ export default class AttributesIndex extends Vue {
 
   mounted() {
     attributeTypesStore.getAll().then(() => {
-      console.log(attributeTypesStore.attributeTypes)
-    })
+      console.log(attributeTypesStore.attributeTypes);
+    });
   }
 }
 </script>

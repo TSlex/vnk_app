@@ -6,7 +6,7 @@ import { LoginDTO } from '~/types/Identity/LoginDTO';
 @Module({
   namespaced: true,
   stateFactory: true,
-  name: "identitystore"
+  name: "identity"
 })
 export default class IdentityStore extends VuexModule {
   jwt: string | null = null
@@ -49,7 +49,7 @@ export default class IdentityStore extends VuexModule {
     this.jwt = jwt
   }
 
-  @Action({ commit: "setJwt" })
+  @Action({ commit: "setJwt", rawError: true})
   async login(loginDTO: LoginDTO) {
     return await $ctx.$uow.identity.login(loginDTO)
   }
