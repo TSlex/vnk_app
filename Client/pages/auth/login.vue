@@ -8,6 +8,7 @@
           Для регистрации обратитесь к администратору
         </span>
         <v-form class="mt-6" @submit.prevent="login()" ref="form">
+          <v-alert dense text type="error" v-if="showError">{{ LoginError }}</v-alert>
           <v-text-field
             label="Эл.адрес"
             v-model.trim="model.email"
@@ -43,6 +44,7 @@ import { validate, required, email } from "~/utils/form-validation";
 @Component({})
 export default class Login extends Vue {
   showPassword = false;
+  showError = false;
 
   model: LoginDTO = {
     email: "",
@@ -54,13 +56,17 @@ export default class Login extends Vue {
     password: validate(required),
   };
 
+  get LoginError() {
+    return identityStore.loginError;
+  }
+
   login() {
     if ((this.$refs.form as any).validate()) {
-      identityStore.login(this.model).then((response: ResponseAnyDTO) => {
-        if (!response.errorMessage) {
+      identityStore.login(this.model).then((response) => {
+        if (response) {
           this.$router.push("/");
         } else {
-          console.log(response.errorMessage);
+          this.showError = true;
         }
       });
     }

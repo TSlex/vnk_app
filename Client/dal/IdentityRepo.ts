@@ -11,7 +11,7 @@ export default class IdentityRepo extends BaseRepo {
   }
 
   async login(loginDTO: LoginDTO) {
-    return this._post<ResponseDTO<string>>(`${this.baseURL}/login`, loginDTO)
+    return await this._post<ResponseDTO<string>>(`${this.baseURL}/login`, loginDTO)
   }
 
   async getAllUsers() {

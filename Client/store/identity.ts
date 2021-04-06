@@ -10,14 +10,15 @@ import { LoginDTO } from '~/types/Identity/LoginDTO';
 })
 export default class IdentityStore extends VuexModule {
   jwt: string | null = null
+  loginError: string | null = null
 
   get isAuthenticated() {
     return this.verifiedJwt !== null;
   }
 
   get verifiedJwt(): string | null {
-    if (!this.jwt && process.browser) {
-      this.jwt = localStorage.getItem('jwt')
+    if (!this.jwt) {
+      this.context.commit("JWT_RESTORED")
     }
 
     if (this.jwt) {
@@ -25,11 +26,7 @@ export default class IdentityStore extends VuexModule {
       const jwtExpires = parseInt(decode.exp)
 
       if (Date.now() >= jwtExpires * 1000) {
-        this.jwt = null
-
-        if (process.browser) {
-          localStorage.removeItem('jwt')
-        }
+        this.context.commit("JWT_EXPIRED")
       }
     }
 
@@ -37,25 +34,50 @@ export default class IdentityStore extends VuexModule {
   }
 
   @Mutation
-  setJwt(jwt: string) {
-    if (process.browser) {
-      if (jwt) {
-        localStorage.setItem('jwt', jwt)
-      } else {
-        localStorage.removeItem('jwt')
-      }
-    }
+  LOGIN_SUCCEEDED(jwt: string) {
+    localStorage.setItem('jwt', jwt)
 
     this.jwt = jwt
+    this.loginError = null
   }
 
-  @Action({ commit: "setJwt", rawError: true})
+  @Mutation
+  LOGIN_FAILED(error: string) {
+    this.loginError = error;
+  }
+
+  @Mutation
+  LOGOUT() {
+    this.jwt = null
+    localStorage.removeItem('jwt')
+  }
+
+  @Mutation
+  JWT_RESTORED() {
+    this.jwt = localStorage.getItem('jwt')
+  }
+
+  @Mutation
+  JWT_EXPIRED() {
+    this.jwt = null
+    localStorage.removeItem('jwt')
+  }
+
+  @Action
   async login(loginDTO: LoginDTO) {
-    return await $ctx.$uow.identity.login(loginDTO)
+    let response = await $ctx.$uow.identity.login(loginDTO)
+
+    if (response.errorMessage) {
+      this.context.commit("LOGIN_FAILED", response.errorMessage)
+      return false
+    } else {
+      this.context.commit("LOGIN_SUCCEEDED", response.data)
+      return true
+    }
   }
 
-  @Action({ commit: "setJwt" })
+  @Action
   async logout() {
-    return null
+    this.context.commit("LOGOUT")
   }
 }
