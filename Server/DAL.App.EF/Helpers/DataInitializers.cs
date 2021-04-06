@@ -4,6 +4,7 @@ using DAL.App.EF;
 using Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -24,7 +25,7 @@ namespace DAL.Helpers
         }
 
         public static void SeedIdentity(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager,
-            ILogger? logger)
+            ILogger? logger, IConfiguration configuration)
         {
             logger.LogInformation("SeedIdentity:AppRoles");
             var roleNames = new[]
@@ -32,12 +33,17 @@ namespace DAL.Helpers
                 new Role
                 {
                     Name = "User",
-                    LocalizedName = "Пользователь"
+                    LocalizedName = configuration["RolesLocalizations:UserRoleName"]
                 },
                 new Role
                 {
                     Name = "Administrator",
-                    LocalizedName = "Администратор"
+                    LocalizedName = configuration["RolesLocalizations:AdministratorRoleName"]
+                },
+                new Role
+                {
+                    Name = "Root",
+                    LocalizedName = configuration["RolesLocalizations:RootRoleName"]
                 }
             };
 
@@ -74,14 +80,13 @@ namespace DAL.Helpers
                 },
                 new User
                 {
-                    FirstName = "Защищенный",
-                    LastName = "Администратор",
-                    Email = "root@root.com",
-                    Password = "Admin_123",
-                    Protected = true,
+                    FirstName = configuration["SuperUser:FirstName"],
+                    LastName = configuration["SuperUser:LastName"],
+                    Email = configuration["SuperUser:Email"],
+                    Password = configuration["SuperUser:Password"],
                     RolesNames = new[]
                     {
-                        "Administrator"
+                        "Root"
                     }
                 }
             };
@@ -93,7 +98,6 @@ namespace DAL.Helpers
                 {
                     newUser = new AppUser()
                     {
-                        Protected = user.Protected,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
                         Email = user.Email,
@@ -141,7 +145,6 @@ namespace DAL.Helpers
             public string LastName { get; set; }
             public string Email { get; set; }
             public string Password { get; set; }
-            public bool Protected { get; set; }
 
             public ICollection<string>? RolesNames { get; set; }
         }

@@ -46,7 +46,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         [HttpPost("login")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> Login([FromBody] LoginDTO model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -54,7 +54,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             if (user == null)
             {
                 _logger.LogInformation($"Web-Api login. AppUser with credentials: {model.Email} - was not found!");
-                return NotFound(new ErrorResponseDTO {Error = "Данные для входа неверны"});
+                return BadRequest(new ErrorResponseDTO {Error = "Данные для входа неверны"});
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
@@ -76,7 +76,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             _logger.LogInformation(
                 $"Web-Api login. AppUser with credentials: {model.Email} - was attempted to log-in with bad password!");
 
-            return NotFound(new ErrorResponseDTO {Error = "Данные для входа неверны"});
+            return BadRequest(new ErrorResponseDTO {Error = "Данные для входа неверны"});
         }
 
 
@@ -92,12 +92,12 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 var roleName = "";
                 var roles = await _userManager.GetRolesAsync(user);
-            
+
                 if (roles.Count > 0)
                 {
                     roleName = roles[0];
                 }
-            
+
                 result.Add(new UserGetDTO
                 {
                     Id = user.Id,
@@ -119,16 +119,16 @@ namespace Webapp.ApiControllers._1._0.Identity
         public async Task<ActionResult> GetCurrentUser()
         {
             var user = await _userManager.GetUserAsync(User);
-            
+
             var roleName = "";
-            
+
             var roles = await _userManager.GetRolesAsync(user);
-            
+
             if (roles.Count > 0)
             {
                 roleName = roles[0];
             }
-            
+
             return Ok(new ResponseDTO<UserGetDTO>
             {
                 Data = new UserGetDTO
@@ -153,16 +153,16 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 return NotFound(new ErrorResponseDTO {Error = "Пользователь не найден"});
             }
-            
+
             var roleName = "";
-            
+
             var roles = await _userManager.GetRolesAsync(user);
-            
+
             if (roles.Count > 0)
             {
                 roleName = roles[0];
             }
-            
+
             return Ok(new ResponseDTO<UserGetDTO>
             {
                 Data = new UserGetDTO
@@ -178,15 +178,14 @@ namespace Webapp.ApiControllers._1._0.Identity
 
         [HttpPost("users")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult<string>> AddUser([FromBody] UserPostDTO model)
         {
             var appUser = await _userManager.FindByEmailAsync(model.Email);
             if (appUser != null)
             {
                 _logger.LogInformation($"WebApi register. User {model.Email} already registered!");
-                return NotFound();
+                return BadRequest(new ErrorResponseDTO {Error = "Такой пользователь уже существует"});
             }
 
             if (ModelState.IsValid)
@@ -195,7 +194,9 @@ namespace Webapp.ApiControllers._1._0.Identity
                 {
                     UserName = model.Email,
                     Email = model.Email,
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -204,7 +205,7 @@ namespace Webapp.ApiControllers._1._0.Identity
                 {
                     _logger.LogInformation("Created a new account with password.");
 
-                    /*//add user role
+                    //add user role
                     var role = await _roleManager.FindByNameAsync("User");
 
                     if (role != null)
@@ -215,33 +216,115 @@ namespace Webapp.ApiControllers._1._0.Identity
                     {
                         _logger.LogWarning("User role - \"User\" was not found!");
                     }
-*/
+
                     return Ok();
                 }
-
-                // var errors = result.Errors.Select(error => error.Description).ToList();
-
-                return BadRequest();
             }
 
-            return BadRequest();
+            return BadRequest(new ErrorResponseDTO {Error = "Ошибка при создании пользователя"});
         }
 
-        [HttpPatch("users")]
+        [HttpPatch("users/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> UpdateUser([FromBody] LoginDTO model)
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> UpdateUser(long id, [FromBody] UserPatchDTO model)
         {
-            return new OkResult();
+            if (id != model.Id)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+
+            var user = await _userManager.FindByIdAsync(model.Id.ToString());
+
+            if (user == null)
+            {
+                return NotFound(new ErrorResponseDTO("Пользователь не найден"));
+            }
+            
+            if (!await _userManager.IsInRoleAsync(user, "Administrators") && User.UserId() != id)
+            {
+                return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
+            }
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+
+            var emailResult = await _userManager.SetEmailAsync(user, model.Email);
+
+            if (!emailResult.Succeeded)
+            {
+                return BadRequest(new ErrorResponseDTO("Данный эл.адрес уже занят"));
+            }
+
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            await _userManager.ConfirmEmailAsync(user, code);
+
+            return Ok();
         }
 
-        [HttpDelete("users")]
+        [HttpPatch("users/{id}/password")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteUser([FromBody] LoginDTO model)
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> UpdateUserPassword(long id, [FromBody] UserPasswordDTO model)
         {
-            return new OkResult();
+            if (id != model.Id)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+
+            var user = await _userManager.FindByIdAsync(model.Id.ToString());
+            
+            if (user == null)
+            {
+                return NotFound(new ErrorResponseDTO("Пользователь не найден"));
+            }
+            
+            if (!await _userManager.IsInRoleAsync(user, "Administrators") && User.UserId() != id)
+            {
+                return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ErrorResponseDTO("Неверный пароль"));
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+            _logger.LogInformation("User changed their password successfully.");
+
+            return Ok();
+        }
+
+        [HttpDelete("users/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> DeleteUser(long id)
+        {
+            if (User.UserId() == id)
+            {
+                return BadRequest(new ErrorResponseDTO("Вы не можете удалить себя"));
+            }
+
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            if (user == null)
+            {
+                return NotFound(new ErrorResponseDTO("Пользователь не найден"));
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return BadRequest(new ErrorResponseDTO("Ошибка при удалении пользователя"));
         }
     }
 }

@@ -44,9 +44,16 @@ namespace PublicApi.v1.Identity
         public string LastName { get; set; } = default!;
 
         [Required] [EmailAddress] public string Email { get; set; } = default!;
+    }
 
+    public class UserPasswordDTO : DomainEntityId
+    {
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = default!;
+        public string CurrentPassword { get; set; } = default!;
+        
+        [Required]
+        [DataType(DataType.Password)]
+        public string NewPassword { get; set; } = default!;
     }
 }

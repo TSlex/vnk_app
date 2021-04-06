@@ -176,7 +176,7 @@ namespace Webapp
 
             if (configuration["AppDataInitialization:SeedIdentity"] == "True")
             {
-                DAL.Helpers.DataInitializers.SeedIdentity(userManager, roleManager, logger);
+                DAL.Helpers.DataInitializers.SeedIdentity(userManager, roleManager, logger, configuration);
             }
 
             if (configuration.GetValue<bool>("AppDataInitialization:SeedData"))
