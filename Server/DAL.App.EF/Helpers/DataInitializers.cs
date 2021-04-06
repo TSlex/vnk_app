@@ -31,11 +31,13 @@ namespace DAL.Helpers
             {
                 new Role
                 {
-                    Name = "Authorised"
+                    Name = "User",
+                    LocalizedName = "Пользователь"
                 },
                 new Role
                 {
-                    Name = "Super Admin"
+                    Name = "Administrator",
+                    LocalizedName = "Администратор"
                 }
             };
 
@@ -45,7 +47,7 @@ namespace DAL.Helpers
 
                 if (role == null)
                 {
-                    role = new AppRole() {Name = roleName.Name};
+                    role = new AppRole {Name = roleName.Name, LocalizedName = roleName.LocalizedName};
 
                     var result = roleManager.CreateAsync(role).Result;
 
@@ -61,22 +63,25 @@ namespace DAL.Helpers
             {
                 new User
                 {
-                    UserName = "admin",
+                    FirstName = "Александр",
+                    LastName = "Иванов",
                     Email = "admin@admin.com",
                     Password = "Admin_123",
                     RolesNames = new[]
                     {
-                        "Authorised"
+                        "Administrator"
                     }
                 },
                 new User
                 {
-                    UserName = "root",
+                    FirstName = "Защищенный",
+                    LastName = "Администратор",
                     Email = "root@root.com",
                     Password = "Admin_123",
+                    Protected = true,
                     RolesNames = new[]
                     {
-                        "Authorised", "Super Admin"
+                        "Administrator"
                     }
                 }
             };
@@ -88,8 +93,11 @@ namespace DAL.Helpers
                 {
                     newUser = new AppUser()
                     {
+                        Protected = user.Protected,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
                         Email = user.Email,
-                        UserName = user.UserName,
+                        UserName = user.Email,
                         EmailConfirmed = true,
                     };
 
@@ -129,20 +137,19 @@ namespace DAL.Helpers
 
         private struct User
         {
-            public long Id { get; set; }
-
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
             public string Email { get; set; }
-            public string UserName { get; set; }
             public string Password { get; set; }
+            public bool Protected { get; set; }
 
             public ICollection<string>? RolesNames { get; set; }
         }
 
         private struct Role
         {
-            public long Id { get; set; }
-
             public string Name { get; set; }
+            public string LocalizedName { get; set; }
         }
     }
 }

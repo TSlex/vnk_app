@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using DAL.App.EF;
 using Domain;
 using Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -6,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PublicApi.v1.Common;
@@ -18,7 +21,7 @@ namespace Webapp.ApiControllers._1._0.Identity
     [Produces("application/json")]
     [Consumes("application/json")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class IdentityController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -26,17 +29,20 @@ namespace Webapp.ApiControllers._1._0.Identity
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<AppRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly AppDbContext _context;
 
         public IdentityController(IConfiguration configuration, ILogger<IdentityController> logger,
-            UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager)
+            UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager,
+            AppDbContext context)
         {
             _configuration = configuration;
             _logger = logger;
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
+            _context = context;
         }
-        
+
         [HttpPost("login")]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
@@ -75,19 +81,65 @@ namespace Webapp.ApiControllers._1._0.Identity
 
 
         [HttpGet("users")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
-        public async Task<ActionResult> GetAllUsers([FromBody] LoginDTO model)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<UserGetDTO>>))]
+        public async Task<ActionResult> GetAllUsers()
         {
-            return new OkResult();
+            var result = new List<UserGetDTO>();
+
+            var users = await _userManager.Users.ToListAsync();
+
+            foreach (var user in users)
+            {
+                var roleName = "";
+                var roles = await _userManager.GetRolesAsync(user);
+            
+                if (roles.Count > 0)
+                {
+                    roleName = roles[0];
+                }
+            
+                result.Add(new UserGetDTO
+                {
+                    Email = user.Email,
+                    Role = roleName,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName
+                });
+            }
+
+            return Ok(new ResponseDTO<IEnumerable<UserGetDTO>>
+            {
+                Data = result
+            });
         }
-        
+
         [HttpGet("users/current")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
-        public async Task<ActionResult> GetCurrentUser([FromBody] LoginDTO model)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<UserGetDTO>))]
+        public async Task<ActionResult> GetCurrentUser()
         {
-            return new OkResult();
+            var user = await _userManager.GetUserAsync(User);
+            
+            var roleName = "";
+            
+            var roles = await _userManager.GetRolesAsync(user);
+            
+            if (roles.Count > 0)
+            {
+                roleName = roles[0];
+            }
+            
+            return Ok(new ResponseDTO<UserGetDTO>
+            {
+                Data = new UserGetDTO
+                {
+                    Email = user.Email,
+                    Role = roleName,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName
+                }
+            });
         }
-        
+
         [HttpGet("users/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
@@ -95,7 +147,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         {
             return new OkResult();
         }
-        
+
         [HttpPost("users")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -146,7 +198,7 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             return BadRequest();
         }
-        
+
         [HttpPatch("users")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -155,7 +207,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         {
             return new OkResult();
         }
-        
+
         [HttpDelete("users")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
