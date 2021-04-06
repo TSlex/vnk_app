@@ -1,13 +1,22 @@
 <template>
   <div>
-    <NavButton to="/auth/login">Войти</NavButton>
-    <NavButton>Выйти</NavButton>
+    <NavButton v-if="isAuthenticated" @click.native="onLogout()">Выйти</NavButton>
+    <NavButton v-else to="/auth/login">Войти</NavButton>
   </div>
 </template>
 
-<script>
-export default {};
-</script>
+<script lang="ts">
+import { Component, Vue } from "nuxt-property-decorator";
+import { identityStore } from "~/store";
 
-<style>
-</style>
+@Component({})
+export default class NavAuth extends Vue {
+  get isAuthenticated(){
+    return identityStore.isAuthenticated
+  }
+
+  onLogout(){
+    identityStore.logout()
+  }
+}
+</script>

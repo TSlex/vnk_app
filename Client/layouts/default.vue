@@ -7,17 +7,17 @@
         <Nuxt />
       </v-container>
     </v-main>
-    <!-- <v-footer></v-footer> -->
   </v-app>
 </template>
 
-<script>
-import Navbar from "@/components/Navbar";
+<script lang="ts">
+import { Component, Vue } from "nuxt-property-decorator"
+import { identityStore } from "~/store"
 
-export default {
-  comments: {
-    Navbar,
-  },
-  data: () => ({}),
-};
+@Component({})
+export default class DafultLayout extends Vue {
+  mounted() {
+    identityStore.initializeIdentity()
+  }
+}
 </script>

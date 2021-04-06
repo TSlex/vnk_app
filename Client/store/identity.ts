@@ -13,24 +13,18 @@ export default class IdentityStore extends VuexModule {
   loginError: string | null = null
 
   get isAuthenticated() {
-    return this.verifiedJwt !== null;
-  }
-
-  get verifiedJwt(): string | null {
-    if (!this.jwt) {
-      this.context.commit("JWT_RESTORED")
-    }
-
     if (this.jwt) {
       const decode = JwtDecode(this.jwt!) as Record<string, string>;
       const jwtExpires = parseInt(decode.exp)
 
       if (Date.now() >= jwtExpires * 1000) {
-        this.context.commit("JWT_EXPIRED")
+        return false
       }
+
+      return true
     }
 
-    return this.jwt;
+    return false;
   }
 
   @Mutation
@@ -64,6 +58,24 @@ export default class IdentityStore extends VuexModule {
   }
 
   @Action
+  initializeIdentity(): string | null {
+    if (!this.jwt) {
+      this.context.commit("JWT_RESTORED")
+    }
+
+    if (this.jwt) {
+      const decode = JwtDecode(this.jwt!) as Record<string, string>;
+      const jwtExpires = parseInt(decode.exp)
+
+      if (Date.now() >= jwtExpires * 1000) {
+        this.context.commit("JWT_EXPIRED")
+      }
+    }
+
+    return this.jwt;
+  }
+
+  @Action
   async login(loginDTO: LoginDTO) {
     let response = await $ctx.$uow.identity.login(loginDTO)
 
@@ -77,7 +89,7 @@ export default class IdentityStore extends VuexModule {
   }
 
   @Action
-  async logout() {
+  logout() {
     this.context.commit("LOGOUT")
   }
 }
