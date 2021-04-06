@@ -100,6 +100,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             
                 result.Add(new UserGetDTO
                 {
+                    Id = user.Id,
                     Email = user.Email,
                     Role = roleName,
                     FirstName = user.FirstName,
@@ -132,6 +133,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 Data = new UserGetDTO
                 {
+                    Id = user.Id,
                     Email = user.Email,
                     Role = roleName,
                     FirstName = user.FirstName,
@@ -141,11 +143,37 @@ namespace Webapp.ApiControllers._1._0.Identity
         }
 
         [HttpGet("users/{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<UserGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult> GetUserById([FromBody] LoginDTO model)
+        public async Task<ActionResult> GetUserById(long id)
         {
-            return new OkResult();
+            var user = await _userManager.FindByIdAsync(id.ToString());
+
+            if (user == null)
+            {
+                return NotFound(new ErrorResponseDTO {Error = "Пользователь не найден"});
+            }
+            
+            var roleName = "";
+            
+            var roles = await _userManager.GetRolesAsync(user);
+            
+            if (roles.Count > 0)
+            {
+                roleName = roles[0];
+            }
+            
+            return Ok(new ResponseDTO<UserGetDTO>
+            {
+                Data = new UserGetDTO
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Role = roleName,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName
+                }
+            });
         }
 
         [HttpPost("users")]

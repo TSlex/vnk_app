@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Domain.Base;
 
 namespace PublicApi.v1.Identity
 {
-    public class UserGetDTO
+    public class UserGetDTO: DomainEntityId
     {
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
@@ -30,7 +31,7 @@ namespace PublicApi.v1.Identity
         public string Password { get; set; } = default!;
     }
     
-    public class UserPatchDTO
+    public class UserPatchDTO: DomainEntityId
     {
         [Required]
         [MinLength(1)]
