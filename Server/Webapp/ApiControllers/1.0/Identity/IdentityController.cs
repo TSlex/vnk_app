@@ -199,14 +199,33 @@ namespace Webapp.ApiControllers._1._0.Identity
                     LastName = model.LastName
                 };
 
+                AppRole role;
+
+                if (model.Role != null)
+                {
+                    if (model.Role.Equals("Administrator") &&
+                        !await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Root"))
+                    {
+                        return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
+                    }
+
+                    role = await _roleManager.FindByNameAsync(model.Role);
+
+                    if (role == null)
+                    {
+                        return BadRequest(new ErrorResponseDTO {Error = "Роль не найдена"});
+                    }
+                }
+                else
+                {
+                    role = await _roleManager.FindByNameAsync("User");
+                }
+
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("Created a new account with password.");
-
-                    //add user role
-                    var role = await _roleManager.FindByNameAsync("User");
 
                     if (role != null)
                     {
@@ -241,8 +260,11 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
             }
-            
-            if (!await _userManager.IsInRoleAsync(user, "Administrators") && User.UserId() != id)
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (await _userManager.IsInRoleAsync(user, "Root") ||
+                (await _userManager.IsInRoleAsync(user, "Administrators") && !await _userManager.IsInRoleAsync(currentUser, "Root")))
             {
                 return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
             }
@@ -267,7 +289,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult> UpdateUserPassword(long id, [FromBody] UserPasswordDTO model)
+        public async Task<ActionResult> UpdateUserPassword(long id, [FromBody] UserPasswordPatchDTO model)
         {
             if (id != model.Id)
             {
@@ -275,12 +297,12 @@ namespace Webapp.ApiControllers._1._0.Identity
             }
 
             var user = await _userManager.FindByIdAsync(model.Id.ToString());
-            
+
             if (user == null)
             {
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
             }
-            
+
             if (!await _userManager.IsInRoleAsync(user, "Administrators") && User.UserId() != id)
             {
                 return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
@@ -325,6 +347,19 @@ namespace Webapp.ApiControllers._1._0.Identity
             }
 
             return BadRequest(new ErrorResponseDTO("Ошибка при удалении пользователя"));
+        }
+
+        [HttpGet("test")]
+        [AllowAnonymous]
+        public async Task<ActionResult> TEST()
+        {
+            return Ok("Hello");
+        }
+        
+        [HttpGet("test")]
+        public async Task<ActionResult> TESTAUTH()
+        {
+            return Ok("Hello, auth");
         }
     }
 }
