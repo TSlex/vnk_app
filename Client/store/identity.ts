@@ -79,13 +79,17 @@ export default class IdentityStore extends VuexModule {
   async login(loginDTO: LoginDTO) {
     let response = await $ctx.$uow.identity.login(loginDTO)
 
-    if (response.errorMessage) {
-      this.context.commit("LOGIN_FAILED", response.errorMessage)
+    if (response.error) {
+      this.context.commit("LOGIN_FAILED", response.error)
       return false
     } else {
       this.context.commit("LOGIN_SUCCEEDED", response.data)
       return true
     }
+  }
+
+  async fetchData(){
+
   }
 
   @Action

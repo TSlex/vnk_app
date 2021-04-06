@@ -18,7 +18,7 @@ export const state = () => ({
 
 export const getters = {
   getAttributes(state: IState) {
-    return $ctx.$uow.attributeTypes.getAll()
+    return state.attributes
   }
 }
 

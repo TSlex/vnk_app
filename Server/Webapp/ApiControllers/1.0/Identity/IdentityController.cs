@@ -15,7 +15,10 @@ namespace Webapp.ApiControllers._1._0.Identity
 {
     [ApiController]
     [ApiVersion("1.0")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     [Route("api/v{version:apiVersion}/[controller]")]
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class IdentityController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -33,16 +36,9 @@ namespace Webapp.ApiControllers._1._0.Identity
             _roleManager = roleManager;
             _signInManager = signInManager;
         }
-
-        /// <summary>
-        /// Login user
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns>JWT if succeed</returns>
+        
         [HttpPost("login")]
         [AllowAnonymous]
-        [Produces("application/json")]
-        [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> Login([FromBody] LoginDTO model)
@@ -52,7 +48,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             if (user == null)
             {
                 _logger.LogInformation($"Web-Api login. AppUser with credentials: {model.Email} - was not found!");
-                return NotFound(new ErrorResponseDTO {ErrorMessage = "Данные для входа неверны"});
+                return NotFound(new ErrorResponseDTO {Error = "Данные для входа неверны"});
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
@@ -74,22 +70,37 @@ namespace Webapp.ApiControllers._1._0.Identity
             _logger.LogInformation(
                 $"Web-Api login. AppUser with credentials: {model.Email} - was attempted to log-in with bad password!");
 
-            return NotFound(new ErrorResponseDTO {ErrorMessage = "Данные для входа неверны"});
+            return NotFound(new ErrorResponseDTO {Error = "Данные для входа неверны"});
         }
 
-        /// <summary>
-        /// Create a new user
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost("register")]
-        [AllowAnonymous]
-        [Produces("application/json")]
-        [Consumes("application/json")]
+
+        [HttpGet("users")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
+        public async Task<ActionResult> GetAllUsers([FromBody] LoginDTO model)
+        {
+            return new OkResult();
+        }
+        
+        [HttpGet("users/current")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
+        public async Task<ActionResult> GetCurrentUser([FromBody] LoginDTO model)
+        {
+            return new OkResult();
+        }
+        
+        [HttpGet("users/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<string>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> GetUserById([FromBody] LoginDTO model)
+        {
+            return new OkResult();
+        }
+        
+        [HttpPost("users")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<string>> Register([FromBody] UserPostDTO model)
+        public async Task<ActionResult<string>> AddUser([FromBody] UserPostDTO model)
         {
             var appUser = await _userManager.FindByEmailAsync(model.Email);
             if (appUser != null)
@@ -134,6 +145,23 @@ namespace Webapp.ApiControllers._1._0.Identity
             }
 
             return BadRequest();
+        }
+        
+        [HttpPatch("users")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> UpdateUser([FromBody] LoginDTO model)
+        {
+            return new OkResult();
+        }
+        
+        [HttpDelete("users")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteUser([FromBody] LoginDTO model)
+        {
+            return new OkResult();
         }
     }
 }

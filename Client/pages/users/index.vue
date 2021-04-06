@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center" class="text-center">
-    <v-col cols="5" class="mt-4">
+    <v-col cols="6" class="mt-4">
       <v-sheet class="px-3" rounded="lg">
         <v-row justify="center" class="text-center">
           <v-col cols="4">

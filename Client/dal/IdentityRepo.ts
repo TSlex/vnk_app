@@ -15,23 +15,27 @@ export default class IdentityRepo extends BaseRepo {
   }
 
   async getAllUsers() {
-    return await this.axios.$get(`${this.baseURL}/users`);
+    return await this._get<ResponseDTO<string>>(`${this.baseURL}/users`);
+  }
+
+  async getCurrentUser() {
+    return await this._get<ResponseDTO<string>>(`${this.baseURL}/users/current`);
   }
 
   async getUserById(id: number) {
-    return await this.axios.$get(`${this.baseURL}/users/${id}`);
+    return await this._get<ResponseDTO<string>>(`${this.baseURL}/users/${id}`);
   }
 
   async addUser() {
-    return await this.axios.$post(`${this.baseURL}/users`);
+    return await this._post<ResponseDTO<string>>(`${this.baseURL}/users`);
   }
 
   async updateUser(id: number) {
-    return await this.axios.$patch(`${this.baseURL}/users/${id}`);
+    return await this._patch<ResponseDTO<string>>(`${this.baseURL}/users/${id}`);
   }
 
   async deleteUser(id: number) {
-    return await this.axios.$delete(`${this.baseURL}/users/${id}`);
+    return await this._delete<ResponseDTO<string>>(`${this.baseURL}/users/${id}`);
   }
 }
 

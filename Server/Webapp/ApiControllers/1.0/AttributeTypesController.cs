@@ -20,7 +20,6 @@ namespace Webapp.ApiControllers._1._0
     [Route("api/v{version:apiVersion}/[controller]")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [AllowAnonymous]
     public class AttributeTypesController : ControllerBase
