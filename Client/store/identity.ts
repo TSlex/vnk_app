@@ -2,6 +2,7 @@ import JwtDecode from 'jwt-decode';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 import { LoginDTO } from '~/types/Identity/LoginDTO';
+import { UserGetDTO } from '~/types/Identity/UserDTO';
 
 @Module({
   namespaced: true,
@@ -11,6 +12,7 @@ import { LoginDTO } from '~/types/Identity/LoginDTO';
 export default class IdentityStore extends VuexModule {
   jwt: string | null = null
   loginError: string | null = null
+  userData: UserGetDTO | null = null
 
   get isAuthenticated() {
     if (this.jwt) {
@@ -33,6 +35,7 @@ export default class IdentityStore extends VuexModule {
 
     this.jwt = jwt
     this.loginError = null
+    $ctx.$axios.setToken(this.jwt!, "Bearer")
   }
 
   @Mutation
@@ -41,20 +44,27 @@ export default class IdentityStore extends VuexModule {
   }
 
   @Mutation
-  LOGOUT() {
-    this.jwt = null
-    localStorage.removeItem('jwt')
-  }
+  LOGOUT() {}
 
   @Mutation
   JWT_RESTORED() {
     this.jwt = localStorage.getItem('jwt')
+    $ctx.$axios.setToken(this.jwt!, "Bearer")
   }
 
   @Mutation
-  JWT_EXPIRED() {
+  JWT_EXPIRED() {}
+
+  @Mutation
+  CURRENT_USER_FETCHED(data: UserGetDTO){
+    this.userData = data;
+  }
+
+  @Mutation
+  REMOVE_JWT(){
     this.jwt = null
     localStorage.removeItem('jwt')
+    $ctx.$axios.setToken(false)
   }
 
   @Action
@@ -69,6 +79,7 @@ export default class IdentityStore extends VuexModule {
 
       if (Date.now() >= jwtExpires * 1000) {
         this.context.commit("JWT_EXPIRED")
+        this.context.commit("REMOVE_JWT")
       }
     }
 
@@ -84,16 +95,21 @@ export default class IdentityStore extends VuexModule {
       return false
     } else {
       this.context.commit("LOGIN_SUCCEEDED", response.data)
+      this.context.dispatch("fetchData")
+
       return true
     }
   }
 
+  @Action
   async fetchData(){
-
+    let response = await $ctx.$uow.identity.getCurrentUser()
+    this.context.commit("CURRENT_USER_FETCHED", response.data)
   }
 
   @Action
   logout() {
     this.context.commit("LOGOUT")
+    this.context.commit("REMOVE_JWT")
   }
 }
