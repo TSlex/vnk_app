@@ -17,7 +17,7 @@ namespace Webapp.ApiControllers._1._0
     [Route("api/v{version:apiVersion}/[controller]")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User, Administrator, Root")]
     public class OrderAttributesController : ControllerBase
     {
         private readonly AppDbContext _context;

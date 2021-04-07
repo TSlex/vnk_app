@@ -21,7 +21,7 @@ namespace Webapp.ApiControllers._1._0.Identity
     [Produces("application/json")]
     [Consumes("application/json")]
     [Route("api/v{version:apiVersion}/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = "User, Administrator, Root")]
     public class IdentityController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -78,9 +78,9 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             return BadRequest(new ErrorResponseDTO {Error = "Данные для входа неверны"});
         }
-
-
+        
         [HttpGet("users")]
+        [Authorize(Roles = "Administrator, Root")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<UserGetDTO>>))]
         public async Task<ActionResult> GetAllUsers()
         {
@@ -312,7 +312,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             return Ok();
         }
 
-        [HttpPatch("users/{id}/password")]
+        [HttpPatch("users/{id}/role")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]

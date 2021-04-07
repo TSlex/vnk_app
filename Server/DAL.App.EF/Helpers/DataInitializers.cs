@@ -69,6 +69,17 @@ namespace DAL.Helpers
             {
                 new User
                 {
+                    FirstName = "Пользователь",
+                    LastName = "Обычный",
+                    Email = "user@user.com",
+                    Password = "Admin_123",
+                    RolesNames = new[]
+                    {
+                        "User"
+                    }
+                },
+                new User
+                {
                     FirstName = "Александр",
                     LastName = "Иванов",
                     Email = "admin@admin.com",
