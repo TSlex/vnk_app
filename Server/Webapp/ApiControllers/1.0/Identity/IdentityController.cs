@@ -143,6 +143,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         }
 
         [HttpGet("users/{id}")]
+        [Authorize(Roles = "Administrator, Root")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<UserGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetUserById(long id)
@@ -177,6 +178,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         }
 
         [HttpPost("users")]
+        [Authorize(Roles = "Administrator, Root")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult<string>> AddUser([FromBody] UserPostDTO model)
@@ -313,6 +315,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         }
 
         [HttpPatch("users/{id}/role")]
+        [Authorize(Roles = "Administrator, Root")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
@@ -355,6 +358,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         }
 
         [HttpDelete("users/{id}")]
+        [Authorize(Roles = "Administrator, Root")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]

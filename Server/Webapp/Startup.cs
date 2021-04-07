@@ -72,6 +72,7 @@ namespace Webapp
                 {
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
                 .AddCookie(options => { options.SlidingExpiration = true; })
                 .AddJwtBearer(cfg =>
