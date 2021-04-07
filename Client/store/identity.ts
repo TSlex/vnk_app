@@ -14,6 +14,10 @@ export default class IdentityStore extends VuexModule {
   loginError: string | null = null
   userData: UserGetDTO | null = null
 
+  get fullName(){
+    return `${this.userData?.firstName} ${this.userData?.lastName}`
+  }
+
   get isAuthenticated() {
     if (this.jwt) {
       const decode = JwtDecode(this.jwt!) as Record<string, string>;
@@ -27,6 +31,14 @@ export default class IdentityStore extends VuexModule {
     }
 
     return false;
+  }
+
+  get isAdministrator(){
+    return this.userData?.role === "Administrator"
+  }
+
+  get isRoot(){
+    return this.userData?.role === "Root"
   }
 
   @Mutation
@@ -82,6 +94,8 @@ export default class IdentityStore extends VuexModule {
         this.context.commit("REMOVE_JWT")
       }
     }
+
+    this.context.dispatch("fetchData")
 
     return this.jwt;
   }
