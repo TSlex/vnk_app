@@ -18,7 +18,7 @@
             <div class="d-flex justify-space-between py-2">
               <span class="text-body-1">{{ getFullname(user) }}</span>
               <v-chip small>
-                <template>{{ user.role }}</template>
+                <template>{{ user.roleLocalized }}</template>
               </v-chip>
             </div>
           </v-list-item-content>

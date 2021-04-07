@@ -22,7 +22,7 @@
               </v-list>
             </v-navigation-drawer>
           </v-col>
-          <template v-if="selectedUser"><UserData :user="selectedUser"/></template>
+          <template v-if="selectedUser"><UserData/></template>
           <template v-else-if="tabIndex == 1"><UsersList /></template>
           <template v-else><UserData /></template>
         </v-row>
@@ -64,6 +64,7 @@ export default class UsersIndex extends Vue {
 
   setTab(index: number) {
     this.tabIndex = index;
+    usersStore.SELECTED_USER_CLEARED();
   }
 }
 </script>

@@ -21,16 +21,27 @@
           <span>Эл.адрес:</span><span>{{ userData.email }}</span>
         </div>
         <div class="d-flex justify-space-between">
-          <span>Роль:</span><span>{{ userData.role }}</span>
+          <span>Роль:</span><span>{{ userData.roleLocalized }}</span>
         </div>
       </div>
       <v-divider></v-divider>
-      <v-btn class="mt-3 mr-2">Изменить данные</v-btn>
-      <template v-if="!isPersonal">
-        <v-btn class="mt-3 mr-2">Изменить роль</v-btn>
-        <v-btn class="mt-3 mr-2">Изменить пароль</v-btn>
-        <v-btn class="mt-3 mr-2">Удалить</v-btn>
+      <template v-if="isButtonsEnabled">
+        <v-btn class="mt-3 mr-2" v-if="isChangeButtonEnabled"
+          >Изменить данные</v-btn
+        >
+        <v-btn class="mt-3 mr-2" v-if="isChangeRoleButtonEnabled"
+          >Изменить роль</v-btn
+        >
+        <v-btn class="mt-3 mr-2" v-if="isChangePasswordButtonEnabled"
+          >Изменить пароль</v-btn
+        >
+        <v-btn class="mt-3 mr-2" v-if="isDeleteButtonEnabled">Удалить</v-btn>
       </template>
+      <template v-else
+        ><div class="mt-2">
+          Данный пользователь не может быть изменен
+        </div></template
+      >
     </template>
   </v-col>
 </template>
@@ -42,20 +53,81 @@ import { UserGetDTO } from "~/types/Identity/UserDTO";
 
 @Component({})
 export default class UserData extends Vue {
-  @Prop()
-  user?: UserGetDTO | null;
-
   fetched = false;
 
   get isPersonal() {
-    return !this.user;
+    return !this.sellectedUser;
+  }
+
+  get isCurrentUserSellected() {
+    return this.isPersonal || this.sellectedUser?.id == this.currentUser?.id;
+  }
+
+  get isButtonsEnabled() {
+    return (
+      this.isDeleteButtonEnabled ||
+      this.isChangeButtonEnabled ||
+      this.isChangeRoleButtonEnabled ||
+      this.isChangePasswordButtonEnabled
+    );
+  }
+
+  get isDeleteButtonEnabled() {
+    return (
+      !this.isCurrentUserSellected &&
+      this.userHaveAccessToUser(this.currentUser!, this.sellectedUser!)
+    );
+  }
+
+  get isChangeButtonEnabled() {
+    if (this.isCurrentUserSellected && this.currentUser?.role == "Root") {
+      return false;
+    }
+    return (
+      this.isCurrentUserSellected ||
+      this.userHaveAccessToUser(this.currentUser!, this.sellectedUser!)
+    );
+  }
+
+  get isChangeRoleButtonEnabled() {
+    return !this.isCurrentUserSellected && this.currentUser!.role === "Root";
+  }
+
+  get isChangePasswordButtonEnabled() {
+    if (this.isCurrentUserSellected && this.currentUser?.role == "Root") {
+      return false;
+    }
+
+    return (
+      this.isCurrentUserSellected ||
+      this.userHaveAccessToUser(this.currentUser!, this.sellectedUser!)
+    );
   }
 
   get userData() {
     if (!this.isPersonal) {
-      return this.user;
+      return this.sellectedUser;
     }
     return identityStore.userData;
+  }
+
+  get currentUser() {
+    return identityStore.userData;
+  }
+
+  get sellectedUser() {
+    return usersStore.selectedUser;
+  }
+
+  userHaveAccessToUser(currentUser: UserGetDTO, targetUser: UserGetDTO) {
+    console.log(`current: ${currentUser.role}, target: ${targetUser.role}`);
+    if (targetUser.id === currentUser.id) return true;
+    if (targetUser.role === "Root") return false;
+    if (targetUser.role === "Administrator" && currentUser.role === "Root")
+      return true;
+    if (targetUser.role === "User" && currentUser.role != "User") return true;
+
+    return false;
   }
 
   onUserClosed() {

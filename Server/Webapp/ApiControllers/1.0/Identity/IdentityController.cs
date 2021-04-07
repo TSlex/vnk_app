@@ -94,12 +94,15 @@ namespace Webapp.ApiControllers._1._0.Identity
             foreach (var user in users)
             {
                 var roleName = "";
+                var roleLocalized = "";
+                    
                 var roles = await _userManager.GetRolesAsync(user);
 
                 if (roles.Count > 0)
                 {
-                    // roleName = roles[0];
-                    roleName = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
+                    roleName = roles[0];
+                    
+                    roleLocalized = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
                         .LocalizedName;
                 }
 
@@ -108,6 +111,7 @@ namespace Webapp.ApiControllers._1._0.Identity
                     Id = user.Id,
                     Email = user.Email,
                     Role = roleName,
+                    RoleLocalized = roleLocalized,
                     FirstName = user.FirstName,
                     LastName = user.LastName
                 });
@@ -127,13 +131,15 @@ namespace Webapp.ApiControllers._1._0.Identity
             var user = await _userManager.GetUserAsync(User);
 
             var roleName = "";
-
+            var roleLocalized = "";
+                    
             var roles = await _userManager.GetRolesAsync(user);
 
             if (roles.Count > 0)
             {
-                // roleName = roles[0];
-                roleName = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
+                roleName = roles[0];
+                    
+                roleLocalized = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
                     .LocalizedName;
             }
 
@@ -144,6 +150,7 @@ namespace Webapp.ApiControllers._1._0.Identity
                     Id = user.Id,
                     Email = user.Email,
                     Role = roleName,
+                    RoleLocalized = roleLocalized,
                     FirstName = user.FirstName,
                     LastName = user.LastName
                 }
@@ -166,13 +173,15 @@ namespace Webapp.ApiControllers._1._0.Identity
             }
 
             var roleName = "";
-
+            var roleLocalized = "";
+                    
             var roles = await _userManager.GetRolesAsync(user);
 
             if (roles.Count > 0)
             {
-                // roleName = roles[0];
-                roleName = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
+                roleName = roles[0];
+                    
+                roleLocalized = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
                     .LocalizedName;
             }
 
@@ -183,6 +192,7 @@ namespace Webapp.ApiControllers._1._0.Identity
                     Id = user.Id,
                     Email = user.Email,
                     Role = roleName,
+                    RoleLocalized = roleLocalized,
                     FirstName = user.FirstName,
                     LastName = user.LastName
                 }

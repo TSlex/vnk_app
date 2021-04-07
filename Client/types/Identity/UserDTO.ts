@@ -4,6 +4,7 @@ export interface UserGetDTO {
   lastName: string;
   email: string;
   role: string;
+  roleLocalized: string;
 }
 
 export interface UserPostDTO {

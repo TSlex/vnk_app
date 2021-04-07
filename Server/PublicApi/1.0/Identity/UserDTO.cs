@@ -9,7 +9,8 @@ namespace PublicApi.v1.Identity
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
         public string Email { get; set; } = default!;
-        public string? Role { get; set; }
+        public string Role { get; set; } = default!;
+        public string RoleLocalized { get; set; } = default!;
     }
 
     public class UserPostDTO
