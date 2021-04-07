@@ -8,7 +8,7 @@
           Для регистрации обратитесь к администратору
         </span>
         <v-form class="mt-6" @submit.prevent="login()" ref="form">
-          <v-alert dense text type="error" v-if="showError">{{ LoginError }}</v-alert>
+          <v-alert dense text type="error" v-if="showError">{{ loginError }}</v-alert>
           <v-text-field
             label="Эл.адрес"
             v-model.trim="model.email"
@@ -38,11 +38,12 @@
 import { Component, Vue } from "nuxt-property-decorator";
 import { identityStore } from "~/store";
 import { LoginDTO } from "~/types/Identity/LoginDTO";
-import { ResponseAnyDTO } from "~/types/Responses/ResponseDTO";
-import { validate, required, email } from "~/utils/form-validation";
+import { validate, required, email, password } from "~/utils/form-validation";
 
 @Component({})
 export default class Login extends Vue {
+
+  isMounted = false;
   showPassword = false;
   showError = false;
 
@@ -53,10 +54,10 @@ export default class Login extends Vue {
 
   rules = {
     email: validate(required, email),
-    password: validate(required),
+    password: validate(required, password),
   };
 
-  get LoginError() {
+  get loginError() {
     return identityStore.loginError;
   }
 
@@ -74,6 +75,10 @@ export default class Login extends Vue {
 
   layout() {
     return "auth";
+  }
+
+  mounted() {
+    this.isMounted = true;
   }
 }
 </script>

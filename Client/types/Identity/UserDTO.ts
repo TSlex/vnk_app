@@ -10,6 +10,7 @@ export interface UserGetDTO {
 export interface UserPostDTO {
   firstName: string;
   lastName: string;
+  password: string;
   email: string;
   role: string | null;
 }

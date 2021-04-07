@@ -16,8 +16,11 @@ export default class UsersStore extends VuexModule {
   error: string | null = null
 
   @Mutation
-  USER_CREATED(user: UserGetDTO) {
-    this.users.push(user)
+  USER_CREATED(user: UserPostDTO) {
+    let newUser = user as any as UserGetDTO
+    newUser.roleLocalized = "Созданный"
+
+    this.users.push(newUser)
   }
 
   @Mutation
@@ -110,6 +113,7 @@ export default class UsersStore extends VuexModule {
     } else {
       this.context.commit("CLEAR_ERROR")
       this.context.commit("USER_CREATED", model)
+      this.context.dispatch("getUsers")
       return true
     }
   }

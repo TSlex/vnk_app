@@ -36,7 +36,7 @@ import { Component, Vue } from "nuxt-property-decorator";
 
 import UserData from "~/components/users/UserData.vue";
 import UsersList from "@/components/users/UsersList.vue";
-import UserForm from "@/components/users/UserForm.vue";
+import UserForm from "~/components/users/UserDataDialog.vue";
 import { usersStore } from "~/store";
 
 @Component({

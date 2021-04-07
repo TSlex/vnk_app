@@ -3,7 +3,7 @@
     <template v-if="fetched">
       <v-toolbar flat>
         <v-spacer></v-spacer>
-        <v-btn text>Добавить пользователя</v-btn>
+        <v-btn text @click.stop="openCreateDialog()">Добавить пользователя</v-btn>
         <v-spacer></v-spacer>
       </v-toolbar>
       <v-divider></v-divider>
@@ -25,6 +25,7 @@
         </v-list-item>
       </v-list>
     </template>
+    <UserCreateDialog v-model="createDialog" />
   </v-col>
 </template>
 
@@ -32,13 +33,23 @@
 import { Component, Vue } from "nuxt-property-decorator";
 import { usersStore } from "~/store";
 import { UserGetDTO } from "~/types/Identity/UserDTO";
+import UserCreateDialog from "~/components/users/UserCreateDialog.vue";
 
-@Component({})
+@Component({
+  components: {
+    UserCreateDialog
+  }
+})
 export default class UsersList extends Vue {
   fetched = false;
+  createDialog = false;
 
   get users() {
     return usersStore.users;
+  }
+
+  openCreateDialog(){
+    this.createDialog = true;
   }
 
   onUserSellected(user: UserGetDTO) {

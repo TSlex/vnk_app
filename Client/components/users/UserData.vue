@@ -43,6 +43,7 @@
         </div></template
       >
     </template>
+    <!-- <UserCreateDialog :active="createDialog" /> -->
   </v-col>
 </template>
 
@@ -50,10 +51,12 @@
 import { Component, Vue, Prop } from "nuxt-property-decorator";
 import { identityStore, usersStore } from "~/store";
 import { UserGetDTO } from "~/types/Identity/UserDTO";
+import UserCreateDialog from "~/components/users/UserCreateDialog.vue";
 
 @Component({})
 export default class UserData extends Vue {
   fetched = false;
+  // createDialog = false;
 
   get isPersonal() {
     return !this.sellectedUser;
@@ -120,7 +123,6 @@ export default class UserData extends Vue {
   }
 
   userHaveAccessToUser(currentUser: UserGetDTO, targetUser: UserGetDTO) {
-    console.log(`current: ${currentUser.role}, target: ${targetUser.role}`);
     if (targetUser.id === currentUser.id) return true;
     if (targetUser.role === "Root") return false;
     if (targetUser.role === "Administrator" && currentUser.role === "Root")
