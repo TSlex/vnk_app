@@ -98,7 +98,9 @@ namespace Webapp.ApiControllers._1._0.Identity
 
                 if (roles.Count > 0)
                 {
-                    roleName = roles[0];
+                    // roleName = roles[0];
+                    roleName = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
+                        .LocalizedName;
                 }
 
                 result.Add(new UserGetDTO
@@ -130,7 +132,9 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             if (roles.Count > 0)
             {
-                roleName = roles[0];
+                // roleName = roles[0];
+                roleName = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
+                    .LocalizedName;
             }
 
             return Ok(new ResponseDTO<UserGetDTO>
@@ -167,7 +171,9 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             if (roles.Count > 0)
             {
-                roleName = roles[0];
+                // roleName = roles[0];
+                roleName = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
+                    .LocalizedName;
             }
 
             return Ok(new ResponseDTO<UserGetDTO>
@@ -214,12 +220,12 @@ namespace Webapp.ApiControllers._1._0.Identity
                 if (model.Role != null)
                 {
                     role = await _roleManager.FindByNameAsync(model.Role);
-                    
+
                     if (role == null)
                     {
                         return BadRequest(new ErrorResponseDTO("Роль не найдена"));
                     }
-                    
+
                     if (!await UserHasAccessToRole(await _userManager.GetUserAsync(User), model.Role))
                     {
                         return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
@@ -344,15 +350,15 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             var passwordValidator = new PasswordValidator<AppUser>();
             var valid = await passwordValidator.ValidateAsync(_userManager, null, model.NewPassword);
-            
+
             if (!valid.Succeeded)
             {
                 return BadRequest(new ErrorResponseDTO("Неверный пароль"));
             }
-            
+
             await _userManager.RemovePasswordAsync(user);
             await _userManager.AddPasswordAsync(user, model.NewPassword);
-                
+
             return Ok();
         }
 
@@ -377,7 +383,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
             }
-            
+
             var role = await _roleManager.FindByNameAsync(model.Role);
 
             if (role == null)
@@ -442,14 +448,14 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 return BadRequest(new ErrorResponseDTO("Ошибка при удалении пользователя"));
             }
-            
+
             result = await _userManager.DeleteAsync(user);
 
             if (!result.Succeeded)
             {
                 return BadRequest(new ErrorResponseDTO("Ошибка при удалении пользователя"));
             }
-            
+
             return Ok();
         }
 

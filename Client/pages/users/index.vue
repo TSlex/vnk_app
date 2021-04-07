@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center" class="text-center">
-    <v-col cols="6" class="mt-4">
+    <v-col cols="5" class="mt-4">
       <v-sheet class="px-3" rounded="lg">
         <v-row justify="center" class="text-center">
           <v-col cols="4">
@@ -22,8 +22,9 @@
               </v-list>
             </v-navigation-drawer>
           </v-col>
-          <template v-if="tabIndex == 1"><UsersList /></template>
-          <template v-else><PersonalData /></template>
+          <template v-if="selectedUser"><UserData :user="selectedUser"/></template>
+          <template v-else-if="tabIndex == 1"><UsersList /></template>
+          <template v-else><UserData /></template>
         </v-row>
       </v-sheet>
     </v-col>
@@ -33,13 +34,14 @@
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
 
-import PersonalData from "@/components/users/PersonalData.vue";
+import UserData from "~/components/users/UserData.vue";
 import UsersList from "@/components/users/UsersList.vue";
 import UserForm from "@/components/users/UserForm.vue";
+import { usersStore } from "~/store";
 
 @Component({
   components: {
-    PersonalData,
+    UserData,
     UsersList,
     UserForm,
   },
@@ -55,6 +57,10 @@ export default class UsersIndex extends Vue {
     },
     { icon: "mdi-account-multiple", title: "Все пользователи", tabIndex: 1 },
   ];
+
+  get selectedUser(){
+    return usersStore.selectedUser
+  }
 
   setTab(index: number) {
     this.tabIndex = index;
