@@ -21,11 +21,13 @@ export interface UserPatchDTO {
 }
 
 export interface UserPasswordPatchDTO {
+  id: number;
   currentPassword: string;
   newPassword: string;
 }
 
 export interface UserRolePatchDTO {
+  id: number;
   role: string;
 }
 
