@@ -203,18 +203,12 @@ namespace Webapp.ApiControllers._1._0.Identity
 
                 if (model.Role != null)
                 {
-                    if (model.Role.Equals("Administrator") &&
-                        !await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Root"))
+                    if (!await UserHasAccessToRole(await _userManager.GetUserAsync(User), model.Role))
                     {
                         return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
                     }
 
                     role = await _roleManager.FindByNameAsync(model.Role);
-
-                    if (role == null)
-                    {
-                        return BadRequest(new ErrorResponseDTO {Error = "Роль не найдена"});
-                    }
                 }
                 else
                 {
@@ -260,11 +254,8 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
             }
-
-            var currentUser = await _userManager.GetUserAsync(User);
-
-            if (await _userManager.IsInRoleAsync(user, "Root") ||
-                (await _userManager.IsInRoleAsync(user, "Administrators") && !await _userManager.IsInRoleAsync(currentUser, "Root")))
+            
+            if (!await UserHasAccessToUser(await _userManager.GetUserAsync(User), user))
             {
                 return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
             }
@@ -303,7 +294,7 @@ namespace Webapp.ApiControllers._1._0.Identity
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
             }
 
-            if (!await _userManager.IsInRoleAsync(user, "Administrators") && User.UserId() != id)
+            if (!await UserHasAccessToUser(await _userManager.GetUserAsync(User), user))
             {
                 return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
             }
@@ -317,6 +308,48 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
+
+            return Ok();
+        }
+
+        [HttpPatch("users/{id}/password")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> UpdateUserRole(long id, [FromBody] UserRolePatchDTO model)
+        {
+            if (id != model.Id)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+
+            var user = await _userManager.FindByIdAsync(model.Id.ToString());
+
+            if (user == null)
+            {
+                return NotFound(new ErrorResponseDTO("Пользователь не найден"));
+            }
+
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            if (!await UserHasAccessToUser(currentUser, user) || !await UserHasAccessToRole(currentUser, model.Role))
+            {
+                return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
+            }
+
+            var result = await _userManager.RemoveFromRolesAsync(user, await _userManager.GetRolesAsync(user));
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ErrorResponseDTO("Ошибка при смене роли"));
+            }
+
+            result = await _userManager.AddToRoleAsync(user, model.Role);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ErrorResponseDTO("Ошибка при смене роли"));
+            }
 
             return Ok();
         }
@@ -339,6 +372,11 @@ namespace Webapp.ApiControllers._1._0.Identity
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
             }
 
+            if (!await UserHasAccessToUser(await _userManager.GetUserAsync(User), user))
+            {
+                return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
+            }
+
             var result = await _userManager.DeleteAsync(user);
 
             if (result.Succeeded)
@@ -349,17 +387,42 @@ namespace Webapp.ApiControllers._1._0.Identity
             return BadRequest(new ErrorResponseDTO("Ошибка при удалении пользователя"));
         }
 
-        [HttpGet("test")]
-        [AllowAnonymous]
-        public async Task<ActionResult> TEST()
+        private async Task<bool> UserHasAccessToRole(AppUser currentUser, string role)
         {
-            return Ok("Hello");
+            var currentUserRoles = await _userManager.GetRolesAsync(currentUser);
+
+            return role switch
+            {
+                "User" => true,
+                "Administrator" => currentUserRoles.Contains("Root"),
+                "Root" => false,
+                _ => false
+            };
         }
-        
-        [HttpGet("test")]
-        public async Task<ActionResult> TESTAUTH()
+
+        private async Task<bool> UserHasAccessToUser(AppUser currentUser, AppUser targetUser)
         {
-            return Ok("Hello, auth");
+            var currentUserRoles = await _userManager.GetRolesAsync(currentUser);
+            var targetUserRoles = await _userManager.GetRolesAsync(currentUser);
+
+            if (targetUserRoles.Contains("Root"))
+            {
+                return false;
+            }
+            else
+            {
+                if (currentUser.Id == targetUser.Id)
+                {
+                    return true;
+                }
+
+                if (targetUserRoles.Contains("Administator") && !currentUserRoles.Contains("Root"))
+                {
+                    return false;
+                }
+
+                return !targetUserRoles.Contains("User") || !currentUserRoles.Contains("User");
+            }
         }
     }
 }
