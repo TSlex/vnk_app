@@ -1,7 +1,9 @@
 <template>
   <v-col>
     <v-toolbar flat>
+      <v-spacer></v-spacer>
       <v-btn text>Добавить пользователя</v-btn>
+      <v-spacer></v-spacer>
     </v-toolbar>
     <v-divider></v-divider>
     <div class="d-flex justify-space-between pa-2" v-for="n in 10" :key="n">

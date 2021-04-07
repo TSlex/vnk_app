@@ -1,26 +1,14 @@
-/*
-interface IState {
-}
+import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
+import { $ctx } from "@/utils/vue-context"
+import { UserGetDTO } from '~/types/Identity/UserDTO'
 
-export const state = () => ({
-} as IState)
-
-export const getters = {
-}
-
-export const mutations = {
-}
-
-export const actions = {
-}
-*/
-
-interface IState {
-  orders: any[]
-}
-
-export const state = () => ({
-  orders: [
+@Module({
+  namespaced: true,
+  stateFactory: true,
+  name: "orders"
+})
+export default class OrdersStore extends VuexModule {
+  orders = [
     {
       date: "2021-03-19",
       featured: [
@@ -62,16 +50,4 @@ export const state = () => ({
       ],
     },
   ]
-} as IState)
-
-export const getters = {
-  getOrders(state: IState){
-    return state.orders;
-  }
-}
-
-export const mutations = {
-}
-
-export const actions = {
 }
