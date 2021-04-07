@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -35,7 +33,7 @@ namespace WebApp.Helpers
                         }
                     });
             }
-
+            
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
                 Description =

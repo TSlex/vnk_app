@@ -69,13 +69,13 @@ namespace DAL.Helpers
             {
                 new User
                 {
-                    FirstName = "Пользователь",
-                    LastName = "Обычный",
-                    Email = "user@user.com",
-                    Password = "Admin_123",
+                    FirstName = configuration["SuperUser:FirstName"],
+                    LastName = configuration["SuperUser:LastName"],
+                    Email = configuration["SuperUser:Email"],
+                    Password = configuration["SuperUser:Password"],
                     RolesNames = new[]
                     {
-                        "User"
+                        "Root"
                     }
                 },
                 new User
@@ -91,15 +91,15 @@ namespace DAL.Helpers
                 },
                 new User
                 {
-                    FirstName = configuration["SuperUser:FirstName"],
-                    LastName = configuration["SuperUser:LastName"],
-                    Email = configuration["SuperUser:Email"],
-                    Password = configuration["SuperUser:Password"],
+                    FirstName = "Пользователь",
+                    LastName = "Обычный",
+                    Email = "user@user.com",
+                    Password = "Admin_123",
                     RolesNames = new[]
                     {
-                        "Root"
+                        "User"
                     }
-                }
+                },
             };
 
             foreach (var user in users)

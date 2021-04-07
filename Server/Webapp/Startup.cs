@@ -11,9 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -105,7 +103,10 @@ namespace Webapp
 
             //Swagger support
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-            services.AddSwaggerGen(options => { options.ResolveConflictingActions(enumerable => enumerable.First()); }
+            services.AddSwaggerGen(options =>
+                {
+                    options.ResolveConflictingActions(enumerable => enumerable.First());
+                }
             );
         }
 

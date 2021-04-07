@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DAL.App.EF;
 using Domain;
@@ -78,9 +79,11 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             return BadRequest(new ErrorResponseDTO {Error = "Данные для входа неверны"});
         }
-        
+
         [HttpGet("users")]
         [Authorize(Roles = "Administrator, Root")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<UserGetDTO>>))]
         public async Task<ActionResult> GetAllUsers()
         {
@@ -115,6 +118,7 @@ namespace Webapp.ApiControllers._1._0.Identity
         }
 
         [HttpGet("users/current")]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<UserGetDTO>))]
         public async Task<ActionResult> GetCurrentUser()
         {
@@ -146,6 +150,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [Authorize(Roles = "Administrator, Root")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<UserGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> GetUserById(long id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
@@ -181,6 +187,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [Authorize(Roles = "Administrator, Root")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<string>> AddUser([FromBody] UserPostDTO model)
         {
             var appUser = await _userManager.FindByEmailAsync(model.Email);
@@ -205,12 +213,17 @@ namespace Webapp.ApiControllers._1._0.Identity
 
                 if (model.Role != null)
                 {
+                    role = await _roleManager.FindByNameAsync(model.Role);
+                    
+                    if (role == null)
+                    {
+                        return BadRequest(new ErrorResponseDTO("Роль не найдена"));
+                    }
+                    
                     if (!await UserHasAccessToRole(await _userManager.GetUserAsync(User), model.Role))
                     {
                         return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
                     }
-
-                    role = await _roleManager.FindByNameAsync(model.Role);
                 }
                 else
                 {
@@ -243,6 +256,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> UpdateUser(long id, [FromBody] UserPatchDTO model)
         {
             if (id != model.Id)
@@ -256,7 +271,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
             }
-            
+
             if (!await UserHasAccessToUser(await _userManager.GetUserAsync(User), user))
             {
                 return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
@@ -265,9 +280,16 @@ namespace Webapp.ApiControllers._1._0.Identity
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
 
-            var emailResult = await _userManager.SetEmailAsync(user, model.Email);
+            var result = await _userManager.SetEmailAsync(user, model.Email);
 
-            if (!emailResult.Succeeded)
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ErrorResponseDTO("Данный эл.адрес уже занят"));
+            }
+
+            result = await _userManager.SetUserNameAsync(user, model.Email);
+
+            if (!result.Succeeded)
             {
                 return BadRequest(new ErrorResponseDTO("Данный эл.адрес уже занят"));
             }
@@ -282,6 +304,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> UpdateUserPassword(long id, [FromBody] UserPasswordPatchDTO model)
         {
             if (id != model.Id)
@@ -296,29 +320,50 @@ namespace Webapp.ApiControllers._1._0.Identity
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
             }
 
+            var currentUser = await _userManager.GetUserAsync(User);
+
             if (!await UserHasAccessToUser(await _userManager.GetUserAsync(User), user))
             {
                 return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
             }
 
-            var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            if (await _userManager.IsInRoleAsync(currentUser, "User") || currentUser.Id == user.Id)
+            {
+                var result = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
-            if (!result.Succeeded)
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new ErrorResponseDTO("Неверный пароль"));
+                }
+
+                await _signInManager.RefreshSignInAsync(user);
+                _logger.LogInformation("User changed their password successfully.");
+
+                return Ok();
+            }
+
+            var passwordValidator = new PasswordValidator<AppUser>();
+            var valid = await passwordValidator.ValidateAsync(_userManager, null, model.NewPassword);
+            
+            if (!valid.Succeeded)
             {
                 return BadRequest(new ErrorResponseDTO("Неверный пароль"));
             }
-
-            await _signInManager.RefreshSignInAsync(user);
-            _logger.LogInformation("User changed their password successfully.");
-
+            
+            await _userManager.RemovePasswordAsync(user);
+            await _userManager.AddPasswordAsync(user, model.NewPassword);
+                
             return Ok();
         }
+
 
         [HttpPatch("users/{id}/role")]
         [Authorize(Roles = "Administrator, Root")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> UpdateUserRole(long id, [FromBody] UserRolePatchDTO model)
         {
             if (id != model.Id)
@@ -331,6 +376,13 @@ namespace Webapp.ApiControllers._1._0.Identity
             if (user == null)
             {
                 return NotFound(new ErrorResponseDTO("Пользователь не найден"));
+            }
+            
+            var role = await _roleManager.FindByNameAsync(model.Role);
+
+            if (role == null)
+            {
+                return BadRequest(new ErrorResponseDTO("Роль не найдена"));
             }
 
             var currentUser = await _userManager.GetUserAsync(User);
@@ -362,6 +414,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult> DeleteUser(long id)
         {
             if (User.UserId() == id)
@@ -381,14 +435,22 @@ namespace Webapp.ApiControllers._1._0.Identity
                 return BadRequest(new ErrorResponseDTO("Ошибка доступа"));
             }
 
-            var result = await _userManager.DeleteAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var result = await _userManager.RemoveFromRolesAsync(user, roles);
 
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
-                return Ok();
+                return BadRequest(new ErrorResponseDTO("Ошибка при удалении пользователя"));
             }
+            
+            result = await _userManager.DeleteAsync(user);
 
-            return BadRequest(new ErrorResponseDTO("Ошибка при удалении пользователя"));
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ErrorResponseDTO("Ошибка при удалении пользователя"));
+            }
+            
+            return Ok();
         }
 
         private async Task<bool> UserHasAccessToRole(AppUser currentUser, string role)
@@ -407,26 +469,30 @@ namespace Webapp.ApiControllers._1._0.Identity
         private async Task<bool> UserHasAccessToUser(AppUser currentUser, AppUser targetUser)
         {
             var currentUserRoles = await _userManager.GetRolesAsync(currentUser);
-            var targetUserRoles = await _userManager.GetRolesAsync(currentUser);
+            var targetUserRoles = await _userManager.GetRolesAsync(targetUser);
 
             if (targetUserRoles.Contains("Root"))
             {
                 return false;
             }
-            else
+
+            if (currentUser.Id == targetUser.Id)
             {
-                if (currentUser.Id == targetUser.Id)
-                {
-                    return true;
-                }
-
-                if (targetUserRoles.Contains("Administator") && !currentUserRoles.Contains("Root"))
-                {
-                    return false;
-                }
-
-                return !targetUserRoles.Contains("User") || !currentUserRoles.Contains("User");
+                return true;
             }
+
+            if (targetUserRoles.Contains("Administrator") && currentUserRoles.Contains("Root"))
+            {
+                return true;
+            }
+
+            if (targetUserRoles.Contains("User") &&
+                (currentUserRoles.Contains("Administrator") || currentUserRoles.Contains("Root")))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
