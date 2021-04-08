@@ -29,7 +29,7 @@ namespace Webapp.ApiControllers._1._0
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>))]
         public async Task<ActionResult<CollectionDTO<AttributeTypeGetDTO>>> GetAll(int pageIndex, int itemsCount,
-            bool reversed)
+            bool reversed, string? searchKey)
         {
             var typesQuery = _context.AttributeTypes.Select(at => new AttributeTypeGetDTO
             {
@@ -41,6 +41,11 @@ namespace Webapp.ApiControllers._1._0
                 UsesDefinedUnits = at.UsesDefinedUnits,
                 UsesDefinedValues = at.UsesDefinedValues
             });
+
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                typesQuery = typesQuery.Where(at => at.Name.ToLower().Contains(searchKey.ToLower()));
+            }
 
             typesQuery = typesQuery.OrderBy(at => at.Id);
             typesQuery = reversed ? typesQuery.OrderByDescending(at => at.Name) : typesQuery.OrderBy(at => at.Name);
@@ -59,8 +64,7 @@ namespace Webapp.ApiControllers._1._0
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AttributeTypeGetDetailsDTO))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult<AttributeTypeGetDetailsDTO>> GetById(long id, int valuesCount, int unitsCount)
         {
             var item = await _context.AttributeTypes
@@ -97,7 +101,7 @@ namespace Webapp.ApiControllers._1._0
 
             if (item == null)
             {
-                return NotFound();
+                return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
             }
 
             return item;
@@ -202,28 +206,42 @@ namespace Webapp.ApiControllers._1._0
 
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> PatchAttributeType(long id, AttributeTypePutDTO dto)
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<IActionResult> PatchAttributeType(long id, AttributeTypePatchDTO dto)
         {
+            if (id != dto.Id)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+            
             var attributeType = await _context.AttributeTypes.FindAsync(id);
 
             if (attributeType == null)
             {
-                return NotFound();
+                return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
             }
 
-            if (id != dto.Id)
+            if (dto.DefaultCustomValue == null && !attributeType.UsesDefinedValues)
             {
-                return BadRequest();
+                return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
+            }
+
+            if (attributeType.UsesDefinedValues && await _context.TypeValues.FirstOrDefaultAsync(value => value.Id == dto.DefaultValueId) == null)
+            {
+                return BadRequest(new ErrorResponseDTO("Неверный идентификатор значения по умолчанию"));
+            }
+            
+            if (attributeType.UsesDefinedUnits && await _context.TypeUnits.FirstOrDefaultAsync(unit => unit.Id == dto.DefaultUnitId) == null)
+            {
+                return BadRequest(new ErrorResponseDTO("Неверный идентификатор единицы измерения по умолчанию"));
             }
 
             attributeType.Name = dto.Name;
             attributeType.DefaultCustomValue = dto.DefaultCustomValue;
             attributeType.DefaultUnitId = dto.DefaultUnitId;
             attributeType.DefaultValueId = dto.DefaultValueId;
-            attributeType.UsesDefinedUnits = dto.UsesDefinedUnits;
-            attributeType.UsesDefinedValues = dto.UsesDefinedValues;
+
             attributeType.DataType = (Domain.Enums.AttributeDataType) dto.DataType;
 
             _context.AttributeTypes.Update(attributeType);

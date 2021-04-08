@@ -68,17 +68,14 @@ namespace PublicApi.v1
         public ICollection<string> Units { get; set; } = default!;
     }
 
-    public class AttributeTypePutDTO : DomainEntityId
+    public class AttributeTypePatchDTO : DomainEntityId
     {
         [Required] public string Name { get; set; } = default!;
         
         public string? DefaultCustomValue { get; set; }
         
         [Required] public AttributeDataType DataType { get; set; } = default!;
-        
-        public bool UsesDefinedValues { get; set; }
-        public bool UsesDefinedUnits { get; set; }
-        
+
         public long DefaultValueId { get; set; }
         public long DefaultUnitId { get; set; }
     }
