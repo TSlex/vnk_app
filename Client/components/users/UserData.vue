@@ -26,16 +26,16 @@
       </div>
       <v-divider></v-divider>
       <template v-if="isButtonsEnabled">
-        <v-btn class="mt-3 mr-2" v-if="isChangeButtonEnabled"
+        <v-btn class="mt-3 mr-2" v-if="isChangeButtonEnabled" @click.stop="changeDialog = true"
           >Изменить данные</v-btn
         >
-        <v-btn class="mt-3 mr-2" v-if="isChangeRoleButtonEnabled"
+        <v-btn class="mt-3 mr-2" v-if="isChangeRoleButtonEnabled" @click.stop="roleChangeDialog = true"
           >Изменить роль</v-btn
         >
-        <v-btn class="mt-3 mr-2" v-if="isChangePasswordButtonEnabled"
+        <v-btn class="mt-3 mr-2" v-if="isChangePasswordButtonEnabled" @click.stop="passwordChangeDialog = true"
           >Изменить пароль</v-btn
         >
-        <v-btn class="mt-3 mr-2" v-if="isDeleteButtonEnabled">Удалить</v-btn>
+        <v-btn class="mt-3 mr-2" v-if="isDeleteButtonEnabled" @click.stop="deleteDialog = true">Удалить</v-btn>
       </template>
       <template v-else
         ><div class="mt-2">
@@ -43,7 +43,7 @@
         </div></template
       >
     </template>
-    <!-- <UserCreateDialog :active="createDialog" /> -->
+      <UserRoleDialog v-model="roleChangeDialog" />
   </v-col>
 </template>
 
@@ -51,12 +51,19 @@
 import { Component, Vue, Prop } from "nuxt-property-decorator";
 import { identityStore, usersStore } from "~/store";
 import { UserGetDTO } from "~/types/Identity/UserDTO";
-import UserCreateDialog from "~/components/users/UserCreateDialog.vue";
+import UserRoleDialog from "~/components/users/UserRoleDialog.vue";
 
-@Component({})
+@Component({
+  components: {
+    UserRoleDialog,
+  },
+})
 export default class UserData extends Vue {
   fetched = false;
-  // createDialog = false;
+  roleChangeDialog = false;
+  passwordChangeDialog = false;
+  changeDialog = false;
+  deleteDialog = false;
 
   get isPersonal() {
     return !this.sellectedUser;

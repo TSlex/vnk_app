@@ -1,9 +1,7 @@
-import { EmptyResponseDTO } from './../types/Responses/EmptyResponseDTO';
 import { UserRolePatchDTO, UserPasswordPatchDTO, UserPatchDTO, UserPostDTO } from './../types/Identity/UserDTO';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 import { UserGetDTO } from '~/types/Identity/UserDTO'
-import { ResponseDTO } from '~/types/Responses/ResponseDTO';
 
 @Module({
   namespaced: true,
@@ -119,8 +117,8 @@ export default class UsersStore extends VuexModule {
   }
 
   @Action
-  async updateUser(id: number, model: UserPatchDTO) {
-    let response = await $ctx.$uow.identity.updateUser(id, model)
+  async updateUser(model: UserPatchDTO) {
+    let response = await $ctx.$uow.identity.updateUser(model.id, model)
 
     if (response.error) {
       this.context.commit("ACTION_FAILED", response.error)
@@ -128,13 +126,14 @@ export default class UsersStore extends VuexModule {
     } else {
       this.context.commit("CLEAR_ERROR")
       this.context.commit("USER_UPDATED", model)
+      this.context.dispatch("getUser", model.id)
       return true
     }
   }
 
   @Action
-  async updateUserPassword(id: number, model: UserPasswordPatchDTO) {
-    let response = await $ctx.$uow.identity.updateUserPassword(id, model)
+  async updateUserPassword(model: UserPasswordPatchDTO) {
+    let response = await $ctx.$uow.identity.updateUserPassword(model.id, model)
 
     if (response.error) {
       this.context.commit("ACTION_FAILED", response.error)
@@ -145,16 +144,17 @@ export default class UsersStore extends VuexModule {
     }
   }
 
-  @Action
-  async updateUserRole(id: number, model: UserRolePatchDTO) {
-    let response = await $ctx.$uow.identity.updateUserRole(id, model)
+  @Action({ rawError: true })
+  async updateUserRole(model: UserRolePatchDTO) {
+    let response = await $ctx.$uow.identity.updateUserRole(model.id, model)
 
     if (response.error) {
       this.context.commit("ACTION_FAILED", response.error)
       return false
     } else {
       this.context.commit("CLEAR_ERROR")
-      this.context.commit("USER_ROLE_UPDATED")
+      this.context.commit("USER_ROLE_UPDATED", model)
+      this.context.dispatch("getUser", model.id)
       return true
     }
   }

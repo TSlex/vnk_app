@@ -7,6 +7,9 @@
         </v-card-title>
         <v-card-text>
           <v-container>
+            <v-alert dense text type="error" v-if="showError">{{
+              error
+            }}</v-alert>
             <v-text-field
               label="Имя"
               required
@@ -77,6 +80,8 @@ export default class UserCreateDialog extends Vue {
   @Prop()
   value!: boolean;
 
+  showError = false;
+
   model: UserPostDTO = {
     firstName: "",
     lastName: "",
@@ -92,10 +97,14 @@ export default class UserCreateDialog extends Vue {
     password: validate(required, password),
     passwordConfirmation: [
       (v: any) => v === this.model.password || "Пароли должны совпадать",
-    ]
+    ],
   };
 
   passwordConfirmation: string = "";
+
+  get error() {
+    return usersStore.error;
+  }
 
   get isRoot() {
     return identityStore.isRoot;
@@ -123,10 +132,12 @@ export default class UserCreateDialog extends Vue {
   onSubmit() {
     if ((this.$refs.form as any).validate()) {
       usersStore.createUser(this.model).then((succeeded) => {
-        if (succeeded){
+        if (succeeded) {
           this.onClose();
+        } else {
+          this.showError = true;
         }
-      })
+      });
     }
   }
 }
