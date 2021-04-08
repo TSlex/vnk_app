@@ -19,6 +19,7 @@ namespace DAL.App.EF
         public DbSet<Template> Templates { get; set; } = default!;
         public DbSet<TemplateAttribute> TemplateAttributes { get; set; } = default!;
         public DbSet<AttributeTypeValue> TypeValues { get; set; } = default!;
+        public DbSet<AttributeTypeUnit> TypeUnits { get; set; } = default!;
 
         private readonly IUserNameProvider _userNameProvider;
 

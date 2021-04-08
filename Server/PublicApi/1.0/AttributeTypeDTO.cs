@@ -36,8 +36,8 @@ namespace PublicApi.v1
         public long ValuesCount { get; set; }
         public long UnitsCount { get; set; }
 
-        public ICollection<AttributeTypeValueDetailsDTO>? Values { get; set; }
-        public ICollection<AttributeTypeUnitDetailsDTO>? Units { get; set; }
+        public ICollection<AttributeTypeValueDetailsDTO> Values { get; set; } = default!;
+        public ICollection<AttributeTypeUnitDetailsDTO> Units { get; set; } = default!;
     }
 
     public class AttributeTypeValueDetailsDTO : DomainEntityId
@@ -61,11 +61,11 @@ namespace PublicApi.v1
         public bool UsesDefinedValues { get; set; }
         public bool UsesDefinedUnits { get; set; }
         
-        public long DefaultValueId { get; set; }
-        public long DefaultUnitId { get; set; }
+        public int DefaultValueIndex { get; set; }
+        public int DefaultUnitIndex { get; set; }
 
-        public ICollection<string>? Values { get; set; }
-        public ICollection<string>? Units { get; set; }
+        public ICollection<string> Values { get; set; } = default!;
+        public ICollection<string> Units { get; set; } = default!;
     }
 
     public class AttributeTypePutDTO : DomainEntityId

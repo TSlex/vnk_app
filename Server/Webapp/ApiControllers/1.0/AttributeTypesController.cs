@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -7,8 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
 using Domain;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using PublicApi.v1;
 using PublicApi.v1.Common;
 using PublicApi.v1.Enums;
@@ -20,8 +16,7 @@ namespace Webapp.ApiControllers._1._0
     [Route("api/v{version:apiVersion}/[controller]")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User, Administrator, Root")]
-    [AllowAnonymous]
+    // [Authorize(Roles = "User, Administrator, Root")]
     public class AttributeTypesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -104,20 +99,41 @@ namespace Webapp.ApiControllers._1._0
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OrderGetDTO))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeGetDetailsDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult<AttributeType>> PostAttributeType(AttributeTypePostDTO dto)
         {
+            if (dto.DefaultCustomValue == null && !dto.UsesDefinedValues || !dto.Values.Any())
+            {
+                return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
+            }
+
+            if (dto.UsesDefinedValues && !dto.Values.Any())
+            {
+                return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
+            }
+
+            if (dto.UsesDefinedUnits && !dto.Units.Any())
+            {
+                return BadRequest(new ErrorResponseDTO("У атрибута должна быть единица измерения по умолчанию"));
+            }
+
+            if (dto.Units.Any() && (0 < dto.DefaultUnitIndex || dto.DefaultUnitIndex >= dto.Units.Count))
+            {
+                return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву единиц измерений"));
+            }
+            
+            if (dto.Values.Any() && (0 < dto.DefaultValueIndex || dto.DefaultValueIndex >= dto.Values.Count))
+            {
+                return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву значений"));
+            }
+
             var attributeType = new AttributeType()
             {
                 Name = dto.Name,
                 DataType = (Domain.Enums.AttributeDataType) dto.DataType,
-                TypeUnits = dto.Units?.Select(s => new AttributeTypeUnit {Value = s}).ToList(),
-                TypeValues = dto.Values?.Select(s => new AttributeTypeValue {Value = s}).ToList(),
                 DefaultCustomValue = dto.DefaultCustomValue,
-                DefaultUnitId = dto.DefaultUnitId,
-                DefaultValueId = dto.DefaultValueId,
                 UsesDefinedUnits = dto.UsesDefinedUnits,
                 UsesDefinedValues = dto.UsesDefinedValues,
             };
@@ -125,16 +141,66 @@ namespace Webapp.ApiControllers._1._0
             await _context.AttributeTypes.AddAsync(attributeType);
             await _context.SaveChangesAsync();
 
+            var values = dto.Values.Select(s =>
+                new AttributeTypeValue {Value = s, AttributeTypeId = attributeType.Id}).ToList();
+
+            var hasValues = dto.UsesDefinedValues && dto.Values.Any();
+            var hasUnits = dto.UsesDefinedUnits && dto.Units.Any();
+
+            if (hasValues)
+            {
+                foreach (var value in values)
+                {
+                    await _context.TypeValues.AddAsync(value);
+                }
+                
+                await _context.SaveChangesAsync();
+            }
+
+            var units = dto.Units.Select(s =>
+                new AttributeTypeUnit {Value = s, AttributeTypeId = attributeType.Id}).ToList();
+
+            if (hasUnits)
+            {
+                foreach (var unit in units)
+                {
+                    await _context.TypeUnits.AddAsync(unit);
+                }
+                
+                await _context.SaveChangesAsync();
+            }
+
+            if (hasValues || hasUnits)
+            {
+                attributeType = await _context.AttributeTypes.FirstAsync(type => type.Id == attributeType.Id);
+            }
+
+            if (hasValues)
+            {
+                attributeType.DefaultValueId = values[dto.DefaultValueIndex].Id;
+            }
+
+            if (hasUnits)
+            {
+                attributeType.DefaultUnitId = units[dto.DefaultValueIndex].Id;
+            }
+
+            if (hasValues || hasUnits)
+            {
+                _context.AttributeTypes.Update(attributeType);
+                await _context.SaveChangesAsync();
+            }
+            
             var item = await GetById(attributeType.Id, 0, 0);
 
             return CreatedAtAction("GetById", item);
         }
 
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> PutAttributeType(long id, AttributeTypePutDTO dto)
+        public async Task<IActionResult> PatchAttributeType(long id, AttributeTypePutDTO dto)
         {
             var attributeType = await _context.AttributeTypes.FindAsync(id);
 
@@ -162,6 +228,7 @@ namespace Webapp.ApiControllers._1._0
             return NoContent();
         }
 
+        //TODO: Make delete possible
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAttributeType(long id)
         {
