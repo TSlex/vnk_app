@@ -27,29 +27,34 @@ namespace Webapp.ApiControllers._1._0
         }
 
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDTO<AttributeTypeGetDTO>))]
-        public async Task<ActionResult<CollectionDTO<AttributeTypeGetDTO>>> GetAll(long page, int itemsCount)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>))]
+        public async Task<ActionResult<CollectionDTO<AttributeTypeGetDTO>>> GetAll(int pageIndex, int itemsCount,
+            bool reversed)
         {
+            var typesQuery = _context.AttributeTypes.Select(at => new AttributeTypeGetDTO
+            {
+                Id = at.Id,
+                Name = at.Name,
+                DataType = (AttributeDataType) at.DataType,
+                SystemicType = at.SystemicType,
+                UsedCount = at.Attributes!.Count,
+                UsesDefinedUnits = at.UsesDefinedUnits,
+                UsesDefinedValues = at.UsesDefinedValues
+            });
+
+            typesQuery = typesQuery.OrderBy(at => at.Id);
+            typesQuery = reversed ? typesQuery.OrderByDescending(at => at.Name) : typesQuery.OrderBy(at => at.Name);
+
             var items = new CollectionDTO<AttributeTypeGetDTO>
             {
-                PageIndex = page,
                 TotalCount = await _context.AttributeTypes.CountAsync(),
-                // PagesCount = (long) Math.Ceiling(await _context.AttributeTypes.CountAsync() / (1.0f * itemsCount)),
-                Items = await _context.AttributeTypes.Select(at => new AttributeTypeGetDTO
-                    {
-                        Id = at.Id,
-                        Name = at.Name,
-                        DataType = (AttributeDataType) at.DataType,
-                        SystemicType = at.SystemicType,
-                        UsedCount = at.Attributes!.Count,
-                        UsesDefinedUnits = at.UsesDefinedUnits,
-                        UsesDefinedValues = at.UsesDefinedValues
-                    }).OrderBy(at => at.Name)
-                    .Take(itemsCount)
-                    .ToListAsync()
+                Items = await typesQuery.Skip(pageIndex * itemsCount).Take(itemsCount).ToListAsync()
             };
 
-            return items;
+            return Ok(new ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>
+            {
+                Data = items
+            });
         }
 
         [HttpGet("{id}")]
@@ -100,7 +105,6 @@ namespace Webapp.ApiControllers._1._0
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeGetDetailsDTO>))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult<AttributeType>> PostAttributeType(AttributeTypePostDTO dto)
         {
@@ -123,7 +127,7 @@ namespace Webapp.ApiControllers._1._0
             {
                 return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву единиц измерений"));
             }
-            
+
             if (dto.Values.Any() && (0 < dto.DefaultValueIndex || dto.DefaultValueIndex >= dto.Values.Count))
             {
                 return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву значений"));
@@ -153,7 +157,7 @@ namespace Webapp.ApiControllers._1._0
                 {
                     await _context.TypeValues.AddAsync(value);
                 }
-                
+
                 await _context.SaveChangesAsync();
             }
 
@@ -166,7 +170,7 @@ namespace Webapp.ApiControllers._1._0
                 {
                     await _context.TypeUnits.AddAsync(unit);
                 }
-                
+
                 await _context.SaveChangesAsync();
             }
 
@@ -190,7 +194,7 @@ namespace Webapp.ApiControllers._1._0
                 _context.AttributeTypes.Update(attributeType);
                 await _context.SaveChangesAsync();
             }
-            
+
             var item = await GetById(attributeType.Id, 0, 0);
 
             return CreatedAtAction("GetById", item);
