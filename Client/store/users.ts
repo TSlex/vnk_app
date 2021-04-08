@@ -168,6 +168,7 @@ export default class UsersStore extends VuexModule {
       return false
     } else {
       this.context.commit("CLEAR_ERROR")
+      this.context.commit("SELECTED_USER_CLEARED")
       this.context.commit("USER_DELETED", id)
       return true
     }

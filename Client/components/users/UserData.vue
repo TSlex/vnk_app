@@ -59,6 +59,8 @@
     </template>
     <UserRoleDialog v-model="roleChangeDialog" v-if="roleChangeDialog" />
     <UserDataDialog v-model="changeDialog" v-if="changeDialog" />
+    <UserPasswordDialog v-model="passwordChangeDialog" v-if="passwordChangeDialog" />
+    <UserDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
   </v-col>
 </template>
 
@@ -68,11 +70,15 @@ import { identityStore, usersStore } from "~/store";
 import { UserGetDTO } from "~/types/Identity/UserDTO";
 import UserRoleDialog from "~/components/users/UserRoleDialog.vue";
 import UserDataDialog from "~/components/users/UserDataDialog.vue";
+import UserPasswordDialog from "~/components/users/UserPasswordDialog.vue";
+import UserDeleteDialog from "~/components/users/UserDeleteDialog.vue";
 
 @Component({
   components: {
     UserRoleDialog,
     UserDataDialog,
+    UserPasswordDialog,
+    UserDeleteDialog
   },
 })
 export default class UserData extends Vue {
