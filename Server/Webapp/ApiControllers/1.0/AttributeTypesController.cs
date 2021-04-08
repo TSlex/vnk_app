@@ -28,7 +28,7 @@ namespace Webapp.ApiControllers._1._0
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>))]
-        public async Task<ActionResult<CollectionDTO<AttributeTypeGetDTO>>> GetAll(int pageIndex, int itemsCount,
+        public async Task<ActionResult<CollectionDTO<AttributeTypeGetDTO>>> GetAll(int pageIndex, int itemsOnPage,
             bool reversed, string? searchKey)
         {
             var typesQuery = _context.AttributeTypes.Select(at => new AttributeTypeGetDTO
@@ -53,7 +53,7 @@ namespace Webapp.ApiControllers._1._0
             var items = new CollectionDTO<AttributeTypeGetDTO>
             {
                 TotalCount = await _context.AttributeTypes.CountAsync(),
-                Items = await typesQuery.Skip(pageIndex * itemsCount).Take(itemsCount).ToListAsync()
+                Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
             };
 
             return Ok(new ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>
