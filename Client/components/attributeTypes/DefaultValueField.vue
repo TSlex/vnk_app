@@ -38,6 +38,37 @@
     :first-day-of-week="1"
     v-model="timeValue"
   ></v-time-picker>
+  <div v-else-if="isDateTime">
+    <v-tabs fixed-tabs v-model="dateTimeTab" class="mb-2">
+      <v-tab>Дата</v-tab>
+      <v-tab>Время</v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="dateTimeTab">
+      <v-tab-item>
+        <v-card flat>
+          <v-date-picker
+            full-width
+            locale="ru"
+            :first-day-of-week="1"
+            v-model="dateValue"
+            landscape
+          ></v-date-picker>
+        </v-card>
+      </v-tab-item>
+      <v-tab-item>
+        <v-card flat>
+          <v-time-picker
+            format="24hr"
+            full-width
+            landscape
+            locale="ru"
+            :first-day-of-week="1"
+            v-model="timeValue"
+          ></v-time-picker>
+        </v-card>
+      </v-tab-item>
+    </v-tabs-items>
+  </div>
 </template>
 
 <script lang="ts">
@@ -55,7 +86,8 @@ export default class DefaultValueField extends Vue {
   floatValue = 0.0;
   timeValue = "";
   dateValue = "";
-  dateTimeValue = "";
+
+  dateTimeTab = null;
 
   label = "Значение по умолчанию";
 
