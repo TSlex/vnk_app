@@ -3,7 +3,7 @@
     <v-col cols="6" class="mt-4">
       <template v-if="fetched">
         <v-toolbar flat>
-          <v-btn outlined text large>Добавить</v-btn>
+          <v-btn outlined text large to="types/create">Добавить</v-btn>
           <v-spacer></v-spacer>
           <v-text-field
             rounded
@@ -28,9 +28,6 @@
           hide-default-footer
           @click:row="$router.push(`types/1`)"
         >
-          <template v-slot:[`header.name`]="{}">
-            <div>Hello</div>
-          </template>
           <template v-slot:[`item.type`]="{ item }">
             <v-chip color="blue" dark v-if="item.systemicType"
               >системный</v-chip
@@ -64,7 +61,7 @@ import { Component, Vue } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
 
 @Component({})
-export default class AttributesIndex extends Vue {
+export default class AttributeTypesIndex extends Vue {
   fetched = false;
   createDialog = false;
   _currentPage = 0;

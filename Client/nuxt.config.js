@@ -26,6 +26,7 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    "~/plugins/vue-plugins.ts",
     "~/plugins/uow.ts",
     "~/plugins/context-accessor.ts",
     "~/plugins/axios-error-handler.ts",

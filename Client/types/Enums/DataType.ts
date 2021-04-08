@@ -1,5 +1,10 @@
 export enum DataType {
   Undefined = -1,
+  Boolean,
   String,
-  Number,
+  Integer,
+  Float,
+  Date,
+  DateTime,
+  Time
 }
