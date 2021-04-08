@@ -89,11 +89,11 @@ export default class UserData extends Vue {
   deleteDialog = false;
 
   get isPersonal() {
-    return !this.sellectedUser;
+    return !(usersStore.selectedUser && usersStore.selectedUser.id != identityStore.userData?.id);
   }
 
   get isCurrentUserSellected() {
-    return this.isPersonal || this.sellectedUser?.id == this.currentUser?.id;
+    return this.isPersonal || this.selectedUser?.id == this.currentUser?.id;
   }
 
   get isButtonsEnabled() {
@@ -108,7 +108,7 @@ export default class UserData extends Vue {
   get isDeleteButtonEnabled() {
     return (
       !this.isCurrentUserSellected &&
-      this.userHaveAccessToUser(this.currentUser!, this.sellectedUser!)
+      this.userHaveAccessToUser(this.currentUser!, this.selectedUser!)
     );
   }
 
@@ -118,7 +118,7 @@ export default class UserData extends Vue {
     }
     return (
       this.isCurrentUserSellected ||
-      this.userHaveAccessToUser(this.currentUser!, this.sellectedUser!)
+      this.userHaveAccessToUser(this.currentUser!, this.selectedUser!)
     );
   }
 
@@ -133,13 +133,13 @@ export default class UserData extends Vue {
 
     return (
       this.isCurrentUserSellected ||
-      this.userHaveAccessToUser(this.currentUser!, this.sellectedUser!)
+      this.userHaveAccessToUser(this.currentUser!, this.selectedUser!)
     );
   }
 
   get userData() {
     if (!this.isPersonal) {
-      return this.sellectedUser;
+      return this.selectedUser;
     }
     return identityStore.userData;
   }
@@ -148,7 +148,7 @@ export default class UserData extends Vue {
     return identityStore.userData;
   }
 
-  get sellectedUser() {
+  get selectedUser() {
     return usersStore.selectedUser;
   }
 

@@ -16,6 +16,7 @@ export default class NavAuth extends Vue {
   }
 
   onLogout(){
+    this.$router.push("/auth/login")
     identityStore.logout()
   }
 }

@@ -2,6 +2,7 @@ import { UserRolePatchDTO, UserPasswordPatchDTO, UserPatchDTO, UserPostDTO } fro
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 import { UserGetDTO } from '~/types/Identity/UserDTO'
+import { identityStore } from '~/store';
 
 @Module({
   namespaced: true,
@@ -127,6 +128,7 @@ export default class UsersStore extends VuexModule {
       this.context.commit("CLEAR_ERROR")
       this.context.commit("USER_UPDATED", model)
       this.context.dispatch("getUser", model.id)
+      await identityStore.fetchData()
       return true
     }
   }

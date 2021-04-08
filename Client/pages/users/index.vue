@@ -8,7 +8,7 @@
               <v-list dense nav>
                 <v-list-item
                   link
-                  v-for="(nav, i) in navs"
+                  v-for="(nav, i) in NavTabs"
                   :key="i"
                   @click="setTab(nav.tabIndex)"
                 >
@@ -22,7 +22,7 @@
               </v-list>
             </v-navigation-drawer>
           </v-col>
-          <template v-if="selectedUser"><UserData/></template>
+          <template v-if="userSelected"><UserData/></template>
           <template v-else-if="tabIndex == 1"><UsersList /></template>
           <template v-else><UserData /></template>
         </v-row>
@@ -37,7 +37,7 @@ import { Component, Vue } from "nuxt-property-decorator";
 import UserData from "~/components/users/UserData.vue";
 import UsersList from "@/components/users/UsersList.vue";
 import UserForm from "~/components/users/UserDataDialog.vue";
-import { usersStore } from "~/store";
+import { identityStore, usersStore } from "~/store";
 
 @Component({
   components: {
@@ -49,17 +49,26 @@ import { usersStore } from "~/store";
 export default class UsersIndex extends Vue {
   tabIndex = 0;
 
-  navs: { icon: string; title: string; tabIndex: number }[] = [
+  navs: { icon: string; title: string; tabIndex: number, condition: () => boolean }[] = [
     {
       icon: "mdi-card-account-details-outline",
       title: "Мои данные",
       tabIndex: 0,
+      condition: () => true
     },
-    { icon: "mdi-account-multiple", title: "Все пользователи", tabIndex: 1 },
+    { icon: "mdi-account-multiple", title: "Все пользователи", tabIndex: 1, condition: () => this.isAdminOrRoot},
   ];
 
-  get selectedUser(){
-    return usersStore.selectedUser
+  get NavTabs(){
+    return this.navs.filter(nav => nav.condition())
+  }
+
+  get userSelected(){
+    return usersStore.selectedUser && usersStore.selectedUser.id != identityStore.userData?.id
+  }
+
+  get isAdminOrRoot(){
+    return identityStore.isAdministrator || identityStore.isRoot;
   }
 
   setTab(index: number) {

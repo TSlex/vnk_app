@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
-import { usersStore } from "~/store";
+import { identityStore, usersStore } from "~/store";
 import { UserGetDTO } from "~/types/Identity/UserDTO";
 import UserCreateDialog from "~/components/users/UserCreateDialog.vue";
 
@@ -45,7 +45,7 @@ export default class UsersList extends Vue {
   createDialog = false;
 
   get users() {
-    return usersStore.users;
+    return usersStore.users.filter(user => user.id != identityStore.userData?.id);
   }
 
   openCreateDialog(){

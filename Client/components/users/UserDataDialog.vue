@@ -3,7 +3,8 @@
     <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
       <v-card>
         <v-card-title>
-          <span class="headline">Изменить пользователя {{fullName}}</span>
+          <span v-if="!isPersonal" class="headline">Изменить данные пользователя "{{ fullName }}"</span>
+          <span v-else class="headline">Изменить данные</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -75,12 +76,16 @@ export default class UserDataDialog extends Vue {
     email: validate(required, email),
   };
 
+  get isPersonal() {
+    return !usersStore.selectedUser;
+  }
+
   get fullName() {
     return `${this.selectedUser?.firstName} ${this.selectedUser?.lastName}`;
   }
 
   get selectedUser() {
-    return usersStore.selectedUser;
+    return usersStore.selectedUser || identityStore.userData;
   }
 
   get error() {

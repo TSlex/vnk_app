@@ -3,9 +3,8 @@
     <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
       <v-card>
         <v-card-title>
-          <span class="headline"
-            >Изменить пароль пользователю {{ fullName }}</span
-          >
+          <span v-if="!isPersonal" class="headline">Изменить пароль пользователю "{{ fullName }}"</span>
+          <span v-else class="headline">Сменить пароль</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -78,8 +77,12 @@ export default class UserPasswordDialog extends Vue {
     return `${this.selectedUser?.firstName} ${this.selectedUser?.lastName}`;
   }
 
+  get isPersonal() {
+    return !usersStore.selectedUser;
+  }
+
   get selectedUser() {
-    return usersStore.selectedUser;
+    return usersStore.selectedUser || identityStore.userData;
   }
 
   get active() {
