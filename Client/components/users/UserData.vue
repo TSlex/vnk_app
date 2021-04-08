@@ -26,16 +26,30 @@
       </div>
       <v-divider></v-divider>
       <template v-if="isButtonsEnabled">
-        <v-btn class="mt-3 mr-2" v-if="isChangeButtonEnabled" @click.stop="changeDialog = true"
+        <v-btn
+          class="mt-3 mr-2"
+          v-if="isChangeButtonEnabled"
+          @click.stop="changeDialog = true"
           >Изменить данные</v-btn
         >
-        <v-btn class="mt-3 mr-2" v-if="isChangeRoleButtonEnabled" @click.stop="roleChangeDialog = true"
+        <v-btn
+          class="mt-3 mr-2"
+          v-if="isChangeRoleButtonEnabled"
+          @click.stop="roleChangeDialog = true"
           >Изменить роль</v-btn
         >
-        <v-btn class="mt-3 mr-2" v-if="isChangePasswordButtonEnabled" @click.stop="passwordChangeDialog = true"
+        <v-btn
+          class="mt-3 mr-2"
+          v-if="isChangePasswordButtonEnabled"
+          @click.stop="passwordChangeDialog = true"
           >Изменить пароль</v-btn
         >
-        <v-btn class="mt-3 mr-2" v-if="isDeleteButtonEnabled" @click.stop="deleteDialog = true">Удалить</v-btn>
+        <v-btn
+          class="mt-3 mr-2"
+          v-if="isDeleteButtonEnabled"
+          @click.stop="deleteDialog = true"
+          >Удалить</v-btn
+        >
       </template>
       <template v-else
         ><div class="mt-2">
@@ -43,7 +57,8 @@
         </div></template
       >
     </template>
-      <UserRoleDialog v-model="roleChangeDialog" />
+    <UserRoleDialog v-model="roleChangeDialog" v-if="roleChangeDialog" />
+    <UserDataDialog v-model="changeDialog" v-if="changeDialog" />
   </v-col>
 </template>
 
@@ -52,10 +67,12 @@ import { Component, Vue, Prop } from "nuxt-property-decorator";
 import { identityStore, usersStore } from "~/store";
 import { UserGetDTO } from "~/types/Identity/UserDTO";
 import UserRoleDialog from "~/components/users/UserRoleDialog.vue";
+import UserDataDialog from "~/components/users/UserDataDialog.vue";
 
 @Component({
   components: {
     UserRoleDialog,
+    UserDataDialog,
   },
 })
 export default class UserData extends Vue {
