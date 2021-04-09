@@ -2,8 +2,13 @@
 {
     public enum AttributeDataType
     {
-        Undefined = -1, 
+        Undefined = -1,
+        Boolean,
         String,
-        Number,
+        Integer,
+        Float,
+        Date,
+        Time,
+        DateTime
     }
 }

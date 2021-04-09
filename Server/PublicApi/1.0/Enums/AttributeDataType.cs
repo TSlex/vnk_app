@@ -8,7 +8,7 @@
         Integer,
         Float,
         Date,
-        DateTime,
-        Time
+        Time,
+        DateTime
     }
 }

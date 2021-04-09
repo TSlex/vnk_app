@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DAL.App.EF;
 using Domain;
+using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -145,9 +146,62 @@ namespace DAL.Helpers
             }
         }
 
-        public static void SeedData(AppDbContext ctx, ILogger? logger)
+        public static void SeedData(AppDbContext context, ILogger? logger)
         {
             logger.LogInformation("SeedData");
+
+            var types = new List<AttributeType>()
+            {
+                new AttributeType()
+                {
+                    Name = "Строка",
+                    DataType = AttributeDataType.String,
+                    SystemicType = true
+                },
+                new AttributeType()
+                {
+                    Name = "Тождество",
+                    DataType = AttributeDataType.Boolean,
+                    SystemicType = true
+                },
+                new AttributeType()
+                {
+                    Name = "Целое число",
+                    DataType = AttributeDataType.Integer,
+                    SystemicType = true
+                },
+                new AttributeType()
+                {
+                    Name = "Число с плавающей точкой",
+                    DataType = AttributeDataType.Float,
+                    SystemicType = true
+                },
+                new AttributeType()
+                {
+                    Name = "Дата",
+                    DataType = AttributeDataType.Date,
+                    SystemicType = true
+                },
+                new AttributeType()
+                {
+                    Name = "Время",
+                    DataType = AttributeDataType.Time,
+                    SystemicType = true
+                },
+                new AttributeType()
+                {
+                    Name = "Дата со временем",
+                    DataType = AttributeDataType.DateTime,
+                    SystemicType = true
+                },
+            };
+
+            foreach (var type in types)
+            {
+                context.AttributeTypes.Add(type);
+            }
+
+            context.SaveChanges();
         }
 
         private struct User

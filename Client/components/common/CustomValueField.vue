@@ -39,7 +39,7 @@
       :label="label"
     ></v-date-picker>
   </v-input>
-  <v-input :rules="rules.dateTime" v-model="fieldValue"></v-input>
+  <v-input :rules="rules.date" v-model="fieldValue"></v-input>
   </div>
   <div v-else-if="isTime">
     <v-input v-model="fieldValue" :messages="label">
@@ -52,7 +52,7 @@
         v-model="fieldValue"
       ></v-time-picker>
     </v-input>
-    <v-input :rules="rules.dateTime" v-model="fieldValue"></v-input>
+    <v-input :rules="rules.time" v-model="fieldValue"></v-input>
   </div>
   <div v-else-if="isDateTime">
     <v-tabs fixed-tabs v-model="dateTimeTab" class="mb-2">
