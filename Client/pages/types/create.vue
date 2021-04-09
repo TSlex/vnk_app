@@ -18,7 +18,11 @@
                 :items="dataTypes"
                 v-model="model.dataType"
               ></v-select>
-              <DefaultValueField :dataType="model.dataType"/>
+              <CustomValueField
+                :dataType="model.dataType"
+                v-model="model.defaultCustomValue"
+                :label="`Значение по умолчанию`"
+              />
               <v-switch label="Значения определены" inset></v-switch>
               <v-switch label="Единицы определены" inset></v-switch>
             </v-container>
@@ -42,16 +46,15 @@ import { Component, Vue } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
 import { DataType } from "~/types/Enums/DataType";
 import { localize } from "~/utils/localizeDataType";
-import DefaultValueField from "~/components/attributeTypes/DefaultValueField.vue";
+import CustomValueField from "~/components/common/CustomValueField.vue";
 import { AttributeTypePostDTO } from "~/types/AttributeTypeDTO";
 
 @Component({
   components: {
-    DefaultValueField,
+    CustomValueField,
   },
 })
 export default class AttributeTypesCreate extends Vue {
-
   model: AttributeTypePostDTO = {
     name: "",
     defaultCustomValue: "",
@@ -62,7 +65,7 @@ export default class AttributeTypesCreate extends Vue {
     defaultUnitIndex: 0,
     values: [],
     units: [],
-  }
+  };
 
   showError = false;
 
@@ -95,8 +98,15 @@ export default class AttributeTypesCreate extends Vue {
     // ];
   }
 
-  onCancel() {}
+  onCancel() {
+    this.$router.back();
+  }
 
-  onSubmit() {}
+  onSubmit() {
+    // this.$router.back()
+    if ((this.$refs.form as any).validate()) {
+      console.log(this.model.defaultCustomValue);
+    }
+  }
 }
 </script>

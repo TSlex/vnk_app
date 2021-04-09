@@ -36,6 +36,18 @@ export const password: validationRule = () => (value: any) => {
   return true
 }
 
+export const integer: validationRule = () => (value: any) => {
+  return /^\d+$/.test(value) || `Данное поле должно быть в целочисленном формате`
+}
+
+export const float: validationRule = () => (value: any) => {
+  return /^\d+[.,]\d+$/.test(value) || `Данное поле должно быть в формате число с плавающей точкой`
+}
+
+export const dateTimeRequired: validationRule = () => (value: any) => {
+  return /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value) || `Данное поле обязательно`
+}
+
 export const minlength: validationRuleWithParam = (length: number) => (value: any) => {
   return value.length >= length || `Поле должно быть не короче ${length} символов`
 }
