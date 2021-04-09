@@ -5,6 +5,6 @@ export enum DataType {
   Integer,
   Float,
   Date,
+  Time,
   DateTime,
-  Time
 }

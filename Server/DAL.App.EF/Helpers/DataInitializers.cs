@@ -156,43 +156,50 @@ namespace DAL.Helpers
                 {
                     Name = "Строка",
                     DataType = AttributeDataType.String,
-                    SystemicType = true
+                    SystemicType = true,
+                    DefaultCustomValue = ""
                 },
                 new AttributeType()
                 {
                     Name = "Тождество",
                     DataType = AttributeDataType.Boolean,
-                    SystemicType = true
+                    SystemicType = true,
+                    DefaultCustomValue = "false"
                 },
                 new AttributeType()
                 {
                     Name = "Целое число",
                     DataType = AttributeDataType.Integer,
-                    SystemicType = true
+                    SystemicType = true,
+                    DefaultCustomValue = "0"
                 },
                 new AttributeType()
                 {
                     Name = "Число с плавающей точкой",
                     DataType = AttributeDataType.Float,
-                    SystemicType = true
+                    SystemicType = true,
+                    DefaultCustomValue = "0.00"
                 },
                 new AttributeType()
                 {
                     Name = "Дата",
                     DataType = AttributeDataType.Date,
-                    SystemicType = true
+                    SystemicType = true,
+                    DefaultCustomValue = ""
                 },
                 new AttributeType()
                 {
                     Name = "Время",
                     DataType = AttributeDataType.Time,
-                    SystemicType = true
+                    SystemicType = true,
+                    DefaultCustomValue = "12:00"
                 },
                 new AttributeType()
                 {
                     Name = "Дата со временем",
                     DataType = AttributeDataType.DateTime,
-                    SystemicType = true
+                    SystemicType = true,
+                    DefaultCustomValue = "false"
                 },
             };
 

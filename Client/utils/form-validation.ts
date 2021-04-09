@@ -9,6 +9,8 @@ export const validate = (...rules: validationRule[]) => {
 }
 
 export const required: validationRule = () => (value: any) => {
+  if (typeof(value) === "string" && value.length > 0) return true
+  if (typeof(value) === "number" && !isNaN(value)) return true
   return !!value || `Данное поле обязательно`
 }
 

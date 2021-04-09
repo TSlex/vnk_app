@@ -26,20 +26,17 @@
     :rules="rules.float"
   ></v-text-field>
   <div v-else-if="isDate">
-  <v-input
-    v-model="fieldValue"
-    :messages="label"
-  >
-    <v-date-picker
-      full-width
-      locale="ru"
-      :first-day-of-week="1"
-      v-model="fieldValue"
-      landscape
-      :label="label"
-    ></v-date-picker>
-  </v-input>
-  <v-input :rules="rules.date" v-model="fieldValue"></v-input>
+    <v-input v-model="fieldValue" :messages="label">
+      <v-date-picker
+        full-width
+        locale="ru"
+        :first-day-of-week="1"
+        v-model="fieldValue"
+        landscape
+        :label="label"
+      ></v-date-picker>
+    </v-input>
+    <v-input :rules="rules.date" v-model="fieldValue"></v-input>
   </div>
   <div v-else-if="isTime">
     <v-input v-model="fieldValue" :messages="label">
@@ -147,7 +144,7 @@ export default class CustomValueField extends Vue {
   }
 
   get switchLabel() {
-    let value = this.fieldValue ? "Правда" : "Ложь";
+    let value = this.fieldValue ? "Да" : "Нет";
     return `${this.label}: ${value}`;
   }
 

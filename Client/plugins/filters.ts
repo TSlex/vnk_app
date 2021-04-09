@@ -1,5 +1,7 @@
 import { Context, Plugin } from '@nuxt/types'
 import Vue from 'vue'
+import { DataType } from '~/types/Enums/DataType'
+import { localize } from '~/utils/localizeDataType'
 
 let context: Context
 
@@ -19,6 +21,11 @@ Vue.filter('formatDateTime', function (value: any) {
   if (value) {
     return context.$moment(String(value)).format('MMMM Do YYYY, h:mm')
   }
+})
+
+Vue.filter('formatDataType', function (value: any) {
+  if (typeof value !== "string" && isNaN(Number(value))) return value;
+  return localize(value as DataType)
 })
 
 export default filtersPlugin

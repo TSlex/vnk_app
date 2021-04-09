@@ -26,7 +26,7 @@
           :items-per-page="itemsOnPage"
           sort-by="name"
           hide-default-footer
-          @click:row="$router.push(`types/1`)"
+          @click:row="openDetails"
         >
           <template v-slot:[`item.type`]="{ item }">
             <v-chip color="blue" dark v-if="item.systemicType"
@@ -41,8 +41,8 @@
           </template>
           <template v-slot:[`item.actions`]>
             <v-icon> mdi-pencil </v-icon>
-            <v-icon> mdi-folder-clock </v-icon>
-            <v-icon> mdi-delete </v-icon>
+            <v-icon color="red"> mdi-folder-clock </v-icon>
+            <v-icon color="red"> mdi-delete </v-icon>
           </template>
         </v-data-table>
         <v-pagination
@@ -59,6 +59,7 @@
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
+import { AttributeTypeGetDTO } from "~/types/AttributeTypeDTO";
 
 @Component({})
 export default class AttributeTypesIndex extends Vue {
@@ -111,6 +112,10 @@ export default class AttributeTypesIndex extends Vue {
 
   get pagesCount() {
     return attributeTypesStore.pagesCount;
+  }
+
+  openDetails(item: AttributeTypeGetDTO) {
+    this.$router.push(`types/${item.id}`)
   }
 
   setOrdering(options: any) {

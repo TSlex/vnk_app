@@ -65,7 +65,7 @@ namespace Webapp.ApiControllers._1._0
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AttributeTypeGetDetailsDTO))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult<AttributeTypeGetDetailsDTO>> GetById(long id, int valuesCount, int unitsCount)
+        public async Task<ActionResult> GetById(long id, int valuesCount, int unitsCount)
         {
             var item = await _context.AttributeTypes
                 .Where(at => at.Id == id)
@@ -104,7 +104,10 @@ namespace Webapp.ApiControllers._1._0
                 return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
             }
 
-            return item;
+            return Ok(new ResponseDTO<AttributeTypeGetDetailsDTO>
+            {
+                Data = item
+            });
         }
 
         [HttpPost]

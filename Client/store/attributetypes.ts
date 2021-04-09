@@ -1,5 +1,5 @@
 import { CollectionDTO } from './../types/Common/CollectionDTO';
-import { AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/types/AttributeTypeDTO';
+import { AttributeTypeGetDetailsDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/types/AttributeTypeDTO';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 
@@ -12,7 +12,7 @@ export default class AttributeTypesStore extends VuexModule {
   attributeTypes: AttributeTypeGetDTO[] = []
   totalCount = 0;
   itemsOnPage = 12;
-  selectedAttributeType: AttributeTypeGetDTO | null = null
+  selectedAttributeType: AttributeTypeGetDetailsDTO | null = null
   error: string | null = null
 
   get pagesCount(){
@@ -43,7 +43,7 @@ export default class AttributeTypesStore extends VuexModule {
   }
 
   @Mutation
-  ATTRIBUTE_TYPE_SELECTED(attributeType: AttributeTypeGetDTO) {
+  ATTRIBUTE_TYPE_SELECTED(attributeType: AttributeTypeGetDetailsDTO) {
     this.selectedAttributeType = attributeType
   }
 

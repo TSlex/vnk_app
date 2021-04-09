@@ -3,7 +3,7 @@ import { CollectionDTO } from './../types/Common/CollectionDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { ResponseDTO } from '~/types/Responses/ResponseDTO';
 import BaseRepo from './BaseRepo';
-import { AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/types/AttributeTypeDTO';
+import { AttributeTypeGetDetailsDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/types/AttributeTypeDTO';
 
 export default class AttributeTypesRepo extends BaseRepo {
 
@@ -23,7 +23,7 @@ export default class AttributeTypesRepo extends BaseRepo {
   }
 
   async getById(id: number) {
-    return await this._get<ResponseDTO<AttributeTypeGetDTO>>(`${this.baseURL}/${id}`, undefined, {
+    return await this._get<ResponseDTO<AttributeTypeGetDetailsDTO>>(`${this.baseURL}/${id}`, undefined, {
       params: {
         valuesCount: 100,
         unitsCount: 100,
