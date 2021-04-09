@@ -12,12 +12,19 @@
 
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator"
-import { identityStore } from "~/store"
+import { commonStore, identityStore } from "~/store"
 
 @Component({})
 export default class DafultLayout extends Vue {
   mounted() {
-    identityStore.initializeIdentity()
+    commonStore.checkServer().then((online) => {
+      if (online){
+        identityStore.initializeIdentity()
+      }
+      else{
+        this.$router.push("/offline")
+      }
+    })
   }
 }
 </script>

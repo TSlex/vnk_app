@@ -4,6 +4,7 @@
         <br>
         <br>
         <br>
+        <br>
         <template v-if="error.statusCode === 404">
           <h1><v-icon class="text-h1 red--text accent-2">mdi-alert-octagon</v-icon></h1>
           <h1 class="text-h3">{{ pageNotFound }}!</h1>
@@ -21,6 +22,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "nuxt-property-decorator";
+import { commonStore } from "~/store";
 
 @Component({})
 export default class ErrorLayout extends Vue {
@@ -38,6 +40,14 @@ export default class ErrorLayout extends Vue {
     return {
       title,
     };
+  }
+
+  mounted() {
+    commonStore.checkServer().then((online) => {
+      if (!online) {
+        this.$router.push("/offline");
+      }
+    });
   }
 }
 </script>
