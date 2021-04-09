@@ -1,5 +1,6 @@
 import { NuxtAxiosInstance } from "@nuxtjs/axios";
 import { AxiosError, AxiosRequestConfig } from 'axios'
+import { EmptyResponseDTO } from "~/types/Responses/EmptyResponseDTO";
 
 export type ErrorCallback = () => void
 
@@ -10,6 +11,11 @@ export default class BaseRepo {
   constructor(axios: NuxtAxiosInstance, resourseURL: string) {
     this.axios = axios
     this.baseURL = resourseURL
+  }
+
+  async serverOnline() {
+    const response = await this._get<EmptyResponseDTO>("", undefined, {timeout: 500})
+    return !!response
   }
 
   protected async _get<TKey>(url: string, onError?: ErrorCallback, config?: AxiosRequestConfig | undefined): Promise<TKey> {

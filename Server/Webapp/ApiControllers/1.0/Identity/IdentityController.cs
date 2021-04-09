@@ -95,13 +95,13 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 var roleName = "";
                 var roleLocalized = "";
-                    
+
                 var roles = await _userManager.GetRolesAsync(user);
 
                 if (roles.Count > 0)
                 {
                     roleName = roles[0];
-                    
+
                     roleLocalized = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
                         .LocalizedName;
                 }
@@ -128,17 +128,27 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<UserGetDTO>))]
         public async Task<ActionResult> GetCurrentUser()
         {
+            if (!User?.Identity?.IsAuthenticated ?? false)
+            {
+                return Unauthorized();
+            }
+
             var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
 
             var roleName = "";
             var roleLocalized = "";
-                    
+
             var roles = await _userManager.GetRolesAsync(user);
 
             if (roles.Count > 0)
             {
                 roleName = roles[0];
-                    
+
                 roleLocalized = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
                     .LocalizedName;
             }
@@ -174,13 +184,13 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             var roleName = "";
             var roleLocalized = "";
-                    
+
             var roles = await _userManager.GetRolesAsync(user);
 
             if (roles.Count > 0)
             {
                 roleName = roles[0];
-                    
+
                 roleLocalized = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
                     .LocalizedName;
             }

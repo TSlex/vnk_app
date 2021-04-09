@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" class="text-center">
+  <v-row justify="center" class="text-center" v-if="attributeType">
     <v-col cols="4" class="my-4">
       <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
         <v-card>
@@ -30,6 +30,80 @@
                 :label="`Значение по умолчанию`"
                 v-if="!model.usesDefinedValues"
               />
+              <template v-if="attributeType.usesDefinedValues">
+                <v-toolbar flat>
+                  <v-btn text outlined large @click="valueDialog = true"
+                    >Добавить</v-btn
+                  >
+                  <v-spacer></v-spacer>
+                  <v-toolbar-title>Допустимые значения</v-toolbar-title>
+                </v-toolbar>
+                <v-divider></v-divider>
+                <template v-if="valuesCount == 0">
+                  <div class="pt-2" @click="valueDialog = true">
+                    <a>Ничего не добавлено</a>
+                  </div>
+                </template>
+                <div
+                  class="d-flex justify-space-between pa-2"
+                  v-for="(v, i) in model.values"
+                  :key="'value' + v + i"
+                >
+                  <template>
+                    <span v-if="isDateFormat" class="text-body-1">{{
+                      v | formatDate
+                    }}</span>
+                    <span v-else-if="isDateTimeFormat" class="text-body-1">{{
+                      v | formatDateTime
+                    }}</span>
+                    <span v-else class="text-body-1">{{ v }}</span>
+                    <span>
+                      <v-icon @click="featureValue(i)"
+                        >mdi-star{{
+                          model.defaultValueIndex === i ? "" : "-outline"
+                        }}</v-icon
+                      >
+                      <v-icon @click="changeValue(i)">mdi-lead-pencil</v-icon>
+                      <v-icon @click="removeValue(i)">mdi-delete</v-icon>
+                    </span>
+                  </template>
+                </div>
+                <v-input :rules="rules.values" v-model="model.values"></v-input>
+              </template>
+              <template v-if="attributeType.usesDefinedUnits">
+                <v-toolbar flat>
+                  <v-btn text outlined large @click="unitDialog = true"
+                    >Добавить</v-btn
+                  >
+                  <v-spacer></v-spacer>
+                  <v-toolbar-title>Единицы измерения</v-toolbar-title>
+                </v-toolbar>
+                <v-divider></v-divider>
+                <template v-if="unitsCount == 0">
+                  <div class="pt-2" @click="unitDialog = true">
+                    <a>Ничего не добавлено</a>
+                  </div>
+                </template>
+                <div
+                  class="d-flex justify-space-between pa-2"
+                  v-for="(u, i) in model.units"
+                  :key="'unit' + u + i"
+                >
+                  <template>
+                    <span class="text-body-1">{{ u }}</span>
+                    <span>
+                      <v-icon @click="featureUnit(i)"
+                        >mdi-star{{
+                          model.defaultUnitIndex === i ? "" : "-outline"
+                        }}</v-icon
+                      >
+                      <v-icon @click="changeUnit(i)">mdi-lead-pencil</v-icon>
+                      <v-icon @click="removeUnit(i)">mdi-delete</v-icon>
+                    </span>
+                  </template>
+                </div>
+                <v-input :rules="rules.units" v-model="model.units"></v-input>
+              </template>
             </v-container>
           </v-card-text>
           <v-card-actions>
@@ -52,6 +126,8 @@ import { attributeTypesStore } from "~/store";
 import { DataType } from "~/types/Enums/DataType";
 import CustomValueField from "~/components/common/CustomValueField.vue";
 import { AttributeTypePatchDTO } from "~/types/AttributeTypeDTO";
+import { notEmpty, required } from "~/utils/form-validation";
+import { localize } from "~/utils/localizeDataType";
 
 @Component({
   components: {
@@ -72,9 +148,41 @@ export default class AttributeTypesEdit extends Vue {
 
   id!: number;
 
+  rules = {
+    name: [required()],
+    type: [required()],
+    values: [notEmpty()],
+    units: [notEmpty()],
+  };
+
   get attributeType() {
     return attributeTypesStore.selectedAttributeType;
   }
+
+  get dataTypes() {
+    let types: any = [];
+
+    Object.values(DataType).forEach((element) => {
+      let key = Number(element);
+      if (!isNaN(Number(element)) && key >= 0) {
+        types.push({
+          text: localize(element as DataType),
+          value: element as DataType,
+        });
+      }
+    });
+
+    return types;
+  }
+
+  get valuesCount() {
+    return this.attributeType?.values?.length ?? 0;
+  }
+
+  get unitsCount() {
+    return this.attributeType?.units?.length ?? 0;
+  }
+
 
   onCancel() {
     this.$router.back();
@@ -104,6 +212,8 @@ export default class AttributeTypesEdit extends Vue {
     attributeTypesStore.getAttributeType(this.id).then((suceeded) => {
       if (!suceeded) {
         this.$router.back();
+      } else {
+        this.model = { ...this.attributeType } as AttributeTypePatchDTO;
       }
     });
   }
