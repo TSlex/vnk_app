@@ -4,10 +4,33 @@
       <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
         <v-card>
           <v-card-title>
-            <span class="headline">Создать тип атрибута</span>
+            <span class="headline">Изменить тип атрибута</span>
           </v-card-title>
           <v-card-text>
-            <v-container> </v-container>
+            <v-container>
+              <v-alert dense text type="error" v-if="showError">
+                {{ error }}
+              </v-alert>
+              <v-text-field
+                label="Название"
+                required
+                :rules="rules.name"
+                v-model="model.name"
+              ></v-text-field>
+              <v-select
+                label="Тип данных"
+                required
+                :items="dataTypes"
+                v-model="model.dataType"
+                :rules="rules.type"
+              ></v-select>
+              <CustomValueField
+                :dataType="model.dataType"
+                v-model="model.defaultCustomValue"
+                :label="`Значение по умолчанию`"
+                v-if="!model.usesDefinedValues"
+              />
+            </v-container>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -28,7 +51,7 @@ import { Component, Vue } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
 import { DataType } from "~/types/Enums/DataType";
 import CustomValueField from "~/components/common/CustomValueField.vue";
-import { AttributeTypePostDTO } from "~/types/AttributeTypeDTO";
+import { AttributeTypePatchDTO } from "~/types/AttributeTypeDTO";
 
 @Component({
   components: {
@@ -36,24 +59,21 @@ import { AttributeTypePostDTO } from "~/types/AttributeTypeDTO";
   },
 })
 export default class AttributeTypesEdit extends Vue {
-  model: AttributeTypePostDTO = {
+  model: AttributeTypePatchDTO = {
+    id: 0,
     name: "",
     defaultCustomValue: "",
     dataType: DataType.String,
-    usesDefinedValues: false,
-    usesDefinedUnits: false,
-    defaultValueIndex: 0,
-    defaultUnitIndex: 0,
-    values: [],
-    units: [],
+    defaultValueId: 0,
+    defaultUnitId: 0,
   };
 
   showError = false;
 
-  id!: number
+  id!: number;
 
-  async asyncData({ params }: any) {
-    return {id: params.id}
+  get attributeType() {
+    return attributeTypesStore.selectedAttributeType;
   }
 
   onCancel() {
@@ -62,7 +82,7 @@ export default class AttributeTypesEdit extends Vue {
 
   onSubmit() {
     if ((this.$refs.form as any).validate()) {
-      attributeTypesStore.createAttributeType(this.model).then((suceeded) => {
+      attributeTypesStore.updateAttributeType(this.model).then((suceeded) => {
         if (suceeded) {
           this.onCancel();
         } else {
@@ -72,8 +92,20 @@ export default class AttributeTypesEdit extends Vue {
     }
   }
 
-  mounted(){
-    console.log(this.id);
+  async asyncData({ params }: any) {
+    return { id: params.id };
+  }
+
+  mounted() {
+    if (!this.id) {
+      this.$router.back();
+    }
+
+    attributeTypesStore.getAttributeType(this.id).then((suceeded) => {
+      if (!suceeded) {
+        this.$router.back();
+      }
+    });
   }
 }
 </script>
