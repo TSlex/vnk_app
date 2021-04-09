@@ -22,9 +22,68 @@
                 :dataType="model.dataType"
                 v-model="model.defaultCustomValue"
                 :label="`Значение по умолчанию`"
+                v-if="!model.usesDefinedValues"
               />
-              <v-switch label="Значения определены" inset></v-switch>
-              <v-switch label="Единицы определены" inset></v-switch>
+              <v-switch
+                label="Значения определены"
+                inset
+                v-model="model.usesDefinedValues"
+              ></v-switch>
+              <template v-if="model.usesDefinedValues">
+                <v-toolbar flat>
+                  <v-btn text @click="valueDialog = true">Добавить</v-btn>
+                  <v-spacer></v-spacer>
+                  <v-toolbar-title>Допустимые значения</v-toolbar-title>
+                </v-toolbar>
+                <v-divider></v-divider>
+                <template v-if="valuesCount > 0">
+                  <div class="d-flex justify-space-between pa-2">
+                    <span>{{ model.values[model.defaultValueIndex] }}</span
+                    ><v-chip small>по-умолчанию</v-chip>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="pt-2">Ничего не добавлено</div>
+                </template>
+                <v-divider v-if="valuesCount > 1"></v-divider>
+                <div
+                  class="d-flex justify-space-between pa-2"
+                  v-for="(v, i) in notFeaturedValues"
+                  :key="i"
+                >
+                  <span>{{ v }}</span>
+                </div>
+              </template>
+              <v-switch
+                label="Единицы определены"
+                inset
+                v-model="model.usesDefinedUnits"
+              ></v-switch>
+              <template v-if="model.usesDefinedUnits">
+                <v-toolbar flat>
+                  <v-btn text @click="unitDialog = true">Добавить</v-btn>
+                  <v-spacer></v-spacer>
+                  <v-toolbar-title>Единицы измерения</v-toolbar-title>
+                </v-toolbar>
+                <v-divider></v-divider>
+                <template v-if="unitsCount > 0">
+                <div class="d-flex justify-space-between pa-2">
+                  <span>{{ model.units[model.defaultUnitIndex] }}</span
+                  ><v-chip small>по-умолчанию</v-chip>
+                </div>
+                </template>
+                <template v-else>
+                  <div class="pt-2">Ничего не добавлено</div>
+                </template>
+                <v-divider v-if="unitsCount > 1"></v-divider>
+                <div
+                  class="d-flex justify-space-between pa-2"
+                  v-for="(u, i) in notFeaturedUnits"
+                  :key="i"
+                >
+                  <span>{{ u }}</span>
+                </div>
+              </template>
             </v-container>
           </v-card-text>
           <v-card-actions>
@@ -37,6 +96,19 @@
           </v-card-actions>
         </v-card>
       </v-form>
+      <ValueAddDialog
+        v-model="valueDialog"
+        :model="value"
+        :type="model.dataType"
+        v-on:submit="addValue"
+        v-on:change="valueChange"
+      />
+      <UnitAddDialog
+        v-model="unitDialog"
+        :model="unit"
+        v-on:submit="addUnit"
+        v-on:change="unitChange"
+      />
     </v-col>
   </v-row>
 </template>
@@ -48,10 +120,14 @@ import { DataType } from "~/types/Enums/DataType";
 import { localize } from "~/utils/localizeDataType";
 import CustomValueField from "~/components/common/CustomValueField.vue";
 import { AttributeTypePostDTO } from "~/types/AttributeTypeDTO";
+import ValueAddDialog from "~/components/types/ValueAddDialog.vue";
+import UnitAddDialog from "~/components/types/UnitAddDialog.vue";
 
 @Component({
   components: {
     CustomValueField,
+    ValueAddDialog,
+    UnitAddDialog,
   },
 })
 export default class AttributeTypesCreate extends Vue {
@@ -59,15 +135,21 @@ export default class AttributeTypesCreate extends Vue {
     name: "",
     defaultCustomValue: "",
     dataType: DataType.String,
-    usesDefinedValues: false,
-    usesDefinedUnits: false,
+    usesDefinedValues: true,
+    usesDefinedUnits: true,
     defaultValueIndex: 0,
     defaultUnitIndex: 0,
     values: [],
     units: [],
   };
 
+  value = "";
+  unit = "";
+
   showError = false;
+
+  valueDialog = false;
+  unitDialog = false;
 
   get error() {
     return attributeTypesStore.error;
@@ -87,15 +169,26 @@ export default class AttributeTypesCreate extends Vue {
     });
 
     return types;
-    // return [
-    //   { text: localize(DataType.Boolean), value: DataType.Boolean },
-    //   { text: localize(DataType.String), value: DataType.Boolean },
-    //   { text: localize(DataType.Integer), value: DataType.Boolean },
-    //   { text: localize(DataType.Float), value: DataType.Boolean },
-    //   { text: localize(DataType.), value: DataType.Boolean },
-    //   { text: localize(DataType.Boolean), value: DataType.Boolean },
-    //   { text: localize(DataType.Boolean), value: DataType.Boolean },
-    // ];
+  }
+
+  get valuesCount() {
+    return this.model.values.length;
+  }
+
+  get unitsCount() {
+    return this.model.units.length;
+  }
+
+  get notFeaturedValues() {
+    return this.model.values.filter((value: string, index: number) => {
+      return index != this.model.defaultValueIndex;
+    });
+  }
+
+  get notFeaturedUnits() {
+    return this.model.units.filter((unit: string, index: number) => {
+      return index != this.model.defaultUnitIndex;
+    });
   }
 
   onCancel() {
@@ -107,6 +200,46 @@ export default class AttributeTypesCreate extends Vue {
     if ((this.$refs.form as any).validate()) {
       console.log(this.model.defaultCustomValue);
     }
+  }
+
+  valueChange(value: string) {
+    this.value = value;
+  }
+
+  unitChange(unit: string) {
+    this.unit = unit;
+  }
+
+  addValue() {
+    this.model.values.push(this.value);
+    this.value = "";
+    this.valueDialog = false;
+  }
+
+  changeValue(index: number) {
+    this.value = this.model.values[index];
+    this.removeValue(index);
+    this.valueDialog = true;
+  }
+
+  removeValue(index: number) {
+    this.model.values.splice(index, 1);
+  }
+
+  addUnit() {
+    this.model.units.push(this.unit);
+    this.unit = "";
+    this.unitDialog = false;
+  }
+
+  changeUnit(index: number) {
+    this.unit = this.model.units[index];
+    this.removeUnit(index);
+    this.unitDialog = true;
+  }
+
+  removeUnit(index: number) {
+    this.model.units.splice(index, 1);
   }
 }
 </script>

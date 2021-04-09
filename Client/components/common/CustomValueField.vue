@@ -25,9 +25,8 @@
     step=".01"
     :rules="rules.float"
   ></v-text-field>
+  <div v-else-if="isDate">
   <v-input
-    v-else-if="isDate"
-    :rules="rules.date"
     v-model="fieldValue"
     :messages="label"
   >
@@ -40,22 +39,21 @@
       :label="label"
     ></v-date-picker>
   </v-input>
-  <v-input
-    v-else-if="isTime"
-    :rules="rules.time"
-    v-model="fieldValue"
-    :messages="label"
-  >
-    <v-time-picker
-      format="24hr"
-      full-width
-      landscape
-      locale="ru"
-      :first-day-of-week="1"
-      v-model="fieldValue"
-      :label="label"
-    ></v-time-picker>
-  </v-input>
+  <v-input :rules="rules.dateTime" v-model="fieldValue"></v-input>
+  </div>
+  <div v-else-if="isTime">
+    <v-input v-model="fieldValue" :messages="label">
+      <v-time-picker
+        format="24hr"
+        full-width
+        landscape
+        locale="ru"
+        :first-day-of-week="1"
+        v-model="fieldValue"
+      ></v-time-picker>
+    </v-input>
+    <v-input :rules="rules.dateTime" v-model="fieldValue"></v-input>
+  </div>
   <div v-else-if="isDateTime">
     <v-tabs fixed-tabs v-model="dateTimeTab" class="mb-2">
       <v-tab>Дата</v-tab>
