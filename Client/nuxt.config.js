@@ -29,7 +29,8 @@ export default {
     "~/plugins/uow.ts",
     "~/plugins/context-accessor.ts",
     "~/plugins/axios-error-handler.ts",
-    "~/plugins/vuelidate.ts"
+    "~/plugins/vuelidate.ts",
+    "~/plugins/filters.ts"
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -40,7 +41,8 @@ export default {
     // https://go.nuxtjs.dev/typescript
     '@nuxt/typescript-build',
     // https://go.nuxtjs.dev/vuetify
-    '@nuxtjs/vuetify'
+    '@nuxtjs/vuetify',
+    '@nuxtjs/moment'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -48,6 +50,13 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios'
   ],
+
+  moment: {
+    /* module options */
+    locales: ['ru'],
+    defaultLocale: 'ru',
+    timezone: false
+  },
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {

@@ -61,6 +61,7 @@ export default class UnitAddDialog extends Vue {
   }
 
   onClose() {
+    (this.$refs.form as any).resetValidation()
     this.active = false;
   }
 

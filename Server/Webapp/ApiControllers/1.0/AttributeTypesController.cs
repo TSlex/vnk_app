@@ -112,7 +112,7 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult<AttributeType>> PostAttributeType(AttributeTypePostDTO dto)
         {
-            if (dto.DefaultCustomValue == null && !dto.UsesDefinedValues || !dto.Values.Any())
+            if (dto.DefaultCustomValue == null && (!dto.UsesDefinedValues || !dto.Values.Any()))
             {
                 return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
             }
@@ -127,12 +127,12 @@ namespace Webapp.ApiControllers._1._0
                 return BadRequest(new ErrorResponseDTO("У атрибута должна быть единица измерения по умолчанию"));
             }
 
-            if (dto.Units.Any() && (0 < dto.DefaultUnitIndex || dto.DefaultUnitIndex >= dto.Units.Count))
+            if (dto.Units.Any() && (0 > dto.DefaultUnitIndex || dto.DefaultUnitIndex >= dto.Units.Count))
             {
                 return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву единиц измерений"));
             }
 
-            if (dto.Values.Any() && (0 < dto.DefaultValueIndex || dto.DefaultValueIndex >= dto.Values.Count))
+            if (dto.Values.Any() && (0 > dto.DefaultValueIndex || dto.DefaultValueIndex >= dto.Values.Count))
             {
                 return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву значений"));
             }

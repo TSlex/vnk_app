@@ -69,6 +69,7 @@ export default class ValueAddDialog extends Vue {
   }
 
   onClose() {
+    (this.$refs.form as any).resetValidation()
     this.active = false;
   }
 

@@ -12,6 +12,10 @@ export const required: validationRule = () => (value: any) => {
   return !!value || `Данное поле обязательно`
 }
 
+export const notEmpty: validationRule = () => (value: any[]) => {
+  return value.length > 0 || `Даное поле должно содежрать хоть одно значение`
+}
+
 export const email: validationRule = () => (value: any) => {
   return /.+@.+\..+/.test(value) || `Введите корректный эл.адрес`
 }
