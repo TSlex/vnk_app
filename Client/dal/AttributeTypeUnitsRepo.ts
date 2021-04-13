@@ -1,5 +1,5 @@
-import { EmptyResponseDTO } from './../types/Responses/EmptyResponseDTO';
-import { CollectionDTO } from './../types/Common/CollectionDTO';
+import { EmptyResponseDTO } from '~/models/Responses/EmptyResponseDTO';
+import { CollectionDTO } from '~/models/Common/CollectionDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { ResponseDTO } from '~/models/Responses/ResponseDTO';
 import BaseRepo from './BaseRepo';

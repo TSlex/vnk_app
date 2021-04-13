@@ -1,4 +1,4 @@
-import { CollectionDTO } from './../types/Common/CollectionDTO';
+import { CollectionDTO } from '~/models/Common/CollectionDTO';
 import { AttributeTypeGetDetailsDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/models/AttributeTypeDTO';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"

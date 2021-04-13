@@ -1,5 +1,5 @@
-import { CollectionDTO } from './../types/Common/CollectionDTO';
-import { EmptyResponseDTO } from './../types/Responses/EmptyResponseDTO';
+import { CollectionDTO } from '~/models/Common/CollectionDTO';
+import { EmptyResponseDTO } from '~/models/Responses/EmptyResponseDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { LoginDTO } from '~/models/Identity/LoginDTO';
 import { UserGetDTO, UserPasswordPatchDTO, UserPatchDTO, UserPostDTO, UserRolePatchDTO } from '~/models/Identity/UserDTO';
