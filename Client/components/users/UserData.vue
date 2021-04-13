@@ -67,7 +67,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "nuxt-property-decorator";
 import { identityStore, usersStore } from "~/store";
-import { UserGetDTO } from "~/types/Identity/UserDTO";
+import { UserGetDTO } from "~/models/Identity/UserDTO";
 import UserRoleDialog from "~/components/users/UserRoleDialog.vue";
 import UserDataDialog from "~/components/users/UserDataDialog.vue";
 import UserPasswordDialog from "~/components/users/UserPasswordDialog.vue";

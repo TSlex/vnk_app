@@ -129,14 +129,14 @@
       </v-form>
       <ValueAddDialog
         v-model="valueDialog"
-        :model="value"
+        :model="value.value"
         :type="model.dataType"
         v-on:submit="addValue"
         v-on:change="valueChange"
       />
       <UnitAddDialog
         v-model="unitDialog"
-        :model="unit"
+        :model="unit.value"
         v-on:submit="addUnit"
         v-on:change="unitChange"
       />
@@ -147,10 +147,10 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
-import { DataType } from "~/types/Enums/DataType";
+import { DataType } from "~/models/Enums/DataType";
 import { localize } from "~/utils/localizeDataType";
 import CustomValueField from "~/components/common/CustomValueField.vue";
-import { AttributeTypePostDTO } from "~/types/AttributeTypeDTO";
+import { AttributeTypePostDTO } from "~/models/AttributeTypeDTO";
 import ValueAddDialog from "~/components/types/ValueAddDialog.vue";
 import UnitAddDialog from "~/components/types/UnitAddDialog.vue";
 import { notEmpty, required } from "~/utils/form-validation";
@@ -182,8 +182,8 @@ export default class AttributeTypesCreate extends Vue {
     units: [notEmpty()],
   };
 
-  value = "";
-  unit = "";
+  value = { value: "", index: 0, changeMode: false };
+  unit = { value: "", index: 0, changeMode: false };
 
   showError = false;
 
@@ -250,11 +250,11 @@ export default class AttributeTypesCreate extends Vue {
   }
 
   valueChange(value: string) {
-    this.value = value;
+    this.value.value = value;
   }
 
   unitChange(unit: string) {
-    this.unit = unit;
+    this.unit.value = unit;
   }
 
   featureValue(index: number) {
@@ -262,14 +262,20 @@ export default class AttributeTypesCreate extends Vue {
   }
 
   addValue() {
-    this.model.values.push(this.value);
-    this.value = "";
+    if (this.value.changeMode) {
+      this.model.values[this.value.index] = this.value.value;
+    } else {
+      this.model.values.push(this.value.value);
+    }
+
+    this.value = { value: "", index: 0, changeMode: false };
     this.valueDialog = false;
   }
 
   changeValue(index: number) {
-    this.value = this.model.values[index];
-    this.removeValue(index);
+    this.value.value = this.model.values[index];
+    this.value.index = index;
+    this.value.changeMode = true;
     this.valueDialog = true;
   }
 
@@ -282,14 +288,20 @@ export default class AttributeTypesCreate extends Vue {
   }
 
   addUnit() {
-    this.model.units.push(this.unit);
-    this.unit = "";
+    if (this.unit.changeMode) {
+      this.model.units[this.unit.index] = this.unit.value;
+    } else {
+      this.model.units.push(this.unit.value);
+    }
+
+    this.unit = { value: "", index: 0, changeMode: false };
     this.unitDialog = false;
   }
 
   changeUnit(index: number) {
-    this.unit = this.model.units[index];
-    this.removeUnit(index);
+    this.unit.value = this.model.units[index];
+    this.unit.index = index;
+    this.unit.changeMode = true;
     this.unitDialog = true;
   }
 

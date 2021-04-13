@@ -1,6 +1,6 @@
 import { NuxtAxiosInstance } from "@nuxtjs/axios";
 import { AxiosError, AxiosRequestConfig } from 'axios'
-import { EmptyResponseDTO } from "~/types/Responses/EmptyResponseDTO";
+import { EmptyResponseDTO } from "~/models/Responses/EmptyResponseDTO";
 
 export type ErrorCallback = () => void
 

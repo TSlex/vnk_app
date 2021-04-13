@@ -1,8 +1,8 @@
 import JwtDecode from 'jwt-decode';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
-import { LoginDTO } from '~/types/Identity/LoginDTO';
-import { UserGetDTO } from '~/types/Identity/UserDTO';
+import { LoginDTO } from '~/models/Identity/LoginDTO';
+import { UserGetDTO } from '~/models/Identity/UserDTO';
 
 @Module({
   namespaced: true,

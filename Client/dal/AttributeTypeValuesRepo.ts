@@ -1,3 +1,4 @@
+
 import { EmptyResponseDTO } from './../types/Responses/EmptyResponseDTO';
 import { CollectionDTO } from './../types/Common/CollectionDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
@@ -5,30 +6,10 @@ import { ResponseDTO } from '~/models/Responses/ResponseDTO';
 import BaseRepo from './BaseRepo';
 import { AttributeTypeGetDetailsDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/models/AttributeTypeDTO';
 
-export default class AttributeTypesRepo extends BaseRepo {
+export default class AttributeTypeValuesRepo extends BaseRepo {
 
   constructor(axios: NuxtAxiosInstance) {
-    super(axios, "attributetypes");
-  }
-
-  async getAll(pageIndex: number, itemsOnPage: number, orderReversed: boolean, searchKey: string | null) {
-    return await this._get<ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>>(this.baseURL, undefined, {
-      params: {
-        pageIndex: pageIndex,
-        itemsOnPage: itemsOnPage,
-        orderReversed: orderReversed,
-        searchKey: searchKey
-      }
-    });
-  }
-
-  async getById(id: number) {
-    return await this._get<ResponseDTO<AttributeTypeGetDetailsDTO>>(`${this.baseURL}/${id}`, undefined, {
-      params: {
-        valuesCount: 100,
-        unitsCount: 100,
-      }
-    });
+    super(axios, "attributetypesvalues");
   }
 
   async add(model: AttributeTypePostDTO) {
@@ -39,7 +20,7 @@ export default class AttributeTypesRepo extends BaseRepo {
     return await this._patch<EmptyResponseDTO>(`${this.baseURL}/${id}`, model);
   }
 
-  // async delete() {
+  async delete() {
 
-  // }
+  }
 }

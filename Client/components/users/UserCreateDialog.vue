@@ -65,7 +65,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "nuxt-property-decorator";
 import { identityStore, usersStore } from "~/store";
-import { UserPostDTO } from "~/types/Identity/UserDTO";
+import { UserPostDTO } from "~/models/Identity/UserDTO";
 import {
   email,
   password,

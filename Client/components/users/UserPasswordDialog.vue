@@ -40,7 +40,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "nuxt-property-decorator";
 import { identityStore, usersStore } from "~/store";
-import { UserPasswordPatchDTO, UserPostDTO } from "~/types/Identity/UserDTO";
+import { UserPasswordPatchDTO, UserPostDTO } from "~/models/Identity/UserDTO";
 import {
   email,
   password,

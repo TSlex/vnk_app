@@ -1,4 +1,4 @@
-import { DataType } from "~/types/Enums/DataType";
+import { DataType } from "~/models/Enums/DataType";
 
 export const localize = (type: DataType) => {
   switch (type) {

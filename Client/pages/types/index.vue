@@ -38,11 +38,12 @@
             <v-chip color="amber" v-if="item.usesDefinedValues"
               >с определенными значениями</v-chip
             >
+            <v-chip v-if="isSimpleType(item)"
+              >обычный</v-chip
+            >
           </template>
           <template v-slot:[`item.actions`]>
             <v-icon> mdi-pencil </v-icon>
-            <v-icon color="red"> mdi-folder-clock </v-icon>
-            <v-icon color="red"> mdi-delete </v-icon>
           </template>
         </v-data-table>
         <v-pagination
@@ -59,7 +60,7 @@
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
-import { AttributeTypeGetDTO } from "~/types/AttributeTypeDTO";
+import { AttributeTypeGetDTO } from "~/models/AttributeTypeDTO";
 
 @Component({})
 export default class AttributeTypesIndex extends Vue {
@@ -71,9 +72,13 @@ export default class AttributeTypesIndex extends Vue {
 
   headers = [
     { text: "Название", value: "name", align: "left" },
-    { text: "Тип", sortable: false, value: "type", align: "left" },
-    { value: "actions", sortable: false, align: "right" },
+    { text: "Тип", sortable: false, value: "type", align: "right" },
+    // { value: "actions", sortable: false, align: "right" },
   ];
+
+  isSimpleType(item: AttributeTypeGetDTO){
+    return !item.systemicType && !item.usesDefinedValues && !item.usesDefinedUnits
+  }
 
   get orderReversed() {
     return this._orderReversed;

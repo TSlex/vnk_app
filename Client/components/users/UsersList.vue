@@ -32,7 +32,7 @@
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
 import { identityStore, usersStore } from "~/store";
-import { UserGetDTO } from "~/types/Identity/UserDTO";
+import { UserGetDTO } from "~/models/Identity/UserDTO";
 import UserCreateDialog from "~/components/users/UserCreateDialog.vue";
 
 @Component({

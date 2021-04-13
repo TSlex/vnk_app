@@ -37,7 +37,7 @@
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
 import { identityStore } from "~/store";
-import { LoginDTO } from "~/types/Identity/LoginDTO";
+import { LoginDTO } from "~/models/Identity/LoginDTO";
 import { validate, required, email, password } from "~/utils/form-validation";
 
 @Component({})

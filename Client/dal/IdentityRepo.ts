@@ -1,9 +1,9 @@
 import { CollectionDTO } from './../types/Common/CollectionDTO';
 import { EmptyResponseDTO } from './../types/Responses/EmptyResponseDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
-import { LoginDTO } from '~/types/Identity/LoginDTO';
-import { UserGetDTO, UserPasswordPatchDTO, UserPatchDTO, UserPostDTO, UserRolePatchDTO } from '~/types/Identity/UserDTO';
-import { ResponseDTO } from '~/types/Responses/ResponseDTO';
+import { LoginDTO } from '~/models/Identity/LoginDTO';
+import { UserGetDTO, UserPasswordPatchDTO, UserPatchDTO, UserPostDTO, UserRolePatchDTO } from '~/models/Identity/UserDTO';
+import { ResponseDTO } from '~/models/Responses/ResponseDTO';
 import BaseRepo from './BaseRepo';
 
 export default class IdentityRepo extends BaseRepo {

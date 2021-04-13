@@ -28,7 +28,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "nuxt-property-decorator";
-import { DataType } from "~/types/Enums/DataType";
+import { DataType } from "~/models/Enums/DataType";
 import { required } from "~/utils/form-validation";
 import CustomValueField from "~/components/common/CustomValueField.vue";
 import { localize } from "~/utils/localizeDataType";
