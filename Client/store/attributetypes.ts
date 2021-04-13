@@ -1,5 +1,5 @@
 import { CollectionDTO } from '~/models/Common/CollectionDTO';
-import { AttributeTypeGetDetailsDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/models/AttributeTypeDTO';
+import { AttributeTypeGetDetailsDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePatchUnitDTO, AttributeTypePatchValueDTO, AttributeTypePostDTO } from '~/models/AttributeTypeDTO';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 
@@ -15,7 +15,7 @@ export default class AttributeTypesStore extends VuexModule {
   selectedAttributeType: AttributeTypeGetDetailsDTO | null = null
   error: string | null = null
 
-  get pagesCount(){
+  get pagesCount() {
     return Math.ceil(this.totalCount / this.itemsOnPage)
   }
 
@@ -69,7 +69,7 @@ export default class AttributeTypesStore extends VuexModule {
   }
 
   @Action
-  async getAttributeTypes(payload : {pageIndex: number, orderReversed: boolean, searchKey: string | null}) {
+  async getAttributeTypes(payload: { pageIndex: number, orderReversed: boolean, searchKey: string | null }) {
     let response = await $ctx.$uow.attributeTypes.getAll(payload.pageIndex, this.itemsOnPage, payload.orderReversed, payload.searchKey)
 
     if (response.error) {
@@ -112,16 +112,57 @@ export default class AttributeTypesStore extends VuexModule {
   }
 
   @Action
-  async updateAttributeType(model: AttributeTypePatchDTO) {
-    let response = await $ctx.$uow.attributeTypes.update(model.id, model)
+  async updateAttributeType(payload: {
+    model: AttributeTypePatchDTO,
+    values: AttributeTypePatchValueDTO[],
+    units: AttributeTypePatchUnitDTO[]
+  }) {
+
+
+    let response = await $ctx.$uow.attributeTypes.update(payload.model.id, payload.model)
 
     if (response.error) {
       this.context.commit("ACTION_FAILED", response.error)
       return false
     } else {
+
+      await Promise.all(payload.values.sort((a, b) => {
+        if (a.id == null && b.id == null) {
+          return a.value > b.value ? 1 : -1
+        }
+        return a.id != null ? 1 : -1
+      }).map(async (value) => {
+        if (value.id == null) {
+          await $ctx.$uow.attributeTypeValues.add({ value: value.value, attributeTypeId: payload.model.id })
+        }
+        else if (value.deleted) {
+          await $ctx.$uow.attributeTypeValues.delete(value.id)
+        }
+        else if (value.changed) {
+          await $ctx.$uow.attributeTypeValues.update(value.id, { id: value.id, value: value.value })
+        }
+      }))
+
+      await Promise.all(payload.units.sort((a, b) => {
+        if (a.id == null && b.id == null) {
+          return a.value > b.value ? 1 : -1
+        }
+        return a.id != null ? 1 : -1
+      }).map(async (unit) => {
+        if (unit.id == null) {
+          await $ctx.$uow.attributeTypeUnits.add({ value: unit.value, attributeTypeId: payload.model.id })
+        }
+        else if (unit.deleted) {
+          await $ctx.$uow.attributeTypeUnits.delete(unit.id)
+        }
+        else if (unit.changed) {
+          await $ctx.$uow.attributeTypeUnits.update(unit.id, { id: unit.id, value: unit.value })
+        }
+      }))
+
       this.context.commit("CLEAR_ERROR")
-      this.context.commit("ATTRIBUTE_TYPE_UPDATED", model)
-      this.context.dispatch("getAttributeType", model.id)
+      this.context.commit("ATTRIBUTE_TYPE_UPDATED", payload.model)
+      this.context.dispatch("getAttributeType", payload.model.id)
       return true
     }
   }

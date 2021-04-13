@@ -33,11 +33,10 @@
                 Внимание, при смене типа данных, возможно неправильное
                 отображение!
               </v-alert>
-              <CustomValueField
+              <CustomValueField  v-if="useDefaultValues"
                 :dataType="model.dataType"
                 v-model="model.defaultCustomValue"
                 :label="`Значение по умолчанию`"
-                v-if="!model.usesDefinedValues"
               />
               <template v-if="attributeType.usesDefinedValues">
                 <v-toolbar flat>
@@ -83,11 +82,13 @@
                   </template>
                   <template v-else>
                     <v-spacer></v-spacer>
-                    <a @click="undoValueRemove(i)">значение удалено. отменить?</a>
+                    <a @click="undoValueRemove(i)"
+                      >значение удалено. отменить?</a
+                    >
                     <v-spacer></v-spacer>
                   </template>
                 </div>
-                <v-input :rules="rules.values" v-model="values"></v-input>
+                <v-input :rules="rules.values" v-model="actualValues"></v-input>
               </template>
               <template v-if="attributeType.usesDefinedUnits">
                 <v-toolbar flat>
@@ -124,11 +125,13 @@
                   </template>
                   <template v-else>
                     <v-spacer></v-spacer>
-                    <a @click="undoUnitRemove(i)">единица измерения удалена. отменить?</a>
+                    <a @click="undoUnitRemove(i)"
+                      >единица измерения удалена. отменить?</a
+                    >
                     <v-spacer></v-spacer>
                   </template>
                 </div>
-                <v-input :rules="rules.units" v-model="units"></v-input>
+                <v-input :rules="rules.units" v-model="actualUnits"></v-input>
               </template>
             </v-container>
           </v-card-text>
@@ -141,6 +144,14 @@
             <v-spacer></v-spacer>
           </v-card-actions>
         </v-card>
+        <v-input
+          :rules="rules.defautValue"
+          v-model="model.defaultValueId"
+        ></v-input>
+        <v-input
+          :rules="rules.defautUnit"
+          v-model="model.defaultUnitId"
+        ></v-input>
       </v-form>
       <ValueAddDialog
         v-model="valueDialog"
@@ -197,12 +208,15 @@ export default class AttributeTypesEdit extends Vue {
     changed: boolean;
     deleted: boolean;
   }[] = [];
+
   values: {
     id: number | null;
     value: string;
     changed: boolean;
     deleted: boolean;
   }[] = [];
+
+  useDefaultValues = true
 
   value = { value: "", id: null as number | null, index: 0, changeMode: false };
   unit = { value: "", id: null as number | null, index: 0, changeMode: false };
@@ -219,7 +233,20 @@ export default class AttributeTypesEdit extends Vue {
     type: [required()],
     values: [notEmpty()],
     units: [notEmpty()],
+    defautValue: [
+      (value: string) =>
+        Number(value) >= 0 || "Необходимо указать значение по умолчанию",
+    ],
+    defautUnit: [
+      (value: string) =>
+        Number(value) >= 0 ||
+        "Необходимо указать единицу измерения по умолчанию",
+    ],
   };
+
+  get error() {
+    return attributeTypesStore.error;
+  }
 
   get isBooleanFormat() {
     return this.attributeType!.dataType === DataType.Boolean;
@@ -259,6 +286,14 @@ export default class AttributeTypesEdit extends Vue {
 
   get unitsCount() {
     return this.attributeType?.units?.length ?? 0;
+  }
+
+  get actualValues() {
+    return this.values.filter((item) => !item.deleted);
+  }
+
+  get actualUnits() {
+    return this.units.filter((item) => !item.deleted);
   }
 
   valueChange(value: string) {
@@ -305,6 +340,10 @@ export default class AttributeTypesEdit extends Vue {
   removeValue(index: number) {
     if (this.values[index].id != null) {
       this.values[index].deleted = true;
+
+      if (this.values[index].id == this.model.defaultValueId) {
+        this.model.defaultValueId = -1;
+      }
     } else {
       this.values.splice(index, 1);
     }
@@ -350,6 +389,10 @@ export default class AttributeTypesEdit extends Vue {
   removeUnit(index: number) {
     if (this.units[index].id != null) {
       this.units[index].deleted = true;
+
+      if (this.units[index].id == this.model.defaultUnitId) {
+        this.model.defaultUnitId = -1;
+      }
     } else {
       this.units.splice(index, 1);
     }
@@ -365,16 +408,19 @@ export default class AttributeTypesEdit extends Vue {
 
   onSubmit() {
     if ((this.$refs.form as any).validate()) {
-      console.log(this.values);
-      console.log(this.units);
-
-      // attributeTypesStore.updateAttributeType(this.model).then((suceeded) => {
-      //   if (suceeded) {
-      //     this.onCancel();
-      //   } else {
-      //     this.showError = true;
-      //   }
-      // });
+      attributeTypesStore
+        .updateAttributeType({
+          model: this.model,
+          values: this.values,
+          units: this.units,
+        })
+        .then((suceeded) => {
+          if (suceeded) {
+            this.onCancel();
+          } else {
+            this.showError = true;
+          }
+        });
     }
   }
 
@@ -411,6 +457,7 @@ export default class AttributeTypesEdit extends Vue {
           });
         });
 
+        this.useDefaultValues = !this.attributeType?.usesDefinedValues
         this.initialDataType = this.attributeType?.dataType!;
 
         this.loaded = true;

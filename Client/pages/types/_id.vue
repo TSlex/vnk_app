@@ -69,7 +69,7 @@
                 value.value | formatBoolean
               }}</span>
               <span v-else class="text-body-1">{{ value.value }}</span>
-              <v-chip v-if="attributeType.defaultValueId === value.id"
+              <v-chip v-if="attributeType.defaultValueId === value.id" small
                 >по умолчанию</v-chip
               >
             </template>
@@ -89,7 +89,7 @@
           >
             <template>
               <span class="text-body-1">{{ unit.value }}</span>
-              <v-chip v-if="attributeType.defaultUnitId === unit.id"
+              <v-chip v-if="attributeType.defaultUnitId === unit.id" small
                 >по умолчанию</v-chip
               >
             </template>

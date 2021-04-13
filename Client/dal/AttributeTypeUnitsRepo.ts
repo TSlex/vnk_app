@@ -1,13 +1,13 @@
 import { EmptyResponseDTO } from '~/models/Responses/EmptyResponseDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { ResponseDTO } from '~/models/Responses/ResponseDTO';
-import BaseRepo from './BaseRepo';
+import {BaseRepo} from './BaseRepo';
 import { AttributeTypeUnitGetDTO, AttributeTypeUnitPatchDTO, AttributeTypeUnitPostDTO } from '~/models/AttributeTypeUnitDTO';
 
-export default class AttributeTypeUnitsRepo extends BaseRepo {
+export class AttributeTypeUnitsRepo extends BaseRepo {
 
   constructor(axios: NuxtAxiosInstance) {
-    super(axios, "attributetypesunits");
+    super(axios, "attributetypeunits");
   }
 
   async add(model: AttributeTypeUnitPostDTO) {

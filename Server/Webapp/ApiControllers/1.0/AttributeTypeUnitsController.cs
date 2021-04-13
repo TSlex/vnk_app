@@ -130,6 +130,21 @@ namespace Webapp.ApiControllers._1._0
 
             var type = await _context.AttributeTypes.FirstAsync(t => t.Id == unit.AttributeTypeId);
 
+            if (type.DefaultUnitId == id)
+            {
+                var newDefaultUnit = await _context.TypeUnits
+                    .Where(u => u.AttributeTypeId == type.Id && u.Id != id)
+                    .FirstOrDefaultAsync();
+
+                if (newDefaultUnit == null)
+                {
+                    return BadRequest(new ErrorResponseDTO("У атрибута должна быть единица измерения по умолчанию"));
+                }
+
+                type.DefaultUnitId = newDefaultUnit.Id;
+                _context.AttributeTypes.Update(type);
+            }
+
             var attributes = await _context.OrderAttributes
                 .Where(attribute => attribute.UnitId == id)
                 .ToListAsync();

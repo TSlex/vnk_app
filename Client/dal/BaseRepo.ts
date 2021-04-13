@@ -4,7 +4,7 @@ import { EmptyResponseDTO } from "~/models/Responses/EmptyResponseDTO";
 
 export type ErrorCallback = () => void
 
-export default class BaseRepo {
+export class BaseRepo {
   axios: NuxtAxiosInstance;
   baseURL = ""
 

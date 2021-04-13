@@ -2,13 +2,13 @@
 import { EmptyResponseDTO } from '~/models/Responses/EmptyResponseDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { ResponseDTO } from '~/models/Responses/ResponseDTO';
-import BaseRepo from './BaseRepo';
+import {BaseRepo} from './BaseRepo';
 import { AttributeTypeValuePostDTO, AttributeTypeValueGetDTO, AttributeTypeValuePatchDTO } from '~/models/AttributeTypeValueDTO';
 
-export default class AttributeTypeValuesRepo extends BaseRepo {
+export class AttributeTypeValuesRepo extends BaseRepo {
 
   constructor(axios: NuxtAxiosInstance) {
-    super(axios, "attributetypesvalues");
+    super(axios, "attributetypevalues");
   }
 
   async add(model: AttributeTypeValuePostDTO) {

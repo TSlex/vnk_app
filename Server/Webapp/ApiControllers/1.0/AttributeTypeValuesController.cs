@@ -125,6 +125,21 @@ namespace Webapp.ApiControllers._1._0
             }
 
             var type = await _context.AttributeTypes.FirstAsync(t => t.Id == value.AttributeTypeId);
+            
+            if (type.DefaultValueId == id)
+            {
+                var newDefaultValue = await _context.TypeValues
+                    .Where(v => v.AttributeTypeId == type.Id && v.Id != id)
+                    .FirstOrDefaultAsync();
+
+                if (newDefaultValue == null)
+                {
+                    return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
+                }
+
+                type.DefaultUnitId = newDefaultValue.Id;
+                _context.AttributeTypes.Update(type);
+            }
 
             var attributes = await _context.OrderAttributes
                 .Where(attribute => attribute.ValueId == id)
