@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -27,9 +28,11 @@ namespace Webapp.ApiControllers._1._0
             _context = context;
         }
 
+        #region AttributeTypes
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>))]
-        public async Task<ActionResult<CollectionDTO<AttributeTypeGetDTO>>> GetAll(int pageIndex, int itemsOnPage,
+        public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage,
             bool reversed, string? searchKey)
         {
             var typesQuery = _context.AttributeTypes.Select(at => new AttributeTypeGetDTO
@@ -64,7 +67,7 @@ namespace Webapp.ApiControllers._1._0
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AttributeTypeGetDetailsDTO))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeTypeGetDetailsDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetById(long id, int valuesCount, int unitsCount)
         {
@@ -114,7 +117,7 @@ namespace Webapp.ApiControllers._1._0
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeGetDetailsDTO>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult<AttributeType>> PostAttributeType(AttributeTypePostDTO dto)
+        public async Task<ActionResult> Create(AttributeTypePostDTO dto)
         {
             if (dto.DefaultCustomValue == null && (!dto.UsesDefinedValues || !dto.Values.Any()))
             {
@@ -203,16 +206,14 @@ namespace Webapp.ApiControllers._1._0
                 await _context.SaveChangesAsync();
             }
 
-            var item = await GetById(attributeType.Id, 0, 0);
-
-            return CreatedAtAction("GetById", item);
+            return CreatedAtAction(nameof(GetById), await GetById(attributeType.Id, 0, 0));
         }
 
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
-        public async Task<IActionResult> PatchAttributeType(long id, AttributeTypePatchDTO dto)
+        public async Task<IActionResult> Update(long id, AttributeTypePatchDTO dto)
         {
             if (id != dto.Id)
             {
@@ -225,7 +226,7 @@ namespace Webapp.ApiControllers._1._0
             {
                 return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
             }
-            
+
             if (attributeType.SystemicType)
             {
                 return NotFound(new ErrorResponseDTO("Нельзя менять системный атрибут"));
@@ -264,14 +265,14 @@ namespace Webapp.ApiControllers._1._0
 
         //TODO: Make delete possible
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAttributeType(long id)
+        public async Task<IActionResult> Delete(long id)
         {
             var attributeType = await _context.AttributeTypes.FindAsync(id);
             if (attributeType == null)
             {
                 return NotFound();
             }
-            
+
             if (attributeType.SystemicType)
             {
                 return NotFound(new ErrorResponseDTO("Нельзя удалить системный атрибут"));
@@ -282,5 +283,301 @@ namespace Webapp.ApiControllers._1._0
 
             return NoContent();
         }
+
+        #endregion
+
+        #region TypeValues
+
+        [HttpGet("values")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<AttributeTypeValueGetDTO>>))]
+        public async Task<ActionResult> GetAllValues(long? attributeTypeId)
+        {
+            var query = _context.TypeValues.AsQueryable();
+
+            if (attributeTypeId != null)
+            {
+                query = _context.TypeValues.Where(u => u.AttributeTypeId == attributeTypeId);
+            }
+
+            var values = await query.Select(u => new AttributeTypeValueGetDTO
+            {
+                Id = u.Id,
+                Value = u.Value
+            }).ToListAsync();
+
+            return Ok(new ResponseDTO<IEnumerable<AttributeTypeValueGetDTO>>
+            {
+                Data = values
+            });
+        }
+
+        [HttpGet("values/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeTypeValueGetDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> GetValueById(long id)
+        {
+            var value = await _context.TypeValues.FindAsync(id);
+
+            if (value == null)
+            {
+                return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
+            }
+
+            return Ok(new ResponseDTO<AttributeTypeValueGetDTO>
+            {
+                Data = new AttributeTypeValueGetDTO
+                {
+                    Id = value.Id,
+                    Value = value.Value
+                }
+            });
+        }
+
+        [HttpPost("values")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeValueGetDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> CreateValue(AttributeTypeValuePostDTO typeValuePostDTO)
+        {
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == typeValuePostDTO.AttributeTypeId);
+
+            if (type == null)
+            {
+                return NotFound(new ErrorResponseDTO("Тип атрибута не найден"));
+            }
+
+            var value = new AttributeTypeValue
+            {
+                Value = typeValuePostDTO.Value,
+                AttributeTypeId = typeValuePostDTO.AttributeTypeId
+            };
+
+            await _context.TypeValues.AddAsync(value);
+
+            await _context.SaveChangesAsync();
+            
+            return CreatedAtAction(nameof(GetValueById), await GetValueById(value.Id));
+        }
+
+        [HttpPatch("values/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> UpdateValue(long id, AttributeTypeValuePatchDTO typeValuePatchDTO)
+        {
+            if (id != typeValuePatchDTO.Id)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+
+            var value = await _context.TypeValues.FirstOrDefaultAsync(typeValue =>
+                typeValue.Id == typeValuePatchDTO.Id);
+
+            if (value == null)
+            {
+                return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
+            }
+
+            value.Value = typeValuePatchDTO.Value;
+
+            _context.TypeValues.Update(value);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("values/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> DeleteValue(long id)
+        {
+            var value = await _context.TypeValues.FirstOrDefaultAsync(typeValue => typeValue.Id == id);
+
+            if (value == null)
+            {
+                return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
+            }
+
+            var type = await _context.AttributeTypes.FirstAsync(t => t.Id == value.AttributeTypeId);
+            
+            if (type.DefaultValueId == id)
+            {
+                var newDefaultValue = await _context.TypeValues
+                    .Where(v => v.AttributeTypeId == type.Id && v.Id != id)
+                    .FirstOrDefaultAsync();
+
+                if (newDefaultValue == null)
+                {
+                    return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
+                }
+
+                type.DefaultUnitId = newDefaultValue.Id;
+                _context.AttributeTypes.Update(type);
+            }
+
+            var attributes = await _context.OrderAttributes
+                .Where(attribute => attribute.ValueId == id)
+                .ToListAsync();
+
+            foreach (var attribute in attributes)
+            {
+                attribute.ValueId = type.DefaultValueId;
+                _context.OrderAttributes.Update(attribute);
+            }
+
+            _context.TypeValues.Remove(value);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        #endregion
+        
+        #region TypeUnits
+
+        [HttpGet("units")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<AttributeTypeUnitGetDTO>>))]
+        public async Task<ActionResult> GetAllUnits(long? attributeTypeId)
+        {
+            var query = _context.TypeUnits.AsQueryable();
+
+            if (attributeTypeId != null)
+            {
+                query = _context.TypeUnits.Where(u => u.AttributeTypeId == attributeTypeId);
+            }
+
+            var units = await query.Select(u => new AttributeTypeUnitGetDTO
+            {
+                Id = u.Id,
+                Value = u.Value
+            }).ToListAsync();
+
+            return Ok(new ResponseDTO<IEnumerable<AttributeTypeUnitGetDTO>>
+            {
+                Data = units
+            });
+        }
+
+        [HttpGet("units/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeTypeUnitGetDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> GetUnitById(long id)
+        {
+            var unit = await _context.TypeUnits.FindAsync(id);
+
+            if (unit == null)
+            {
+                return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
+            }
+
+            return Ok(new ResponseDTO<AttributeTypeUnitGetDTO>
+            {
+                Data = new AttributeTypeUnitGetDTO
+                {
+                    Id = unit.Id,
+                    Value = unit.Value
+                }
+            });
+        }
+
+        [HttpPost("units")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeUnitGetDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> CreateUnit(AttributeTypeUnitPostDTO typeUnitPostDTO)
+        {
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == typeUnitPostDTO.AttributeTypeId);
+
+            if (type == null)
+            {
+                return NotFound(new ErrorResponseDTO("Тип атрибута не найден"));
+            }
+
+            var unit = new AttributeTypeUnit
+            {
+                Value = typeUnitPostDTO.Value,
+                AttributeTypeId = typeUnitPostDTO.AttributeTypeId
+            };
+
+            await _context.TypeUnits.AddAsync(unit);
+
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetUnitById), await GetUnitById(unit.Id));
+        }
+
+        [HttpPatch("units/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> UpdateUnit(long id, AttributeTypeUnitPatchDTO typeUnitPatchDTO)
+        {
+            if (id != typeUnitPatchDTO.Id)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+
+            var unit = await _context.TypeUnits.FirstOrDefaultAsync(typeUnit =>
+                typeUnit.Id == typeUnitPatchDTO.Id);
+
+            if (unit == null)
+            {
+                return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
+            }
+
+            unit.Value = typeUnitPatchDTO.Value;
+
+            _context.TypeUnits.Update(unit);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("units/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> DeleteUnit(long id)
+        {
+            var unit = await _context.TypeUnits.FirstOrDefaultAsync(typeUnit => typeUnit.Id == id);
+
+            if (unit == null)
+            {
+                return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
+            }
+
+            var type = await _context.AttributeTypes.FirstAsync(t => t.Id == unit.AttributeTypeId);
+
+            if (type.DefaultUnitId == id)
+            {
+                var newDefaultUnit = await _context.TypeUnits
+                    .Where(u => u.AttributeTypeId == type.Id && u.Id != id)
+                    .FirstOrDefaultAsync();
+
+                if (newDefaultUnit == null)
+                {
+                    return BadRequest(new ErrorResponseDTO("У атрибута должна быть единица измерения по умолчанию"));
+                }
+
+                type.DefaultUnitId = newDefaultUnit.Id;
+                _context.AttributeTypes.Update(type);
+            }
+
+            var attributes = await _context.OrderAttributes
+                .Where(attribute => attribute.UnitId == id)
+                .ToListAsync();
+
+            foreach (var attribute in attributes)
+            {
+                attribute.UnitId = type.DefaultUnitId;
+                _context.OrderAttributes.Update(attribute);
+            }
+
+            _context.TypeUnits.Remove(unit);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        #endregion
     }
 }

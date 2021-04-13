@@ -9,6 +9,9 @@ using DAL.App.EF;
 using Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using PublicApi.v1;
+using PublicApi.v1.Common;
+using PublicApi.v1.Enums;
 using Attribute = Domain.Attribute;
 
 namespace Webapp.ApiControllers._1._0
@@ -29,80 +32,165 @@ namespace Webapp.ApiControllers._1._0
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Attribute>>> GetAttributes()
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<AttributeGetDTO>>))]
+        public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage,
+            SortOption byName, SortOption byType, string? searchKey)
         {
-            return await _context.Attributes.ToListAsync();
+            var typesQuery = _context.Attributes.Select(a => new AttributeGetDTO
+            {
+                Id = a.Id,
+                Name = a.Name,
+                Type = a.AttributeType!.Name,
+                DataType = (AttributeDataType) a.AttributeType!.DataType,
+                UsesDefinedUnits = a.AttributeType!.UsesDefinedUnits,
+                UsesDefinedValues = a.AttributeType!.UsesDefinedValues
+            });
+
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                typesQuery = typesQuery.Where(
+                    a =>
+                        a.Name.ToLower().Contains(searchKey.ToLower()) ||
+                        a.Type.ToLower().Contains(searchKey.ToLower())
+                );
+            }
+            
+            typesQuery = typesQuery.OrderBy(at => at.Id);
+
+            typesQuery = byName switch
+            {
+                SortOption.True => typesQuery.OrderBy(at => at.Name),
+                SortOption.Reversed => typesQuery.OrderByDescending(at => at.Name),
+                _ => typesQuery
+            };
+
+            typesQuery = byType switch
+            {
+                SortOption.True => typesQuery.OrderBy(at => at.Type),
+                SortOption.Reversed => typesQuery.OrderByDescending(at => at.Type),
+                _ => typesQuery
+            };
+
+
+            var items = new CollectionDTO<AttributeGetDTO>
+            {
+                TotalCount = await _context.Attributes.CountAsync(),
+                Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
+            };
+
+            return Ok(new ResponseDTO<CollectionDTO<AttributeGetDTO>>
+            {
+                Data = items
+            });
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Attribute>> GetAttribute(long id)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeGetDetailsDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> GetById(long id)
         {
-            var attribute = await _context.Attributes.FindAsync(id);
-
-            if (attribute == null)
-            {
-                return NotFound();
-            }
-
-            return attribute;
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAttribute(long id, Attribute attribute)
-        {
-            if (id != attribute.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(attribute).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AttributeExists(id))
+            var item = await _context.Attributes
+                .Where(a => a.Id == id)
+                .Select(a => new AttributeGetDetailsDTO
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                    Id = a.Id,
+                    Name = a.Name,
+                    UsedCount = a.OrderAttributes!.Count,
+                    Type = a.AttributeType!.Name,
+                    DataType = (AttributeDataType) a.AttributeType!.DataType,
+                    DefaultUnit = a.AttributeType!.TypeUnits!
+                        .Where(u => u.Id == a.AttributeType!.DefaultUnitId)
+                        .Select(u => u.Value).FirstOrDefault() ?? "",
+                    DefaultValue = a.AttributeType!.TypeValues!
+                        .Where(v => v.Id == a.AttributeType!.DefaultUnitId)
+                        .Select(v => v.Value).FirstOrDefault() ?? "",
+                }).FirstOrDefaultAsync();
+
+            if (item == null)
+            {
+                return NotFound(new ErrorResponseDTO("Aтрибут не найдет"));
             }
 
-            return NoContent();
+            return Ok(new ResponseDTO<AttributeGetDetailsDTO>
+            {
+                Data = item
+            });
         }
 
         [HttpPost]
-        public async Task<ActionResult<Attribute>> PostAttribute(Attribute attribute)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeGetDetailsDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> Create(AttributePostDTO dto)
         {
-            _context.Attributes.Add(attribute);
-            await _context.SaveChangesAsync();
+            var type = _context.AttributeTypes.FirstOrDefaultAsync(at => at.Id == dto.AttributeTypeId);
 
-            return CreatedAtAction("GetAttribute", new { id = attribute.Id }, attribute);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAttribute(long id)
-        {
-            var attribute = await _context.Attributes.FindAsync(id);
-            if (attribute == null)
+            if (type == null)
             {
-                return NotFound();
+                return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
             }
 
-            _context.Attributes.Remove(attribute);
+            var attribute = new Attribute()
+            {
+                Name = dto.Name,
+                AttributeTypeId = dto.AttributeTypeId
+            };
+
+            await _context.Attributes.AddAsync(attribute);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetById), await GetById(attribute.Id));
+        }
+
+        [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<IActionResult> Update(long id, AttributePatchDTO dto)
+        {
+            if (id != dto.Id)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+
+            var type = _context.AttributeTypes.FirstOrDefaultAsync(at => at.Id == dto.AttributeTypeId);
+
+            if (type == null)
+            {
+                return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
+            }
+
+            var attribute = await _context.Attributes
+                .Where(a => a.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (attribute == null)
+            {
+                return NotFound(new ErrorResponseDTO("Aтрибут не найдет"));
+            }
+
+            var orderAttributes = await _context.OrderAttributes
+                .Where(oa => oa.AttributeId == id)
+                .ToListAsync();
+
+            attribute.Name = dto.Name;
+
+            if (dto.AttributeTypeId != null)
+            {
+                if (orderAttributes.Any())
+                {
+                    return BadRequest(
+                        new ErrorResponseDTO("Нельзя изменить тип атрибута, если атрибут уже используется"));
+                }
+                
+                attribute.AttributeTypeId = dto.AttributeTypeId.Value;
+            }
+
+            _context.Attributes.Update(attribute);
+
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool AttributeExists(long id)
-        {
-            return _context.Attributes.Any(e => e.Id == id);
         }
     }
 }

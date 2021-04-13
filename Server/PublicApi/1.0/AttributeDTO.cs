@@ -1,32 +1,42 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Domain.Base;
+using PublicApi.v1.Enums;
 
 namespace PublicApi.v1
 {
-    public class AttributeGetDTO
+    public class AttributeGetDTO : DomainEntityId
     {
-        public bool Displayed { get; set; }
-
         public string Name { get; set; } = default!;
         public string Type { get; set; } = default!;
+        
+        public AttributeDataType DataType { get; set; }
+        
+        public bool UsesDefinedValues { get; set; }
+        public bool UsesDefinedUnits { get; set; }
+    }
 
-        public ICollection<string>? Values { get; set; }
+    public class AttributeGetDetailsDTO : DomainEntityId
+    {
+        public string Name { get; set; } = default!;
+        public string Type { get; set; } = default!;
+        
+        public string? DefaultValue { get; set; }
+        public string? DefaultUnit { get; set; }
+        
+        public long UsedCount { get; set; }
+        
+        public AttributeDataType DataType { get; set; }
     }
 
     public class AttributePostDTO
     {
-        [Required] public bool Displayed { get; set; }
-
         [Required] public string Name { get; set; } = default!;
-
         [Required] public long AttributeTypeId { get; set; } = default!;
     }
 
-    public class AttributePutDTO : DomainEntityId
+    public class AttributePatchDTO : DomainEntityId
     {
-        [Required] public bool Displayed { get; set; }
-
         [Required] public string Name { get; set; } = default!;
+        public long? AttributeTypeId { get; set; }
     }
 }
