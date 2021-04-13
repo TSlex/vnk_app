@@ -225,6 +225,11 @@ namespace Webapp.ApiControllers._1._0
             {
                 return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
             }
+            
+            if (attributeType.SystemicType)
+            {
+                return NotFound(new ErrorResponseDTO("Нельзя менять системный атрибут"));
+            }
 
             if (dto.DefaultCustomValue == null && !attributeType.UsesDefinedValues)
             {
@@ -265,6 +270,11 @@ namespace Webapp.ApiControllers._1._0
             if (attributeType == null)
             {
                 return NotFound();
+            }
+            
+            if (attributeType.SystemicType)
+            {
+                return NotFound(new ErrorResponseDTO("Нельзя удалить системный атрибут"));
             }
 
             _context.AttributeTypes.Remove(attributeType);

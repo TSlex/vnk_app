@@ -55,10 +55,10 @@
                 </template>
                 <div
                   class="d-flex justify-space-between pa-2"
-                  v-for="value in values"
-                  :key="'value:' + value.id"
+                  v-for="(value, i) in values"
+                  :key="'value:' + value.value + i"
                 >
-                  <template>
+                  <template v-if="!value.deleted">
                     <span v-if="isDateFormat" class="text-body-1">{{
                       value.value | formatDate
                     }}</span>
@@ -71,13 +71,20 @@
                     <span v-else class="text-body-1">{{ value.value }}</span>
                     <span>
                       <v-icon
+                        v-if="value.id != null"
+                        @click="featureValue(value.id)"
                         >mdi-star{{
                           model.defaultValueId === value.id ? "" : "-outline"
                         }}</v-icon
                       >
-                      <v-icon>mdi-lead-pencil</v-icon>
-                      <v-icon>mdi-delete</v-icon>
+                      <v-icon @click="editValue(i)">mdi-lead-pencil</v-icon>
+                      <v-icon @click="removeValue(i)">mdi-delete</v-icon>
                     </span>
+                  </template>
+                  <template v-else>
+                    <v-spacer></v-spacer>
+                    <a @click="undoValueRemove(i)">значение удалено. отменить?</a>
+                    <v-spacer></v-spacer>
                   </template>
                 </div>
                 <v-input :rules="rules.values" v-model="values"></v-input>
@@ -98,20 +105,27 @@
                 </template>
                 <div
                   class="d-flex justify-space-between pa-2"
-                  v-for="unit in units"
-                  :key="'unit:' + unit.id"
+                  v-for="(unit, i) in units"
+                  :key="'unit:' + unit.value + i"
                 >
-                  <template>
+                  <template v-if="!unit.deleted">
                     <span class="text-body-1">{{ unit.value }}</span>
                     <span>
                       <v-icon
+                        v-if="unit.id != null"
+                        @click="featureUnit(unit.id)"
                         >mdi-star{{
                           model.defaultUnitId === unit.id ? "" : "-outline"
                         }}</v-icon
                       >
-                      <v-icon>mdi-lead-pencil</v-icon>
-                      <v-icon>mdi-delete</v-icon>
+                      <v-icon @click="changeUnit(i)">mdi-lead-pencil</v-icon>
+                      <v-icon @click="removeUnit(i)">mdi-delete</v-icon>
                     </span>
+                  </template>
+                  <template v-else>
+                    <v-spacer></v-spacer>
+                    <a @click="undoUnitRemove(i)">единица измерения удалена. отменить?</a>
+                    <v-spacer></v-spacer>
                   </template>
                 </div>
                 <v-input :rules="rules.units" v-model="units"></v-input>
@@ -128,6 +142,19 @@
           </v-card-actions>
         </v-card>
       </v-form>
+      <ValueAddDialog
+        v-model="valueDialog"
+        :model="value.value"
+        :type="model.dataType"
+        v-on:submit="submitValue"
+        v-on:change="valueChange"
+      />
+      <UnitAddDialog
+        v-model="unitDialog"
+        :model="unit.value"
+        v-on:submit="submitUnit"
+        v-on:change="unitChange"
+      />
     </v-col>
   </v-row>
 </template>
@@ -140,10 +167,14 @@ import CustomValueField from "~/components/common/CustomValueField.vue";
 import { AttributeTypePatchDTO } from "~/models/AttributeTypeDTO";
 import { notEmpty, required } from "~/utils/form-validation";
 import { localize } from "~/utils/localizeDataType";
+import ValueAddDialog from "~/components/types/ValueAddDialog.vue";
+import UnitAddDialog from "~/components/types/UnitAddDialog.vue";
 
 @Component({
   components: {
     CustomValueField,
+    ValueAddDialog,
+    UnitAddDialog,
   },
 })
 export default class AttributeTypesEdit extends Vue {
@@ -160,10 +191,26 @@ export default class AttributeTypesEdit extends Vue {
     defaultUnitId: 0,
   };
 
-  units: { id: number; value: string }[] = [];
-  values: { id: number; value: string }[] = [];
+  units: {
+    id: number | null;
+    value: string;
+    changed: boolean;
+    deleted: boolean;
+  }[] = [];
+  values: {
+    id: number | null;
+    value: string;
+    changed: boolean;
+    deleted: boolean;
+  }[] = [];
+
+  value = { value: "", id: null as number | null, index: 0, changeMode: false };
+  unit = { value: "", id: null as number | null, index: 0, changeMode: false };
 
   showError = false;
+
+  valueDialog = false;
+  unitDialog = false;
 
   id!: number;
 
@@ -214,19 +261,120 @@ export default class AttributeTypesEdit extends Vue {
     return this.attributeType?.units?.length ?? 0;
   }
 
+  valueChange(value: string) {
+    this.value.value = value;
+  }
+
+  unitChange(unit: string) {
+    this.unit.value = unit;
+  }
+
+  featureValue(id: number) {
+    this.model.defaultValueId = id;
+  }
+
+  submitValue() {
+    if (this.value.changeMode) {
+      this.values[this.value.index] = {
+        id: this.value.id,
+        value: this.value.value,
+        changed: true,
+        deleted: false,
+      };
+    } else {
+      this.values.push({
+        id: null,
+        value: this.value.value,
+        changed: false,
+        deleted: false,
+      });
+    }
+
+    this.value = { value: "", id: null, index: 0, changeMode: false };
+    this.valueDialog = false;
+  }
+
+  changeValue(index: number) {
+    this.value.value = this.values[index].value;
+    this.value.id = this.values[index].id;
+    this.value.index = index;
+    this.value.changeMode = true;
+    this.valueDialog = true;
+  }
+
+  removeValue(index: number) {
+    if (this.values[index].id != null) {
+      this.values[index].deleted = true;
+    } else {
+      this.values.splice(index, 1);
+    }
+  }
+
+  undoValueRemove(index: number) {
+    this.values[index].deleted = false;
+  }
+
+  featureUnit(id: number) {
+    this.model.defaultUnitId = id;
+  }
+
+  submitUnit() {
+    if (this.unit.changeMode) {
+      this.units[this.unit.index] = {
+        id: this.unit.id,
+        value: this.unit.value,
+        changed: true,
+        deleted: false,
+      };
+    } else {
+      this.units.push({
+        id: null,
+        value: this.unit.value,
+        changed: false,
+        deleted: false,
+      });
+    }
+
+    this.unit = { value: "", id: null, index: 0, changeMode: false };
+    this.unitDialog = false;
+  }
+
+  changeUnit(index: number) {
+    this.unit.value = this.units[index].value;
+    this.unit.id = this.units[index].id;
+    this.unit.index = index;
+    this.unit.changeMode = true;
+    this.unitDialog = true;
+  }
+
+  removeUnit(index: number) {
+    if (this.units[index].id != null) {
+      this.units[index].deleted = true;
+    } else {
+      this.units.splice(index, 1);
+    }
+  }
+
+  undoUnitRemove(index: number) {
+    this.units[index].deleted = false;
+  }
+
   onCancel() {
     this.$router.back();
   }
 
   onSubmit() {
     if ((this.$refs.form as any).validate()) {
-      attributeTypesStore.updateAttributeType(this.model).then((suceeded) => {
-        if (suceeded) {
-          this.onCancel();
-        } else {
-          this.showError = true;
-        }
-      });
+      console.log(this.values);
+      console.log(this.units);
+
+      // attributeTypesStore.updateAttributeType(this.model).then((suceeded) => {
+      //   if (suceeded) {
+      //     this.onCancel();
+      //   } else {
+      //     this.showError = true;
+      //   }
+      // });
     }
   }
 
@@ -240,13 +388,28 @@ export default class AttributeTypesEdit extends Vue {
     }
 
     attributeTypesStore.getAttributeType(this.id).then((suceeded) => {
-      if (!suceeded) {
+      if (!suceeded || this.attributeType?.systemicType) {
         this.$router.back();
       } else {
         _.merge(this.model, _.pick(this.attributeType, _.keys(this.model)));
 
-        this.values = this.attributeType?.values ?? []
-        this.units = this.attributeType?.units ?? []
+        this.attributeType?.values.forEach((value) => {
+          this.values.push({
+            id: value.id,
+            value: value.value,
+            changed: false,
+            deleted: false,
+          });
+        });
+
+        this.attributeType?.units.forEach((unit) => {
+          this.units.push({
+            id: unit.id,
+            value: unit.value,
+            changed: false,
+            deleted: false,
+          });
+        });
 
         this.initialDataType = this.attributeType?.dataType!;
 

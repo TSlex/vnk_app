@@ -1,7 +1,7 @@
 <template>
   <v-row justify="center" class="text-center" v-if="loaded">
     <v-col cols="4" class="mt-4">
-      <v-sheet rounded="lg" class="pt-3">
+      <v-sheet rounded="lg" class="py-2">
         <div class="px-3 mb-2">
           <div class="d-flex justify-space-between mb-2">
             <span>Название:</span><span>{{ attributeType.name }}</span>
@@ -30,18 +30,22 @@
             <span v-else-if="isBooleanFormat" class="text-body-1">{{
               attributeType.defaultCustomValue | formatBoolean
             }}</span>
-            <span v-else class="text-body-1">{{ attributeType.defaultCustomValue }}</span>
+            <span v-else class="text-body-1">{{
+              attributeType.defaultCustomValue
+            }}</span>
           </div>
         </div>
-        <v-divider></v-divider>
-        <v-container>
-          <v-btn outlined text class="mr-1" @click="onEdit"
-            ><v-icon left>mdi-pencil</v-icon>Изменить</v-btn
-          >
-          <v-btn outlined text @click="onDelete"
-            ><v-icon color="red" left> mdi-delete </v-icon>Удалить</v-btn
-          >
-        </v-container>
+        <template v-if="!attributeType.systemicType">
+          <v-divider></v-divider>
+          <v-container>
+            <v-btn outlined text class="mr-1" @click="onEdit"
+              ><v-icon left>mdi-pencil</v-icon>Изменить</v-btn
+            >
+            <v-btn outlined text @click="onDelete"
+              ><v-icon color="red" left> mdi-delete </v-icon>Удалить</v-btn
+            >
+          </v-container>
+        </template>
       </v-sheet>
       <v-sheet rounded="lg" class="mt-4 pt-1" v-if="valuesCount > 0">
         <v-toolbar flat dense>
@@ -136,9 +140,7 @@ export default class extends Vue {
     this.$router.push(`/types/edit/${this.id}`);
   }
 
-  onDelete(){
-
-  }
+  onDelete() {}
 
   async asyncData({ params }: any) {
     return { id: params.id };
