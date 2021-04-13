@@ -91,7 +91,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
-import { DataType } from "~/types/Enums/DataType";
+import { DataType } from "~/models/Enums/DataType";
 import {
   required,
   integer,

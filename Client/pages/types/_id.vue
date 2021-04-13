@@ -38,10 +38,7 @@
           <v-btn outlined text class="mr-1" @click="onEdit"
             ><v-icon left>mdi-pencil</v-icon>Изменить</v-btn
           >
-          <v-btn outlined text class="mr-1"
-            ><v-icon color="red" left> mdi-folder-clock </v-icon>История</v-btn
-          >
-          <v-btn outlined text
+          <v-btn outlined text @click="onDelete"
             ><v-icon color="red" left> mdi-delete </v-icon>Удалить</v-btn
           >
         </v-container>
@@ -102,7 +99,7 @@
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
-import { DataType } from "~/types/Enums/DataType";
+import { DataType } from "~/models/Enums/DataType";
 
 @Component({})
 export default class extends Vue {
@@ -137,6 +134,10 @@ export default class extends Vue {
 
   onEdit() {
     this.$router.push(`/types/edit/${this.id}`);
+  }
+
+  onDelete(){
+
   }
 
   async asyncData({ params }: any) {

@@ -1,6 +1,6 @@
 import { Context, Plugin } from '@nuxt/types'
 import Vue from 'vue'
-import { DataType } from '~/types/Enums/DataType'
+import { DataType } from '~/models/Enums/DataType'
 import { localize } from '~/utils/localizeDataType'
 
 let context: Context

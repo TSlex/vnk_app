@@ -55,7 +55,7 @@
                 </template>
                 <div
                   class="d-flex justify-space-between pa-2"
-                  v-for="value in model.values"
+                  v-for="value in values"
                   :key="'value:' + value.id"
                 >
                   <template>
@@ -80,7 +80,7 @@
                     </span>
                   </template>
                 </div>
-                <v-input :rules="rules.values" v-model="model.values"></v-input>
+                <v-input :rules="rules.values" v-model="values"></v-input>
               </template>
               <template v-if="attributeType.usesDefinedUnits">
                 <v-toolbar flat>
@@ -98,7 +98,7 @@
                 </template>
                 <div
                   class="d-flex justify-space-between pa-2"
-                  v-for="unit in model.units"
+                  v-for="unit in units"
                   :key="'unit:' + unit.id"
                 >
                   <template>
@@ -114,7 +114,7 @@
                     </span>
                   </template>
                 </div>
-                <v-input :rules="rules.units" v-model="model.units"></v-input>
+                <v-input :rules="rules.units" v-model="units"></v-input>
               </template>
             </v-container>
           </v-card-text>
@@ -123,7 +123,7 @@
             <v-btn color="blue darken-1" text @click.stop="onCancel()"
               >Отмена</v-btn
             >
-            <v-btn color="blue darken-1" text type="submit">Создать</v-btn>
+            <v-btn color="blue darken-1" text type="submit">Сохранить</v-btn>
             <v-spacer></v-spacer>
           </v-card-actions>
         </v-card>
@@ -133,11 +133,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "nuxt-property-decorator";
+import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
-import { DataType } from "~/types/Enums/DataType";
+import { DataType } from "~/models/Enums/DataType";
 import CustomValueField from "~/components/common/CustomValueField.vue";
-import { AttributeTypePatchDTO } from "~/types/AttributeTypeDTO";
+import { AttributeTypePatchDTO } from "~/models/AttributeTypeDTO";
 import { notEmpty, required } from "~/utils/form-validation";
 import { localize } from "~/utils/localizeDataType";
 
@@ -159,6 +159,9 @@ export default class AttributeTypesEdit extends Vue {
     defaultValueId: 0,
     defaultUnitId: 0,
   };
+
+  units: { id: number; value: string }[] = [];
+  values: { id: number; value: string }[] = [];
 
   showError = false;
 
@@ -240,12 +243,23 @@ export default class AttributeTypesEdit extends Vue {
       if (!suceeded) {
         this.$router.back();
       } else {
-        this.model = { ...this.attributeType } as AttributeTypePatchDTO;
-        this.initialDataType =
-          this.attributeType?.dataType ?? DataType.Undefined;
+        _.merge(this.model, _.pick(this.attributeType, _.keys(this.model)));
+
+        this.values = this.attributeType?.values ?? []
+        this.units = this.attributeType?.units ?? []
+
+        this.initialDataType = this.attributeType?.dataType!;
+
         this.loaded = true;
       }
     });
+  }
+
+  @Watch("model.dataType")
+  onDataTypeChanged(newType: DataType, oldType: DataType) {
+    if (newType != oldType && this.$refs.form) {
+      (this.$refs.form as any).resetValidation();
+    }
   }
 }
 </script>
