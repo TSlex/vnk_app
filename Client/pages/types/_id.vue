@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" class="text-center" v-if="attributeType">
+  <v-row justify="center" class="text-center" v-if="loaded">
     <v-col cols="4" class="mt-4">
       <v-sheet rounded="lg" class="pt-3">
         <div class="px-3 mb-2">
@@ -21,14 +21,29 @@
             v-if="!attributeType.usesDefinedValues"
           >
             <span>Значение по умолчанию:</span
-            ><span>"{{ attributeType.defaultCustomValue }}"</span>
+            ><span v-if="isDateFormat" class="text-body-1">{{
+              attributeType.defaultCustomValue | formatDate
+            }}</span>
+            <span v-else-if="isDateTimeFormat" class="text-body-1">{{
+              attributeType.defaultCustomValue | formatDateTime
+            }}</span>
+            <span v-else-if="isBooleanFormat" class="text-body-1">{{
+              attributeType.defaultCustomValue | formatBoolean
+            }}</span>
+            <span v-else class="text-body-1">{{ attributeType.defaultCustomValue }}</span>
           </div>
         </div>
         <v-divider></v-divider>
         <v-container>
-          <v-btn outlined text class="mr-1" @click="onEdit"><v-icon left>mdi-pencil</v-icon>Изменить</v-btn>
-          <v-btn outlined text class="mr-1"><v-icon color="red" left> mdi-folder-clock </v-icon>История</v-btn>
-          <v-btn outlined text><v-icon color="red" left> mdi-delete </v-icon>Удалить</v-btn>
+          <v-btn outlined text class="mr-1" @click="onEdit"
+            ><v-icon left>mdi-pencil</v-icon>Изменить</v-btn
+          >
+          <v-btn outlined text class="mr-1"
+            ><v-icon color="red" left> mdi-folder-clock </v-icon>История</v-btn
+          >
+          <v-btn outlined text
+            ><v-icon color="red" left> mdi-delete </v-icon>Удалить</v-btn
+          >
         </v-container>
       </v-sheet>
       <v-sheet rounded="lg" class="mt-4 pt-1" v-if="valuesCount > 0">
@@ -48,6 +63,9 @@
               }}</span>
               <span v-else-if="isDateTimeFormat" class="text-body-1">{{
                 value.value | formatDateTime
+              }}</span>
+              <span v-else-if="isBooleanFormat" class="text-body-1">{{
+                value.value | formatBoolean
               }}</span>
               <span v-else class="text-body-1">{{ value.value }}</span>
               <v-chip v-if="attributeType.defaultValueId === value.id"
@@ -89,6 +107,7 @@ import { DataType } from "~/types/Enums/DataType";
 @Component({})
 export default class extends Vue {
   id!: number;
+  loaded = false;
 
   get attributeType() {
     return attributeTypesStore.selectedAttributeType;
@@ -104,6 +123,10 @@ export default class extends Vue {
     return this.attributeType!.units.length;
   }
 
+  get isBooleanFormat() {
+    return this.attributeType!.dataType === DataType.Boolean;
+  }
+
   get isDateFormat() {
     return this.attributeType!.dataType === DataType.Date;
   }
@@ -112,8 +135,8 @@ export default class extends Vue {
     return this.attributeType!.dataType === DataType.DateTime;
   }
 
-  onEdit(){
-    this.$router.push(`/types/edit/${this.id}`)
+  onEdit() {
+    this.$router.push(`/types/edit/${this.id}`);
   }
 
   async asyncData({ params }: any) {
@@ -128,6 +151,8 @@ export default class extends Vue {
     attributeTypesStore.getAttributeType(this.id).then((suceeded) => {
       if (!suceeded) {
         this.$router.back();
+      } else {
+        this.loaded = true;
       }
     });
   }

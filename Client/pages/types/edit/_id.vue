@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" class="text-center" v-if="attributeType">
+  <v-row justify="center" class="text-center" v-if="loaded">
     <v-col cols="4" class="my-4">
       <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
         <v-card>
@@ -24,6 +24,15 @@
                 v-model="model.dataType"
                 :rules="rules.type"
               ></v-select>
+              <v-alert
+                dense
+                outlined
+                type="warning"
+                v-if="initialDataType != model.dataType"
+              >
+                Внимание, при смене типа данных, возможно неправильное
+                отображение!
+              </v-alert>
               <CustomValueField
                 :dataType="model.dataType"
                 v-model="model.defaultCustomValue"
@@ -46,25 +55,28 @@
                 </template>
                 <div
                   class="d-flex justify-space-between pa-2"
-                  v-for="(v, i) in model.values"
-                  :key="'value' + v + i"
+                  v-for="value in model.values"
+                  :key="'value:' + value.id"
                 >
                   <template>
                     <span v-if="isDateFormat" class="text-body-1">{{
-                      v | formatDate
+                      value.value | formatDate
                     }}</span>
                     <span v-else-if="isDateTimeFormat" class="text-body-1">{{
-                      v | formatDateTime
+                      value.value | formatDateTime
                     }}</span>
-                    <span v-else class="text-body-1">{{ v }}</span>
+                    <span v-else-if="isBooleanFormat" class="text-body-1">{{
+                      value.value | formatBoolean
+                    }}</span>
+                    <span v-else class="text-body-1">{{ value.value }}</span>
                     <span>
-                      <v-icon @click="featureValue(i)"
+                      <v-icon
                         >mdi-star{{
-                          model.defaultValueIndex === i ? "" : "-outline"
+                          model.defaultValueId === value.id ? "" : "-outline"
                         }}</v-icon
                       >
-                      <v-icon @click="changeValue(i)">mdi-lead-pencil</v-icon>
-                      <v-icon @click="removeValue(i)">mdi-delete</v-icon>
+                      <v-icon>mdi-lead-pencil</v-icon>
+                      <v-icon>mdi-delete</v-icon>
                     </span>
                   </template>
                 </div>
@@ -86,19 +98,19 @@
                 </template>
                 <div
                   class="d-flex justify-space-between pa-2"
-                  v-for="(u, i) in model.units"
-                  :key="'unit' + u + i"
+                  v-for="unit in model.units"
+                  :key="'unit:' + unit.id"
                 >
                   <template>
-                    <span class="text-body-1">{{ u }}</span>
+                    <span class="text-body-1">{{ unit.value }}</span>
                     <span>
-                      <v-icon @click="featureUnit(i)"
+                      <v-icon
                         >mdi-star{{
-                          model.defaultUnitIndex === i ? "" : "-outline"
+                          model.defaultUnitId === unit.id ? "" : "-outline"
                         }}</v-icon
                       >
-                      <v-icon @click="changeUnit(i)">mdi-lead-pencil</v-icon>
-                      <v-icon @click="removeUnit(i)">mdi-delete</v-icon>
+                      <v-icon>mdi-lead-pencil</v-icon>
+                      <v-icon>mdi-delete</v-icon>
                     </span>
                   </template>
                 </div>
@@ -135,6 +147,10 @@ import { localize } from "~/utils/localizeDataType";
   },
 })
 export default class AttributeTypesEdit extends Vue {
+  loaded = false;
+
+  initialDataType!: DataType;
+
   model: AttributeTypePatchDTO = {
     id: 0,
     name: "",
@@ -154,6 +170,18 @@ export default class AttributeTypesEdit extends Vue {
     values: [notEmpty()],
     units: [notEmpty()],
   };
+
+  get isBooleanFormat() {
+    return this.attributeType!.dataType === DataType.Boolean;
+  }
+
+  get isDateFormat() {
+    return this.attributeType!.dataType === DataType.Date;
+  }
+
+  get isDateTimeFormat() {
+    return this.attributeType!.dataType === DataType.DateTime;
+  }
 
   get attributeType() {
     return attributeTypesStore.selectedAttributeType;
@@ -182,7 +210,6 @@ export default class AttributeTypesEdit extends Vue {
   get unitsCount() {
     return this.attributeType?.units?.length ?? 0;
   }
-
 
   onCancel() {
     this.$router.back();
@@ -214,6 +241,9 @@ export default class AttributeTypesEdit extends Vue {
         this.$router.back();
       } else {
         this.model = { ...this.attributeType } as AttributeTypePatchDTO;
+        this.initialDataType =
+          this.attributeType?.dataType ?? DataType.Undefined;
+        this.loaded = true;
       }
     });
   }

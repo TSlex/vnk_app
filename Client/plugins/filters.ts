@@ -28,4 +28,8 @@ Vue.filter('formatDataType', function (value: any) {
   return localize(value as DataType)
 })
 
+Vue.filter('formatBoolean', function (value: any) {
+  return value === "true" ? "Да" : "Нет";
+})
+
 export default filtersPlugin

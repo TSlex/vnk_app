@@ -105,7 +105,7 @@ export default class CustomValueField extends Vue {
   dataType!: DataType;
 
   @Prop()
-  value = "";
+  value!: string;
 
   timeValue = "";
   dateValue = "";

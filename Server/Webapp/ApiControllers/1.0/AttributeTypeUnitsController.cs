@@ -1,10 +1,14 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
 using Domain;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using PublicApi.v1;
 using PublicApi.v1.Common;
 
@@ -16,11 +20,11 @@ namespace Webapp.ApiControllers._1._0
     [Consumes("application/json")]
     [Produces("application/json")]
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User, Administrator, Root")]
-    public class AttributeTypeValuesController : ControllerBase
+    public class AttributeTypeUnitsController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public AttributeTypeValuesController(AppDbContext context)
+        public AttributeTypeUnitsController(AppDbContext context)
         {
             _context = context;
         }
@@ -28,87 +32,87 @@ namespace Webapp.ApiControllers._1._0
         [HttpGet]
         public async Task<ActionResult> GetAll(long? attributeTypeId)
         {
-            var query = _context.TypeValues.AsQueryable();
+            var query = _context.TypeUnits.AsQueryable();
 
             if (attributeTypeId != null)
             {
-                query = _context.TypeValues.Where(u => u.AttributeTypeId == attributeTypeId);
+                query = _context.TypeUnits.Where(u => u.AttributeTypeId == attributeTypeId);
             }
 
-            var values = await query.Select(u => new AttributeTypeValueGetDTO
+            var units = await query.Select(u => new AttributeTypeUnitGetDTO
             {
                 Id = u.Id,
                 Value = u.Value
             }).ToListAsync();
 
-            return Ok(new ResponseDTO<IEnumerable<AttributeTypeValueGetDTO>>
+            return Ok(new ResponseDTO<IEnumerable<AttributeTypeUnitGetDTO>>
             {
-                Data = values
+                Data = units
             });
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(long id)
         {
-            var value = await _context.TypeValues.FindAsync(id);
+            var unit = await _context.TypeUnits.FindAsync(id);
 
-            if (value == null)
+            if (unit == null)
             {
                 return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
             }
 
-            return Ok(new ResponseDTO<AttributeTypeValueGetDTO>
+            return Ok(new ResponseDTO<AttributeTypeUnitGetDTO>
             {
-                Data = new AttributeTypeValueGetDTO
+                Data = new AttributeTypeUnitGetDTO
                 {
-                    Id = value.Id,
-                    Value = value.Value
+                    Id = unit.Id,
+                    Value = unit.Value
                 }
             });
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(AttributeTypeValuePostDTO typeValuePostDTO)
+        public async Task<ActionResult> Create(AttributeTypeUnitPostDTO typeUnitPostDTO)
         {
-            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == typeValuePostDTO.AttributeTypeId);
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == typeUnitPostDTO.AttributeTypeId);
 
             if (type == null)
             {
                 return NotFound(new ErrorResponseDTO("Тип атрибута не найден"));
             }
 
-            var value = new AttributeTypeValue
+            var unit = new AttributeTypeUnit
             {
-                Value = typeValuePostDTO.Value,
-                AttributeTypeId = typeValuePostDTO.AttributeTypeId
+                Value = typeUnitPostDTO.Value,
+                AttributeTypeId = typeUnitPostDTO.AttributeTypeId
             };
 
-            await _context.TypeValues.AddAsync(value);
+            await _context.TypeUnits.AddAsync(unit);
 
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetById", new {id = value.Id});
+            return CreatedAtAction("GetById", new {id = unit.Id});
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult> Patch(long id, AttributeTypeValuePatchDTO typeValuePatchDTO)
+        public async Task<ActionResult> Patch(long id, AttributeTypeUnitPatchDTO typeUnitPatchDTO)
         {
-            if (id != typeValuePatchDTO.Id)
+            if (id != typeUnitPatchDTO.Id)
             {
                 return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
             }
 
-            var value = await _context.TypeValues.FirstOrDefaultAsync(typeValue =>
-                typeValue.Id == typeValuePatchDTO.Id);
+            var unit = await _context.TypeUnits.FirstOrDefaultAsync(typeUnit =>
+                typeUnit.Id == typeUnitPatchDTO.Id);
 
-            if (value == null)
+            if (unit == null)
             {
                 return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
             }
 
-            value.Value = typeValuePatchDTO.Value;
+            unit.Value = typeUnitPatchDTO.Value;
 
-            _context.TypeValues.Update(value);
+            _context.TypeUnits.Update(unit);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -117,26 +121,26 @@ namespace Webapp.ApiControllers._1._0
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(long id)
         {
-            var value = await _context.TypeValues.FirstOrDefaultAsync(typeValue => typeValue.Id == id);
+            var unit = await _context.TypeUnits.FirstOrDefaultAsync(typeUnit => typeUnit.Id == id);
 
-            if (value == null)
+            if (unit == null)
             {
                 return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
             }
 
-            var type = await _context.AttributeTypes.FirstAsync(t => t.Id == value.AttributeTypeId);
+            var type = await _context.AttributeTypes.FirstAsync(t => t.Id == unit.AttributeTypeId);
 
             var attributes = await _context.OrderAttributes
-                .Where(attribute => attribute.ValueId == id)
+                .Where(attribute => attribute.UnitId == id)
                 .ToListAsync();
 
             foreach (var attribute in attributes)
             {
-                attribute.ValueId = type.DefaultValueId;
+                attribute.UnitId = type.DefaultUnitId;
                 _context.OrderAttributes.Update(attribute);
             }
 
-            _context.TypeValues.Remove(value);
+            _context.TypeUnits.Remove(unit);
             await _context.SaveChangesAsync();
 
             return NoContent();

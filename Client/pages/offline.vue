@@ -33,5 +33,7 @@ export default class MyClass extends Vue {
       }
     });
   }
+
+
 }
 </script>
