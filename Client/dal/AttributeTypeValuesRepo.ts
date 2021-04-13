@@ -8,7 +8,7 @@ import { AttributeTypeValuePostDTO, AttributeTypeValueGetDTO, AttributeTypeValue
 export class AttributeTypeValuesRepo extends BaseRepo {
 
   constructor(axios: NuxtAxiosInstance) {
-    super(axios, "attributetypevalues");
+    super(axios, "attributetypes/values");
   }
 
   async add(model: AttributeTypeValuePostDTO) {

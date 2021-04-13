@@ -7,7 +7,7 @@ import { AttributeTypeUnitGetDTO, AttributeTypeUnitPatchDTO, AttributeTypeUnitPo
 export class AttributeTypeUnitsRepo extends BaseRepo {
 
   constructor(axios: NuxtAxiosInstance) {
-    super(axios, "attributetypeunits");
+    super(axios, "attributetypes/units");
   }
 
   async add(model: AttributeTypeUnitPostDTO) {

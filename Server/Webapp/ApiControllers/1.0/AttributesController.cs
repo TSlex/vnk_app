@@ -123,7 +123,7 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> Create(AttributePostDTO dto)
         {
-            var type = _context.AttributeTypes.FirstOrDefaultAsync(at => at.Id == dto.AttributeTypeId);
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(at => at.Id == dto.AttributeTypeId);
 
             if (type == null)
             {
