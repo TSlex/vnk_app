@@ -2,8 +2,8 @@
   <v-row justify="center" class="text-center">
     <v-col cols="8" class="mt-4">
       <template v-if="fetched">
-        <v-toolbar flat>
-          <v-btn outlined text large>Добавить</v-btn>
+        <v-toolbar flat class="rounded-t-lg">
+          <v-btn outlined text large to="attributes/create">Добавить</v-btn>
           <v-spacer></v-spacer>
           <v-text-field
             rounded
@@ -27,6 +27,7 @@
           sort-by="name"
           hide-default-footer
           @click:row="openDetails"
+          class="rounded-b-lg rounded-t-0"
         >
           <template v-slot:[`item.`]="{ item }">
             <v-chip color="lime" v-if="item.usesDefinedUnits"
@@ -61,7 +62,7 @@ import { SortOptions } from "~/models/Enums/SortOptions";
 export default class AttributesIndex extends Vue {
   fetched = false;
   createDialog = false;
-  _currentPage = 0;
+  currentPage = 1;
   searchKey = "";
   byName = SortOptions.False;
   byType = SortOptions.False;
@@ -72,6 +73,10 @@ export default class AttributesIndex extends Vue {
     { text: "", value: "", sortable: false, align: "right" },
     { text: "Формат", value: "dataType", sortable: false, align: "right"},
   ];
+
+  get currentPageIndex(){
+    return (this.currentPage ?? 1) - 1
+  }
 
   get attributes() {
     return attributesStore.attributes;
@@ -85,16 +90,8 @@ export default class AttributesIndex extends Vue {
     return attributesStore.pagesCount;
   }
 
-  get currentPage() {
-    return this._currentPage;
-  }
-
-  set currentPage(value) {
-    this._currentPage = --value;
-  }
-
   openDetails(item: AttributeGetDTO) {
-    this.$router.push(`s/${item.id}`);
+    this.$router.push(`attributes/${item.id}`);
   }
 
   setOrdering(options: any) {
@@ -120,7 +117,7 @@ export default class AttributesIndex extends Vue {
   fetchAttributes() {
     attributesStore
       .getAttributes({
-        pageIndex: this.currentPage ?? 0,
+        pageIndex: this.currentPageIndex,
         byName: this.byName,
         byType: this.byType,
         searchKey: this.searchKey ?? "",

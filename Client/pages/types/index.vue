@@ -2,7 +2,7 @@
   <v-row justify="center" class="text-center">
     <v-col cols="6" class="mt-4">
       <template v-if="fetched">
-        <v-toolbar flat>
+        <v-toolbar flat class="rounded-t-lg">
           <v-btn outlined text large to="types/create">Добавить</v-btn>
           <v-spacer></v-spacer>
           <v-text-field
@@ -19,6 +19,7 @@
             v-model="searchKey"
           ></v-text-field>
         </v-toolbar>
+        <v-divider></v-divider>
         <v-data-table
           @update:options="setOrdering"
           :items="attributeTypes"
@@ -27,6 +28,7 @@
           sort-by="name"
           hide-default-footer
           @click:row="openDetails"
+          class="rounded-b-lg rounded-t-0"
         >
           <template v-slot:[`item.type`]="{ item }">
             <v-chip color="blue" dark v-if="item.systemicType"
@@ -49,7 +51,7 @@
         <v-pagination
           v-model="currentPage"
           :length="pagesCount"
-          :total-visible="12"
+          :total-visible="10"
           class="mt-2"
         ></v-pagination>
       </template>
@@ -58,7 +60,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "nuxt-property-decorator";
+import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
 import { AttributeTypeGetDTO } from "~/models/AttributeTypeDTO";
 
@@ -66,45 +68,21 @@ import { AttributeTypeGetDTO } from "~/models/AttributeTypeDTO";
 export default class AttributeTypesIndex extends Vue {
   fetched = false;
   createDialog = false;
-  _currentPage = 0;
-  _searchKey = "";
-  _orderReversed = false;
+  currentPage = 1;
+  searchKey = "";
+  orderReversed = false;
 
   headers = [
     { text: "Название", value: "name", align: "left" },
     { text: "Тип", sortable: false, value: "type", align: "right" },
-    // { value: "actions", sortable: false, align: "right" },
   ];
 
   isSimpleType(item: AttributeTypeGetDTO){
     return !item.systemicType && !item.usesDefinedValues && !item.usesDefinedUnits
   }
 
-  get orderReversed() {
-    return this._orderReversed;
-  }
-
-  set orderReversed(value) {
-    this._orderReversed = value;
-    this.fetchTypes();
-  }
-
-  get searchKey() {
-    return this._searchKey;
-  }
-
-  set searchKey(value) {
-    this._searchKey = value;
-    this.fetchTypes();
-  }
-
-  get currentPage() {
-    return this._currentPage;
-  }
-
-  set currentPage(value) {
-    this._currentPage = --value;
-    this.fetchTypes();
+  get currentPageIndex(){
+    return (this.currentPage ?? 1) - 1
   }
 
   get attributeTypes() {
@@ -134,13 +112,21 @@ export default class AttributeTypesIndex extends Vue {
   fetchTypes() {
     attributeTypesStore
       .getAttributeTypes({
-        pageIndex: this._currentPage ?? 0,
-        orderReversed: this._orderReversed ?? false,
-        searchKey: this._searchKey ?? "",
+        pageIndex: this.currentPageIndex,
+        orderReversed: this.orderReversed ?? false,
+        searchKey: this.searchKey ?? "",
       })
       .then((_) => {
         this.fetched = true;
       });
+  }
+
+  @Watch("currentPage")
+  @Watch("searchKey")
+  @Watch("byName")
+  @Watch("byType")
+  updateWatcher() {
+    this.fetchTypes();
   }
 }
 </script>
