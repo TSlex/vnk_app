@@ -38,7 +38,7 @@
             <v-btn color="blue darken-1" text @click.stop="onCancel()"
               >Отмена</v-btn
             >
-            <v-btn color="blue darken-1" text type="submit">Создать</v-btn>
+            <v-btn color="blue darken-1" text type="submit">Сохранить</v-btn>
             <v-spacer></v-spacer>
           </v-card-actions>
         </v-card>

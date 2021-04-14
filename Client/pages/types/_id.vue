@@ -18,10 +18,11 @@
           </div>
           <div
             class="d-flex justify-space-between mt-2"
-            v-if="!attributeType.usesDefinedValues"
+            v-if="!attributeType.usesDefinedValues && attributeType.defaultCustomValue"
           >
             <span>Значение по умолчанию:</span
-            ><span v-if="isDateFormat" class="text-body-1">{{
+            >
+            <span v-if="isDateFormat" class="text-body-1">{{
               attributeType.defaultCustomValue | formatDate
             }}</span>
             <span v-else-if="isDateTimeFormat" class="text-body-1">{{
