@@ -1,8 +1,11 @@
+import { DataType } from '~/models/Enums/DataType';
+
 export interface AttributeGetDTO {
   id: number;
   name: string;
   type: string;
-  dataType: number;
+  typeId: number;
+  dataType: DataType;
   usesDefinedValues: boolean;
   usesDefinedUnits: boolean;
 }
@@ -11,10 +14,11 @@ export interface AttributeDetailsGetDTO {
   id: number;
   name: string;
   type: string;
+  typeId: number;
   defaultValue: string;
   defaultUnit: string;
   usedCount: number;
-  dataType: number;
+  dataType: DataType;
 }
 
 export interface AttributePostDTO {

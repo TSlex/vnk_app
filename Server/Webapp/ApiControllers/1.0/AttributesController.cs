@@ -41,6 +41,7 @@ namespace Webapp.ApiControllers._1._0
                 Id = a.Id,
                 Name = a.Name,
                 Type = a.AttributeType!.Name,
+                TypeId = a.AttributeTypeId,
                 DataType = (AttributeDataType) a.AttributeType!.DataType,
                 UsesDefinedUnits = a.AttributeType!.UsesDefinedUnits,
                 UsesDefinedValues = a.AttributeType!.UsesDefinedValues
@@ -97,6 +98,7 @@ namespace Webapp.ApiControllers._1._0
                     Name = a.Name,
                     UsedCount = a.OrderAttributes!.Count,
                     Type = a.AttributeType!.Name,
+                    TypeId = a.AttributeTypeId,
                     DataType = (AttributeDataType) a.AttributeType!.DataType,
                     DefaultUnit = a.AttributeType!.TypeUnits!
                         .Where(u => u.Id == a.AttributeType!.DefaultUnitId)

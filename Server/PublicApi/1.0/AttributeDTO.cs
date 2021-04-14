@@ -9,6 +9,8 @@ namespace PublicApi.v1
         public string Name { get; set; } = default!;
         public string Type { get; set; } = default!;
         
+        public long TypeId { get; set; }
+        
         public AttributeDataType DataType { get; set; }
         
         public bool UsesDefinedValues { get; set; }
@@ -19,6 +21,8 @@ namespace PublicApi.v1
     {
         public string Name { get; set; } = default!;
         public string Type { get; set; } = default!;
+        
+        public long TypeId { get; set; }
         
         public string? DefaultValue { get; set; }
         public string? DefaultUnit { get; set; }
