@@ -310,6 +310,13 @@ namespace Webapp.ApiControllers._1._0
                 Data = values
             });
         }
+        
+        [HttpGet("{attributeTypeId}/values")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<AttributeTypeValueGetDTO>>))]
+        public async Task<ActionResult> GetAllValuesByTypeId(long attributeTypeId)
+        {
+            return await GetAllValues(attributeTypeId);
+        }
 
         [HttpGet("values/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeTypeValueGetDTO>))]
@@ -333,12 +340,17 @@ namespace Webapp.ApiControllers._1._0
             });
         }
 
-        [HttpPost("values")]
+        [HttpPost("{attributeTypeId}/values")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeValueGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult> CreateValue(AttributeTypeValuePostDTO typeValuePostDTO)
+        public async Task<ActionResult> CreateValue(long attributeTypeId, AttributeTypeValuePostDTO typeValuePostDTO)
         {
-            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == typeValuePostDTO.AttributeTypeId);
+            if (attributeTypeId != typeValuePostDTO.AttributeTypeId)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+            
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == attributeTypeId);
 
             if (type == null)
             {
@@ -457,6 +469,13 @@ namespace Webapp.ApiControllers._1._0
                 Data = units
             });
         }
+        
+        [HttpGet("{attributeTypeId}/units")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<AttributeTypeUnitGetDTO>>))]
+        public async Task<ActionResult> GetAllUnitsByTypeId(long attributeTypeId)
+        {
+            return await GetAllUnits(attributeTypeId);
+        }
 
         [HttpGet("units/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeTypeUnitGetDTO>))]
@@ -480,12 +499,17 @@ namespace Webapp.ApiControllers._1._0
             });
         }
 
-        [HttpPost("units")]
+        [HttpPost("{attributeTypeId}/units")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeUnitGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult> CreateUnit(AttributeTypeUnitPostDTO typeUnitPostDTO)
+        public async Task<ActionResult> CreateUnit(long attributeTypeId, AttributeTypeUnitPostDTO typeUnitPostDTO)
         {
-            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == typeUnitPostDTO.AttributeTypeId);
+            if (attributeTypeId != typeUnitPostDTO.AttributeTypeId)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+            
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == attributeTypeId);
 
             if (type == null)
             {
