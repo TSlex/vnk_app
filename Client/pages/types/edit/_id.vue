@@ -33,7 +33,8 @@
                 Внимание, при смене типа данных, возможно неправильное
                 отображение!
               </v-alert>
-              <CustomValueField  v-if="useDefaultValues"
+              <CustomValueField
+                v-if="useDefaultValues"
                 :dataType="model.dataType"
                 v-model="model.defaultCustomValue"
                 :label="`Значение по умолчанию`"
@@ -89,6 +90,10 @@
                   </template>
                 </div>
                 <v-input :rules="rules.values" v-model="actualValues"></v-input>
+                <v-input
+                  :rules="rules.defautValue"
+                  v-model="model.defaultValueId"
+                ></v-input>
               </template>
               <template v-if="attributeType.usesDefinedUnits">
                 <v-toolbar flat>
@@ -132,6 +137,10 @@
                   </template>
                 </div>
                 <v-input :rules="rules.units" v-model="actualUnits"></v-input>
+                <v-input
+                  :rules="rules.defautUnit"
+                  v-model="model.defaultUnitId"
+                ></v-input>
               </template>
             </v-container>
           </v-card-text>
@@ -144,14 +153,6 @@
             <v-spacer></v-spacer>
           </v-card-actions>
         </v-card>
-        <v-input
-          :rules="rules.defautValue"
-          v-model="model.defaultValueId"
-        ></v-input>
-        <v-input
-          :rules="rules.defautUnit"
-          v-model="model.defaultUnitId"
-        ></v-input>
       </v-form>
       <ValueAddDialog
         v-model="valueDialog"
@@ -216,7 +217,7 @@ export default class AttributeTypesEdit extends Vue {
     deleted: boolean;
   }[] = [];
 
-  useDefaultValues = true
+  useDefaultValues = true;
 
   value = { value: "", id: null as number | null, index: 0, changeMode: false };
   unit = { value: "", id: null as number | null, index: 0, changeMode: false };
@@ -457,7 +458,7 @@ export default class AttributeTypesEdit extends Vue {
           });
         });
 
-        this.useDefaultValues = !this.attributeType?.usesDefinedValues
+        this.useDefaultValues = !this.attributeType?.usesDefinedValues;
         this.initialDataType = this.attributeType?.dataType!;
 
         this.loaded = true;
