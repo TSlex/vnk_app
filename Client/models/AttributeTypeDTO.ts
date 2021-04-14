@@ -20,21 +20,7 @@ export interface AttributeTypeGetUnitDTO {
   id: number;
 }
 
-export interface AttributeTypePatchValueDTO {
-  id: number | null;
-  value: string;
-  changed: boolean;
-  deleted: boolean;
-}
-
-export interface AttributeTypePatchUnitDTO {
-  id: number | null;
-  value: string;
-  changed: boolean;
-  deleted: boolean;
-}
-
-export interface AttributeTypeGetDetailsDTO {
+export interface AttributeTypeDetailsGetDTO {
   name: string;
   usedCount: number;
   defaultCustomValue: string;

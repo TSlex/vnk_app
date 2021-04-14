@@ -7,6 +7,7 @@ import { IdentityRepo } from "@/dal/IdentityRepo"
 import { AttributeTypeValuesRepo } from "~/dal/AttributeTypeValuesRepo";
 import { AttributeTypeUnitsRepo } from "~/dal/AttributeTypeUnitsRepo";
 import { TemplatesRepo } from "~/dal/TemplatesRepo";
+import { TemplateAttributesRepo } from "~/dal/TemplateAttributesRepo";
 import { OrdersRepo } from "~/dal/OrdersRepo";
 
 interface IAppUnitofWork {
@@ -15,6 +16,7 @@ interface IAppUnitofWork {
   attributeTypeValues: AttributeTypeValuesRepo,
   attributeTypeUnits: AttributeTypeUnitsRepo,
   templates: TemplatesRepo,
+  templateAttributes: TemplateAttributesRepo,
   identity: IdentityRepo,
   orders: OrdersRepo
 }
@@ -26,6 +28,7 @@ const AppUnitOfWork: Plugin = (ctx: Context, inject: Inject) => {
     attributeTypeValues: new AttributeTypeValuesRepo(ctx.$axios),
     attributeTypeUnits: new AttributeTypeUnitsRepo(ctx.$axios),
     templates: new TemplatesRepo(ctx.$axios),
+    templateAttributes: new TemplateAttributesRepo(ctx.$axios),
     identity: new IdentityRepo(ctx.$axios),
     orders: new OrdersRepo(ctx.$axios)
   }

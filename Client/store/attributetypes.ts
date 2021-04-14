@@ -1,5 +1,5 @@
 import { CollectionDTO } from '~/models/Common/CollectionDTO';
-import { AttributeTypeGetDetailsDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePatchUnitDTO, AttributeTypePatchValueDTO, AttributeTypePostDTO } from '~/models/AttributeTypeDTO';
+import { AttributeTypeDetailsGetDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/models/AttributeTypeDTO';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 
@@ -12,7 +12,7 @@ export default class AttributeTypesStore extends VuexModule {
   attributeTypes: AttributeTypeGetDTO[] = []
   totalCount = 0;
   itemsOnPage = 12;
-  selectedAttributeType: AttributeTypeGetDetailsDTO | null = null
+  selectedAttributeType: AttributeTypeDetailsGetDTO | null = null
   error: string | null = null
 
   get pagesCount() {
@@ -43,7 +43,7 @@ export default class AttributeTypesStore extends VuexModule {
   }
 
   @Mutation
-  ATTRIBUTE_TYPE_SELECTED(attributeType: AttributeTypeGetDetailsDTO) {
+  ATTRIBUTE_TYPE_SELECTED(attributeType: AttributeTypeDetailsGetDTO) {
     this.selectedAttributeType = attributeType
   }
 
@@ -114,8 +114,8 @@ export default class AttributeTypesStore extends VuexModule {
   @Action
   async updateAttributeType(payload: {
     model: AttributeTypePatchDTO,
-    values: AttributeTypePatchValueDTO[],
-    units: AttributeTypePatchUnitDTO[]
+    values: AttributeTypeValueCommitDTO[],
+    units: AttributeTypeUnitCommitDTO[]
   }) {
 
 
@@ -181,4 +181,18 @@ export default class AttributeTypesStore extends VuexModule {
   //     return true
   //   }
   // }
+}
+
+interface AttributeTypeValueCommitDTO {
+  id: number | null;
+  value: string;
+  changed: boolean;
+  deleted: boolean;
+}
+
+interface AttributeTypeUnitCommitDTO {
+  id: number | null;
+  value: string;
+  changed: boolean;
+  deleted: boolean;
 }
