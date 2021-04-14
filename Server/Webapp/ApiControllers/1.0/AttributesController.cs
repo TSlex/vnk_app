@@ -102,10 +102,10 @@ namespace Webapp.ApiControllers._1._0
                     DataType = (AttributeDataType) a.AttributeType!.DataType,
                     DefaultUnit = a.AttributeType!.TypeUnits!
                         .Where(u => u.Id == a.AttributeType!.DefaultUnitId)
-                        .Select(u => u.Value).FirstOrDefault() ?? "",
+                        .Select(u => u.Value).FirstOrDefault(),
                     DefaultValue = a.AttributeType!.TypeValues!
                         .Where(v => v.Id == a.AttributeType!.DefaultUnitId)
-                        .Select(v => v.Value).FirstOrDefault() ?? "",
+                        .Select(v => v.Value).FirstOrDefault() ?? a.AttributeType!.DefaultCustomValue,
                 }).FirstOrDefaultAsync();
 
             if (item == null)

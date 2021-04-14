@@ -16,7 +16,7 @@ export interface AttributeDetailsGetDTO {
   type: string;
   typeId: number;
   defaultValue: string;
-  defaultUnit: string;
+  defaultUnit: string | null;
   usedCount: number;
   dataType: DataType;
 }
