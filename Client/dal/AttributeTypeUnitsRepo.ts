@@ -11,7 +11,7 @@ export class AttributeTypeUnitsRepo extends BaseRepo {
   }
 
   async add(model: AttributeTypeUnitPostDTO) {
-    return await this._post<ResponseDTO<AttributeTypeUnitGetDTO>>(this.baseURL, model);
+    return await this._post<ResponseDTO<AttributeTypeUnitGetDTO>>(`attributetypes/${model.attributeTypeId}/units`, model);
   }
 
   async update(id: number, model: AttributeTypeUnitPatchDTO) {

@@ -1,21 +1,20 @@
-
 import { EmptyResponseDTO } from '~/models/Responses/EmptyResponseDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { ResponseDTO } from '~/models/Responses/ResponseDTO';
 import {BaseRepo} from './BaseRepo';
-import { AttributeTypeValuePostDTO, AttributeTypeValueGetDTO, AttributeTypeValuePatchDTO } from '~/models/AttributeTypeValueDTO';
+import { TemplateAttributePostDTO, TemplateAttributeGetDTO, TemplateAttributePatchDTO } from '~/models/TemplateDTO';
 
-export class AttributeTypeValuesRepo extends BaseRepo {
+export class TemplateAttributesRepo extends BaseRepo {
 
   constructor(axios: NuxtAxiosInstance) {
-    super(axios, "attributetypes/values");
+    super(axios, "templates/attributes");
   }
 
-  async add(model: AttributeTypeValuePostDTO) {
-    return await this._post<ResponseDTO<AttributeTypeValueGetDTO>>(`attributetypes/${model.attributeTypeId}/values`, model);
+  async add(templateId: number, model: TemplateAttributePostDTO) {
+    return await this._post<ResponseDTO<TemplateAttributeGetDTO>>(`templates/${templateId}/attributes`, model);
   }
 
-  async update(id: number, model: AttributeTypeValuePatchDTO) {
+  async update(id: number, model: TemplateAttributePatchDTO) {
     return await this._patch<EmptyResponseDTO>(`${this.baseURL}/${id}`, model);
   }
 
