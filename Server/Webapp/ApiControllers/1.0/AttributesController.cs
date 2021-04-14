@@ -104,7 +104,7 @@ namespace Webapp.ApiControllers._1._0
                         .Where(u => u.Id == a.AttributeType!.DefaultUnitId)
                         .Select(u => u.Value).FirstOrDefault(),
                     DefaultValue = a.AttributeType!.TypeValues!
-                        .Where(v => v.Id == a.AttributeType!.DefaultUnitId)
+                        .Where(v => v.Id == a.AttributeType!.DefaultValueId)
                         .Select(v => v.Value).FirstOrDefault() ?? a.AttributeType!.DefaultCustomValue,
                 }).FirstOrDefaultAsync();
 
@@ -155,7 +155,7 @@ namespace Webapp.ApiControllers._1._0
                 return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
             }
 
-            var type = _context.AttributeTypes.FirstOrDefaultAsync(at => at.Id == dto.AttributeTypeId);
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(at => at.Id == dto.AttributeTypeId);
 
             if (type == null)
             {
