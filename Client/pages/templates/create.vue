@@ -198,9 +198,6 @@ export default class AttributeTypesCreate extends Vue {
 
   onSubmit() {
     if ((this.$refs.form as any).validate()) {
-      console.log(this.model);
-      console.log(this.attributes);
-
       this.model.templateAttributes = _.map(this.attributes, (attribute) => {
         return {
           attributeId: attribute.model.id,
