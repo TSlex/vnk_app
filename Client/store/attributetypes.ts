@@ -2,6 +2,9 @@ import { CollectionDTO } from '~/models/Common/CollectionDTO';
 import { AttributeTypeDetailsGetDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/models/AttributeTypeDTO';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
+import { config } from 'vuex-module-decorators'
+
+config.rawError = true
 
 @Module({
   namespaced: true,
@@ -106,7 +109,6 @@ export default class AttributeTypesStore extends VuexModule {
     } else {
       this.context.commit("CLEAR_ERROR")
       this.context.commit("ATTRIBUTE_TYPE_CREATED", model)
-      this.context.dispatch("getAttributeTypes")
       return true
     }
   }

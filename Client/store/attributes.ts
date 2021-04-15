@@ -3,6 +3,9 @@ import { $ctx } from "@/utils/vue-context"
 import { AttributeGetDTO, AttributePostDTO, AttributePatchDTO, AttributeDetailsGetDTO } from '~/models/AttributeDTO';
 import { CollectionDTO } from '~/models/Common/CollectionDTO';
 import { SortOptions } from '~/models/Enums/SortOptions';
+import { config } from 'vuex-module-decorators'
+
+config.rawError = true
 
 @Module({
   namespaced: true,
@@ -107,7 +110,6 @@ export default class AttributesStore extends VuexModule {
     } else {
       this.context.commit("CLEAR_ERROR")
       this.context.commit("ATTRIBUTE_CREATED", model)
-      this.context.dispatch("getAttributes")
       return true
     }
   }

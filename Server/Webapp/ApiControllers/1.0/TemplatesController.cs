@@ -124,12 +124,15 @@ namespace Webapp.ApiControllers._1._0
                 return BadRequest(new ErrorResponseDTO("В шаблоне должен быть как минимум один атрибут"));
             }
 
-            var attributeIds = dto.TemplateAttributes!.Select(ta => ta.AttributeId);
-            var attributes = await _context.Attributes.Where(a => attributeIds.Contains(a.Id)).ToListAsync();
-
-            if (attributes.Count != attributeIds.Count())
+            foreach (var templateAttributePostDTO in dto.TemplateAttributes)
             {
-                return NotFound(new ErrorResponseDTO("Как минимум один из атрибутов неверен"));
+                var attribute =
+                    await _context.Attributes.FirstOrDefaultAsync(a => a.Id == templateAttributePostDTO.AttributeId);
+
+                if (attribute == null)
+                {
+                    return NotFound(new ErrorResponseDTO("Как минимум один из атрибутов неверен"));
+                }
             }
 
             var template = new Template()
@@ -275,7 +278,8 @@ namespace Webapp.ApiControllers._1._0
         [HttpPost("{templateId}/attributes")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<TemplateAttributeGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult> CreateTemplateAttribute(long templateId, TemplateAttributePostDTO templateAttributePostDTO)
+        public async Task<ActionResult> CreateTemplateAttribute(long templateId,
+            TemplateAttributePostDTO templateAttributePostDTO)
         {
             var template = await _context.Templates.FirstOrDefaultAsync(t => t.Id == templateId);
 
@@ -295,7 +299,8 @@ namespace Webapp.ApiControllers._1._0
 
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetTemplateAttributeById), await GetTemplateAttributeById(templateAttribute.Id));
+            return CreatedAtAction(nameof(GetTemplateAttributeById),
+                await GetTemplateAttributeById(templateAttribute.Id));
         }
 
         [HttpPatch("attributes/{id}")]

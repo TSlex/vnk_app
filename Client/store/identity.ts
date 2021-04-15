@@ -3,6 +3,9 @@ import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 import { LoginDTO } from '~/models/Identity/LoginDTO';
 import { UserGetDTO } from '~/models/Identity/UserDTO';
+import { config } from 'vuex-module-decorators'
+
+config.rawError = true
 
 @Module({
   namespaced: true,

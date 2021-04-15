@@ -3,6 +3,9 @@ import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 import { TemplateGetDTO, TemplatePatchDTO, TemplatePostDTO } from '~/models/TemplateDTO';
 import { CollectionDTO } from '~/models/Common/CollectionDTO';
+import { config } from 'vuex-module-decorators'
+
+config.rawError = true
 
 @Module({
   namespaced: true,
@@ -107,7 +110,6 @@ export default class TemplatesStore extends VuexModule {
     } else {
       this.context.commit("CLEAR_ERROR")
       this.context.commit("TEMPLATE_CREATED", model)
-      this.context.dispatch("getTemplates")
       return true
     }
   }
