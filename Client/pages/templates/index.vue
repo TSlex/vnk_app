@@ -92,6 +92,7 @@
           class="mt-2"
         ></v-pagination>
       </template>
+      <TemplateDeleteDialog v-model="deleteDialog" v-if="deleteDialog && template"/>
     </v-col>
   </v-row>
 </template>
@@ -101,8 +102,13 @@ import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { templatesStore } from "~/store";
 import { TemplateGetDTO } from "~/models/TemplateDTO";
 import { SortOptions } from "~/models/Enums/SortOptions";
+import TemplateDeleteDialog from "~/components/templates/TemplateDeleteDialog.vue";
 
-@Component({})
+@Component({
+  components: {
+    TemplateDeleteDialog,
+  },
+})
 export default class templatesIndex extends Vue {
   fetched = false;
   createDialog = false;
@@ -113,8 +119,14 @@ export default class templatesIndex extends Vue {
 
   headers = [{ text: "Название", value: "name", align: "center" }];
 
+  deleteDialog = false;
+
   get currentPageIndex() {
     return (this.currentPage ?? 1) - 1;
+  }
+
+  get template() {
+    return templatesStore.selectedTemplate;
   }
 
   get templates() {
@@ -129,9 +141,17 @@ export default class templatesIndex extends Vue {
     return templatesStore.pagesCount;
   }
 
-  onEdit(id: number) {}
+  onEdit(id: number) {
+    this.$router.push(`templates/edit/${id}`)
+  }
 
-  onDelete(id: number) {}
+  onDelete(id: number) {
+    templatesStore.getTemplate(id).then((succeeded) => {
+      if (succeeded){
+        this.deleteDialog = true
+      }
+    })
+  }
 
   onNavigateToAttribute(attributeId: number) {
     this.$router.push(`attributes/${attributeId}`);
@@ -177,6 +197,7 @@ export default class templatesIndex extends Vue {
       });
   }
 
+  @Watch("template")
   @Watch("currentPage")
   @Watch("searchKey")
   @Watch("byName")
