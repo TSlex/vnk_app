@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" class="text-center">
+  <v-row justify="center" class="text-center" v-if="loaded">
     <v-col cols="4" class="my-4">
       <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
         <v-card>
