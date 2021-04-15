@@ -8,9 +8,12 @@ namespace Domain
 {
     public class Order: DomainEntityIdMetadata, IDomainEntitySoftDelete
     {
-        public bool Completed { get; set; }
+        public string Name { get; set; } = default!;
         
-        public DateTime ExecutionDateTime { get; set; }
+        public bool Completed { get; set; }
+        public string? Notation { get; set; }
+
+        public DateTime? ExecutionDateTime { get; set; }
 
         public ICollection<OrderAttribute>? OrderAttributes { get; set; }
 

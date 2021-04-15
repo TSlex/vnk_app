@@ -33,7 +33,7 @@ namespace PublicApi.v1
     {
         [Required] public string Name { get; set; } = default!;
 
-        public ICollection<TemplateAttributePostDTO> TemplateAttributes { get; set; } = default!;
+        public ICollection<TemplateAttributePostDTO> Attributes { get; set; } = default!;
     }
 
     public class TemplateAttributePostDTO

@@ -119,12 +119,12 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> Create(TemplatePostDTO dto)
         {
-            if (dto.TemplateAttributes.Count == 0)
+            if (dto.Attributes.Count == 0)
             {
                 return BadRequest(new ErrorResponseDTO("В шаблоне должен быть как минимум один атрибут"));
             }
 
-            foreach (var templateAttributePostDTO in dto.TemplateAttributes)
+            foreach (var templateAttributePostDTO in dto.Attributes)
             {
                 var attribute =
                     await _context.Attributes.FirstOrDefaultAsync(a => a.Id == templateAttributePostDTO.AttributeId);
@@ -138,7 +138,7 @@ namespace Webapp.ApiControllers._1._0
             var template = new Template()
             {
                 Name = dto.Name,
-                TemplateAttributes = dto.TemplateAttributes!.Select(ta => new TemplateAttribute
+                TemplateAttributes = dto.Attributes!.Select(ta => new TemplateAttribute
                 {
                     Featured = ta.Featured,
                     AttributeId = ta.AttributeId

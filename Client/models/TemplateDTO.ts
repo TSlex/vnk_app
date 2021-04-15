@@ -18,7 +18,7 @@ export interface TemplateAttributeGetDTO {
 
 export interface TemplatePostDTO {
   name: string;
-  templateAttributes: TemplateAttributePostDTO[];
+  attributes: TemplateAttributePostDTO[];
 }
 
 export interface TemplateAttributePostDTO {

@@ -107,7 +107,7 @@ import { DataType } from "~/models/Enums/DataType";
 export default class AttributeTypesCreate extends Vue {
   model: TemplatePostDTO = {
     name: "",
-    templateAttributes: [],
+    attributes: [],
   };
 
   attributes: {
@@ -198,7 +198,7 @@ export default class AttributeTypesCreate extends Vue {
 
   onSubmit() {
     if ((this.$refs.form as any).validate()) {
-      this.model.templateAttributes = _.map(this.attributes, (attribute) => {
+      this.model.attributes = _.map(this.attributes, (attribute) => {
         return {
           attributeId: attribute.model.id,
           featured: attribute.featured,

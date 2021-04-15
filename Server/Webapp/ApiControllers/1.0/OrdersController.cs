@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
 using Domain;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using PublicApi.v1;
+using PublicApi.v1.Common;
+using PublicApi.v1.Enums;
 
 namespace Webapp.ApiControllers._1._0
 {
@@ -28,123 +28,366 @@ namespace Webapp.ApiControllers._1._0
             _context = context;
         }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<OrderGetDTO>))]
-        public async Task<ActionResult<IEnumerable<OrderGetDTO>>> GetOrders()
-        {
-            var orders = await _context.Orders.Select(o => new OrderGetDTO()
-            {
-                Completed = o.Completed,
-                ExecutionDateTime = o.ExecutionDateTime,
-                Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO()
-                {
-                    Name = oa.Attribute!.Name,
-                    Value = oa.CustomValue ?? ""
-                }).ToList()
-            }).ToListAsync();
+        #region Orders
 
-            return orders;
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<OrderGetDTO>>))]
+        public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage,
+            SortOption byName, bool? completed, string? searchKey, DateTime? startDateTime,
+            DateTime? endDateTime, DateTime? overdueDatetime)
+        {
+            var typesQuery = _context.Orders.Select(o => new OrderGetDTO
+            {
+                Id = o.Id,
+                Name = o.Name,
+                Completed = o.Completed,
+                Notation = o.Notation,
+                ExecutionDateTime = o.ExecutionDateTime,
+                Overdued = o.ExecutionDateTime != null && o.ExecutionDateTime < overdueDatetime,
+                Attributes = o.OrderAttributes!.Select(ta => new OrderAttributeGetDTO
+                {
+                    Id = ta.Id,
+                    Featured = ta.Featured,
+                    Name = ta.Attribute!.Name,
+                    Type = ta.Attribute!.AttributeType!.Name,
+                    TypeId = ta.Attribute!.Id,
+                    AttributeId = ta.AttributeId,
+                    DataType = ta.Attribute!.AttributeType!.DataType,
+                }).ToList()
+            });
+
+            typesQuery = typesQuery.Where(o => o.ExecutionDateTime != null);
+
+            if (startDateTime != null)
+            {
+                typesQuery = typesQuery.Where(
+                    o => o.ExecutionDateTime >= startDateTime
+                );
+            }
+
+            if (endDateTime != null)
+            {
+                typesQuery = typesQuery.Where(
+                    o => o.ExecutionDateTime < endDateTime
+                );
+            }
+            
+            if (completed == true)
+            {
+                typesQuery = typesQuery.Where(
+                    o => o.Completed
+                );
+            }
+            
+            if (completed == true)
+            {
+                typesQuery = typesQuery.Where(
+                    o => o.Completed
+                );
+            }
+
+            if (!string.IsNullOrEmpty(searchKey))
+            {
+                typesQuery = typesQuery.Where(
+                    a =>
+                        a.Name.ToLower().Contains(searchKey.ToLower())
+                );
+            }
+
+            typesQuery = typesQuery.OrderBy(at => at.Id);
+
+            typesQuery = byName switch
+            {
+                SortOption.True => typesQuery.OrderBy(at => at.Name),
+                SortOption.Reversed => typesQuery.OrderByDescending(at => at.Name),
+                _ => typesQuery
+            };
+
+            var items = new CollectionDTO<OrderGetDTO>
+            {
+                TotalCount = await _context.Orders.CountAsync(),
+                Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
+            };
+
+            return Ok(new ResponseDTO<CollectionDTO<OrderGetDTO>>
+            {
+                Data = items
+            });
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(OrderGetDTO))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<OrderGetDTO>> GetOrder(long id)
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<OrderGetDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> GetById(long id)
         {
-            var order = await _context.Orders
-                .Where(o => o.Id == id)
-                .Select(o => new OrderGetDTO()
+            var item = await _context.Orders
+                .Where(a => a.Id == id)
+                .Select(t => new OrderGetDTO
                 {
-                    Completed = o.Completed,
-                    ExecutionDateTime = o.ExecutionDateTime,
-                    Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO()
+                    Id = t.Id,
+                    Name = t.Name,
+                    Attributes = t.OrderAttributes!.Select(ta => new OrderAttributeGetDTO
                     {
-                        Name = oa.Attribute!.Name,
-                        Value = oa.CustomValue ?? ""
+                        Id = ta.Id,
+                        Featured = ta.Featured,
+                        Name = ta.Attribute!.Name,
+                        Type = ta.Attribute!.AttributeType!.Name,
+                        TypeId = ta.Attribute!.Id,
+                        AttributeId = ta.AttributeId,
+                        DataType = ta.Attribute!.AttributeType!.DataType,
                     }).ToList()
                 }).FirstOrDefaultAsync();
 
-            if (order == null)
+            if (item == null)
             {
-                return NotFound();
+                return NotFound(new ErrorResponseDTO("Aтрибут не найдет"));
             }
 
-            return order;
+            return Ok(new ResponseDTO<OrderGetDTO>
+            {
+                Data = item
+            });
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(OrderGetDTO))]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<OrderGetDTO>> PostOrder(OrderPostDTO orderPostDTO)
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<OrderGetDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> Create(OrderPostDTO orderPostDTO)
         {
+            if (orderPostDTO.Attributes.Count == 0)
+            {
+                return BadRequest(new ErrorResponseDTO("В шаблоне должен быть как минимум один атрибут"));
+            }
+
+            foreach (var orderAttributePostDTO in orderPostDTO.Attributes)
+            {
+                var attribute =
+                    await _context.Attributes.FirstOrDefaultAsync(a => a.Id == orderAttributePostDTO.AttributeId);
+
+                if (attribute == null)
+                {
+                    return NotFound(new ErrorResponseDTO("Как минимум один из атрибутов неверен"));
+                }
+            }
+
             var order = new Order()
             {
-                Completed = orderPostDTO.Completed,
-                ExecutionDateTime = orderPostDTO.ExecutionDateTime,
-                OrderAttributes = orderPostDTO.Attributes?.Select(dto =>
-                    new OrderAttribute()
-                    {
-                        AttributeId = dto.AttributeId,
-                    }).ToList()
+                Name = orderPostDTO.Name,
+                OrderAttributes = orderPostDTO.Attributes!.Select(ta => new OrderAttribute
+                {
+                    Featured = ta.Featured,
+                    AttributeId = ta.AttributeId
+                }).ToList()
             };
 
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
 
-            var result = await GetOrder(order.Id);
-
-            return CreatedAtAction("GetOrder", result);
+            return CreatedAtAction(nameof(GetById), await GetById(order.Id));
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutOrder(long id, Order order)
+        [HttpPatch("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<IActionResult> Update(long id, OrderPatchDTO orderPatchDTO)
         {
-            if (id != order.Id)
+            if (id != orderPatchDTO.Id)
             {
-                return BadRequest();
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
             }
 
-            _context.Entry(order).State = EntityState.Modified;
+            var order = await _context.Orders.FirstOrDefaultAsync(t => t.Id == id);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(long id)
-        {
-            var order = await _context.Orders.FindAsync(id);
             if (order == null)
             {
-                return NotFound();
+                return NotFound(new ErrorResponseDTO("Заказ не найден"));
             }
 
-            _context.Orders.Remove(order);
+            order.Name = orderPatchDTO.Name;
+
+            _context.Orders.Update(order);
+
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool OrderExists(long id)
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<IActionResult> Delete(long id)
         {
-            return _context.Orders.Any(e => e.Id == id);
+            var order = await _context.Orders.FirstOrDefaultAsync(t => t.Id == id);
+
+            if (order == null)
+            {
+                return NotFound(new ErrorResponseDTO("Заказ не найден"));
+            }
+
+            var orderAttributes = await _context.OrderAttributes
+                .Where(ta => ta.OrderId == id)
+                .ToListAsync();
+
+            _context.OrderAttributes.RemoveRange(orderAttributes);
+
+            _context.Orders.Remove(order);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
+
+        #endregion
+
+        #region OrderAttributes
+
+        [HttpGet("attributes")]
+        [ProducesResponseType(StatusCodes.Status200OK,
+            Type = typeof(ResponseDTO<IEnumerable<OrderAttributeGetDTO>>))]
+        public async Task<ActionResult> GetAllOrderAttributes(long? orderId)
+        {
+            var query = _context.OrderAttributes.AsQueryable();
+
+            if (orderId != null)
+            {
+                query = _context.OrderAttributes.Where(ta => ta.OrderId == orderId);
+            }
+
+            var attributes = await query.Select(ta => new OrderAttributeGetDTO
+            {
+                Id = ta.Id,
+                Featured = ta.Featured,
+                Name = ta.Attribute!.Name,
+                Type = ta.Attribute!.AttributeType!.Name,
+                TypeId = ta.Attribute!.Id,
+                AttributeId = ta.AttributeId,
+                DataType = ta.Attribute!.AttributeType!.DataType,
+            }).ToListAsync();
+
+            return Ok(new ResponseDTO<IEnumerable<OrderAttributeGetDTO>>
+            {
+                Data = attributes
+            });
+        }
+
+        [HttpGet("{orderId}/attributes")]
+        [ProducesResponseType(StatusCodes.Status200OK,
+            Type = typeof(ResponseDTO<IEnumerable<OrderAttributeGetDTO>>))]
+        public async Task<ActionResult> GetAllOrderAttributesByOrderId(long orderId)
+        {
+            return await GetAllOrderAttributes(orderId);
+        }
+
+        [HttpGet("attributes/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<OrderAttributeGetDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> GetOrderAttributeById(long id)
+        {
+            var orderAttribute = await _context.OrderAttributes
+                .Include(ta => ta.Attribute)
+                .ThenInclude(a => a!.AttributeType)
+                .FirstOrDefaultAsync(ta => ta.Id == id);
+
+            if (orderAttribute == null)
+            {
+                return NotFound(new ErrorResponseDTO("Атрибут не найден"));
+            }
+
+            return Ok(new ResponseDTO<OrderAttributeGetDTO>
+            {
+                Data = new OrderAttributeGetDTO
+                {
+                    Id = orderAttribute.Id,
+                    Featured = orderAttribute.Featured,
+                    Name = orderAttribute.Attribute!.Name,
+                    Type = orderAttribute.Attribute!.AttributeType!.Name,
+                    TypeId = orderAttribute.Attribute!.Id,
+                    AttributeId = orderAttribute.AttributeId,
+                    DataType = orderAttribute.Attribute!.AttributeType!.DataType,
+                }
+            });
+        }
+
+        [HttpPost("{orderId}/attributes")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<OrderAttributeGetDTO>))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> CreateOrderAttribute(long orderId,
+            OrderAttributePostDTO orderAttributePostDTO)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(t => t.Id == orderId);
+
+            if (order == null)
+            {
+                return NotFound(new ErrorResponseDTO("Заказ не найден"));
+            }
+
+            var orderAttribute = new OrderAttribute
+            {
+                Featured = orderAttributePostDTO.Featured,
+                AttributeId = orderAttributePostDTO.AttributeId,
+                OrderId = orderId
+            };
+
+            await _context.OrderAttributes.AddAsync(orderAttribute);
+
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetOrderAttributeById),
+                await GetOrderAttributeById(orderAttribute.Id));
+        }
+
+        [HttpPatch("attributes/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> UpdateOrderAttribute(long id,
+            OrderAttributePatchDTO orderAttributePatchDTO)
+        {
+            if (id != orderAttributePatchDTO.Id)
+            {
+                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            }
+
+            var orderAttribute = await _context.OrderAttributes.FirstOrDefaultAsync(typeOrderAttribute =>
+                typeOrderAttribute.Id == orderAttributePatchDTO.Id);
+
+            if (orderAttribute == null)
+            {
+                return NotFound(new ErrorResponseDTO("Атрибут не найден"));
+            }
+
+            orderAttribute.Featured = orderAttributePatchDTO.Featured;
+            orderAttribute.AttributeId = orderAttributePatchDTO.AttributeId;
+
+            _context.OrderAttributes.Update(orderAttribute);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("attributes/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<ActionResult> DeleteOrderAttribute(long id)
+        {
+            var orderAttribute = await _context.OrderAttributes.FirstOrDefaultAsync(typeOrderAttribute =>
+                typeOrderAttribute.Id == id);
+
+            if (orderAttribute == null)
+            {
+                return NotFound(new ErrorResponseDTO("Атрибут не найден"));
+            }
+
+            _context.OrderAttributes.Remove(orderAttribute);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        #endregion
     }
 }

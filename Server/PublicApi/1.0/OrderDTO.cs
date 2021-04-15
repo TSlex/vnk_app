@@ -1,22 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Domain.Base;
+using Domain.Enums;
 
 namespace PublicApi.v1
 {
     #region GET
 
-    public class OrderGetDTO
+    public class OrderGetDTO : DomainEntityId
     {
+        public string Name { get; set; } = default!;
+
         public bool Completed { get; set; }
-        public DateTime ExecutionDateTime { get; set; }
+        public bool Overdued { get; set; }
+        
+        public string? Notation { get; set; }
+
+        public DateTime? ExecutionDateTime { get; set; }
+
         public ICollection<OrderAttributeGetDTO>? Attributes { get; set; }
     }
 
-    public class OrderAttributeGetDTO
+    public class OrderAttributeGetDTO : DomainEntityId
     {
         public string Name { get; set; } = default!;
         public string Value { get; set; } = default!;
+
+        public long AttributeId { get; set; }
+        public long TypeId { get; set; }
+
+        public string Type { get; set; } = default!;
+        public AttributeDataType DataType { get; set; }
+
+        public bool Featured { get; set; }
     }
 
     #endregion
@@ -25,17 +42,47 @@ namespace PublicApi.v1
 
     public class OrderPostDTO
     {
+        [Required] public string Name { get; set; } = default!;
+
         public bool Completed { get; set; }
 
-        [Required] public DateTime ExecutionDateTime { get; set; }
+        public string? Notation { get; set; }
+
+        public DateTime ExecutionDateTime { get; set; }
 
         public ICollection<OrderAttributePostDTO>? Attributes { get; set; }
     }
 
     public class OrderAttributePostDTO
     {
+        public bool Featured { get; set; }
         [Required] public long AttributeId { get; set; } = default!;
-        [Required] public long AttributeTypeValueId { get; set; } = default!;
+    }
+
+    #endregion
+    
+    #region PATCH
+
+    public class OrderPatchDTO: DomainEntityId
+    {
+        [Required] public string Name { get; set; } = default!;
+        
+        public bool Completed { get; set; }
+
+        public string? Notation { get; set; }
+
+        public DateTime ExecutionDateTime { get; set; }
+    }
+    
+    public class OrderCompletionPatchDTO: DomainEntityId
+    {
+        public bool Completed { get; set; }
+    }
+
+    public class OrderAttributePatchDTO: DomainEntityId
+    {
+        public bool Featured { get; set; }
+        [Required] public long AttributeId { get; set; } = default!;
     }
 
     #endregion
