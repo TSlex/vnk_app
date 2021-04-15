@@ -12,7 +12,7 @@
             hide-details
             dense
             flat
-            placeholder="Поиск"
+            placeholder="Поиск по названию"
             prepend-icon="mdi-magnify"
             clear-icon="mdi-close"
             clearable
@@ -35,12 +35,12 @@
                 <v-col cols="4" v-for="item in items" :key="item.id">
                   <v-card shaped>
                     <v-card-title class="d-block pa-2">
-                      <span class="text-h5">"{{ item.name }}"</span>
+                      <span class="text-h5">Шаблон "{{ item.name }}"</span>
                     </v-card-title>
                     <v-divider></v-divider>
                     <v-list rounded>
                       <v-list-item
-                      class="grey lighten-5"
+                        class="grey lighten-5"
                         v-for="attribute in item.attributes"
                         :key="attribute.id"
                         @click.prevent="
@@ -71,7 +71,14 @@
                       </v-list-item>
                     </v-list>
                     <v-divider></v-divider>
-                    <v-container></v-container>
+                    <v-container>
+                      <v-btn outlined text class="mr-1" @click="onEdit(item.id)"
+                        ><v-icon left>mdi-pencil</v-icon>Изменить</v-btn
+                      >
+                      <v-btn outlined text @click="onDelete(item.id)"
+                        ><v-icon left> mdi-delete </v-icon>Удалить</v-btn
+                      >
+                    </v-container>
                   </v-card>
                 </v-col>
               </v-row>
@@ -121,6 +128,10 @@ export default class templatesIndex extends Vue {
   get pagesCount() {
     return templatesStore.pagesCount;
   }
+
+  onEdit(id: number) {}
+
+  onDelete(id: number) {}
 
   onNavigateToAttribute(attributeId: number) {
     this.$router.push(`attributes/${attributeId}`);

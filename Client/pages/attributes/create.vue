@@ -51,8 +51,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { attributesStore, attributeTypesStore } from "~/store";
-import { DataType } from "~/models/Enums/DataType";
-import { notEmpty, required } from "~/utils/form-validation";
+import { isSellected, required } from "~/utils/form-validation";
 import { AttributePostDTO } from "~/models/AttributeDTO";
 
 @Component({
@@ -66,7 +65,7 @@ export default class AttributeTypesCreate extends Vue {
 
   rules = {
     name: [required()],
-    attribute: [required()],
+    attribute: [isSellected()],
   };
 
   searchKey = "";
@@ -79,7 +78,7 @@ export default class AttributeTypesCreate extends Vue {
   }
 
   get error() {
-    return attributeTypesStore.error;
+    return attributesStore.error;
   }
 
   onCancel() {

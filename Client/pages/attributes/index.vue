@@ -12,7 +12,7 @@
             hide-details
             dense
             flat
-            placeholder="Поиск"
+            placeholder="Поиск по названию или типу"
             prepend-icon="mdi-magnify"
             clear-icon="mdi-close"
             clearable
