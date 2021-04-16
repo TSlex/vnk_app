@@ -36,77 +36,84 @@ namespace Webapp.ApiControllers._1._0
             SortOption byName, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime, DateTime? overdueDatetime)
         {
-            var typesQuery = _context.Orders.Select(o => new OrderGetDTO
+            overdueDatetime ??= DateTime.UtcNow;
+
+            var ordersQuery = _context.Orders.Select(o => new OrderGetDTO
             {
                 Id = o.Id,
                 Name = o.Name,
                 Completed = o.Completed,
                 Notation = o.Notation,
                 ExecutionDateTime = o.ExecutionDateTime,
-                Overdued = o.ExecutionDateTime != null && o.ExecutionDateTime < overdueDatetime,
-                Attributes = o.OrderAttributes!.Select(ta => new OrderAttributeGetDTO
+                Overdued = o.ExecutionDateTime.HasValue && o.ExecutionDateTime < overdueDatetime,
+                Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
                 {
-                    Id = ta.Id,
-                    Featured = ta.Featured,
-                    Name = ta.Attribute!.Name,
-                    Type = ta.Attribute!.AttributeType!.Name,
-                    TypeId = ta.Attribute!.Id,
-                    AttributeId = ta.AttributeId,
-                    DataType = ta.Attribute!.AttributeType!.DataType,
+                    Id = oa.Id,
+                    Featured = oa.Featured,
+                    Name = oa.Attribute!.Name,
+                    Type = oa.Attribute!.AttributeType!.Name,
+                    TypeId = oa.Attribute!.Id,
+                    AttributeId = oa.AttributeId,
+                    DataType = oa.Attribute!.AttributeType!.DataType,
+                    CustomValue = oa.CustomValue,
+                    UnitId = oa.UnitId,
+                    ValueId = oa.ValueId,
+                    UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
+                    UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
                 }).ToList()
             });
 
-            typesQuery = typesQuery.Where(o => o.ExecutionDateTime != null);
+            ordersQuery = ordersQuery.Where(o => o.ExecutionDateTime != null);
 
             if (startDateTime != null)
             {
-                typesQuery = typesQuery.Where(
+                ordersQuery = ordersQuery.Where(
                     o => o.ExecutionDateTime >= startDateTime
                 );
             }
 
             if (endDateTime != null)
             {
-                typesQuery = typesQuery.Where(
+                ordersQuery = ordersQuery.Where(
                     o => o.ExecutionDateTime < endDateTime
                 );
             }
-            
+
             if (completed == true)
             {
-                typesQuery = typesQuery.Where(
+                ordersQuery = ordersQuery.Where(
                     o => o.Completed
                 );
             }
-            
+
             if (completed == true)
             {
-                typesQuery = typesQuery.Where(
+                ordersQuery = ordersQuery.Where(
                     o => o.Completed
                 );
             }
 
             if (!string.IsNullOrEmpty(searchKey))
             {
-                typesQuery = typesQuery.Where(
+                ordersQuery = ordersQuery.Where(
                     a =>
                         a.Name.ToLower().Contains(searchKey.ToLower())
                 );
             }
 
-            typesQuery = typesQuery.OrderBy(at => at.Id);
+            ordersQuery = ordersQuery.OrderBy(at => at.Id);
 
-            typesQuery = byName switch
+            ordersQuery = byName switch
             {
-                SortOption.True => typesQuery.OrderBy(at => at.Name),
-                SortOption.Reversed => typesQuery.OrderByDescending(at => at.Name),
-                _ => typesQuery
+                SortOption.True => ordersQuery.OrderBy(at => at.Name),
+                SortOption.Reversed => ordersQuery.OrderByDescending(at => at.Name),
+                _ => ordersQuery
             };
 
             var items = new CollectionDTO<OrderGetDTO>
             {
                 TotalCount = await _context.Orders.CountAsync(),
-                Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
+                Items = await ordersQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
             };
 
             return Ok(new ResponseDTO<CollectionDTO<OrderGetDTO>>
@@ -120,21 +127,32 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetById(long id)
         {
+            var overdueDatetime = DateTime.UtcNow;
+
             var item = await _context.Orders
-                .Where(a => a.Id == id)
-                .Select(t => new OrderGetDTO
+                .Where(o => o.Id == id)
+                .Select(o => new OrderGetDTO
                 {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Attributes = t.OrderAttributes!.Select(ta => new OrderAttributeGetDTO
+                    Id = o.Id,
+                    Name = o.Name,
+                    Completed = o.Completed,
+                    Notation = o.Notation,
+                    ExecutionDateTime = o.ExecutionDateTime,
+                    Overdued = o.ExecutionDateTime.HasValue && o.ExecutionDateTime < overdueDatetime,
+                    Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
                     {
-                        Id = ta.Id,
-                        Featured = ta.Featured,
-                        Name = ta.Attribute!.Name,
-                        Type = ta.Attribute!.AttributeType!.Name,
-                        TypeId = ta.Attribute!.Id,
-                        AttributeId = ta.AttributeId,
-                        DataType = ta.Attribute!.AttributeType!.DataType,
+                        Id = oa.Id,
+                        Featured = oa.Featured,
+                        Name = oa.Attribute!.Name,
+                        Type = oa.Attribute!.AttributeType!.Name,
+                        TypeId = oa.Attribute!.Id,
+                        AttributeId = oa.AttributeId,
+                        DataType = oa.Attribute!.AttributeType!.DataType,
+                        CustomValue = oa.CustomValue,
+                        UnitId = oa.UnitId,
+                        ValueId = oa.ValueId,
+                        UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
+                        UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
                     }).ToList()
                 }).FirstOrDefaultAsync();
 
@@ -157,27 +175,62 @@ namespace Webapp.ApiControllers._1._0
         {
             if (orderPostDTO.Attributes.Count == 0)
             {
-                return BadRequest(new ErrorResponseDTO("В шаблоне должен быть как минимум один атрибут"));
+                return BadRequest(new ErrorResponseDTO("В заказе должен быть как минимум один атрибут"));
             }
 
             foreach (var orderAttributePostDTO in orderPostDTO.Attributes)
             {
                 var attribute =
-                    await _context.Attributes.FirstOrDefaultAsync(a => a.Id == orderAttributePostDTO.AttributeId);
+                    await _context.Attributes
+                        .Include(a => a.AttributeType)
+                        .FirstOrDefaultAsync(a => a.Id == orderAttributePostDTO.AttributeId);
 
                 if (attribute == null)
                 {
                     return NotFound(new ErrorResponseDTO("Как минимум один из атрибутов неверен"));
+                }
+
+                if (attribute.AttributeType!.UsesDefinedValues)
+                {
+                    if (orderAttributePostDTO.ValueId == null || 
+                        !await _context.TypeValues.AnyAsync(value => value.Id == orderAttributePostDTO.ValueId && 
+                                                                    value.AttributeTypeId == attribute.AttributeTypeId))
+                    {
+                        return BadRequest(new ErrorResponseDTO($"Значение атрибута '{attribute.Name}' неверно"));
+                    }
+                }
+                else
+                {
+                    if (orderAttributePostDTO.CustomValue == null)
+                    {
+                        return BadRequest(new ErrorResponseDTO($"Значение атрибута '{attribute.Name}' неверно"));
+                    }
+                }
+                
+                if (attribute.AttributeType!.UsesDefinedUnits)
+                {
+                    if (orderAttributePostDTO.UnitId == null || 
+                        !await _context.TypeUnits.AnyAsync(unit => unit.Id == orderAttributePostDTO.UnitId && 
+                                                                    unit.AttributeTypeId == attribute.AttributeTypeId))
+                    {
+                        return BadRequest(new ErrorResponseDTO($"Единица измерения атрибута '{attribute.Name}' неверна"));
+                    }
                 }
             }
 
             var order = new Order()
             {
                 Name = orderPostDTO.Name,
-                OrderAttributes = orderPostDTO.Attributes!.Select(ta => new OrderAttribute
+                Completed = orderPostDTO.Completed,
+                Notation = orderPostDTO.Notation,
+                ExecutionDateTime = orderPostDTO.ExecutionDateTime,
+                OrderAttributes = orderPostDTO.Attributes!.Select(oa => new OrderAttribute
                 {
-                    Featured = ta.Featured,
-                    AttributeId = ta.AttributeId
+                    Featured = oa.Featured,
+                    AttributeId = oa.AttributeId,
+                    ValueId = oa.ValueId,
+                    UnitId = oa.UnitId,
+                    CustomValue = oa.CustomValue,
                 }).ToList()
             };
 

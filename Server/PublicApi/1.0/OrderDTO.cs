@@ -25,7 +25,13 @@ namespace PublicApi.v1
     public class OrderAttributeGetDTO : DomainEntityId
     {
         public string Name { get; set; } = default!;
-        public string Value { get; set; } = default!;
+        
+        public bool UsesDefinedValues { get; set; }
+        public bool UsesDefinedUnits { get; set; }
+        
+        public string? CustomValue { get; set; }
+        public long? ValueId { get; set; }
+        public long? UnitId { get; set; }
 
         public long AttributeId { get; set; }
         public long TypeId { get; set; }
@@ -50,13 +56,18 @@ namespace PublicApi.v1
 
         public DateTime ExecutionDateTime { get; set; }
 
-        public ICollection<OrderAttributePostDTO>? Attributes { get; set; }
+        public ICollection<OrderAttributePostDTO> Attributes { get; set; } = default!;
     }
 
     public class OrderAttributePostDTO
     {
         public bool Featured { get; set; }
+        
         [Required] public long AttributeId { get; set; } = default!;
+        
+        public string? CustomValue { get; set; }
+        public long? ValueId { get; set; }
+        public long? UnitId { get; set; }
     }
 
     #endregion
@@ -82,7 +93,12 @@ namespace PublicApi.v1
     public class OrderAttributePatchDTO: DomainEntityId
     {
         public bool Featured { get; set; }
+        
         [Required] public long AttributeId { get; set; } = default!;
+        
+        public string? CustomValue { get; set; }
+        public long? ValueId { get; set; }
+        public long? UnitId { get; set; }
     }
 
     #endregion

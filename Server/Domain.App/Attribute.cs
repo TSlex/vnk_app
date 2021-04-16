@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using Contracts.Domain;
 using Domain.Base;
 
 namespace Domain
 {
-    public class Attribute : DomainEntityIdMetadata, IDomainEntitySoftDelete
+    public class Attribute : DomainEntityIdSoftDelete
     {
         public string Name { get; set; } = default!;
         
@@ -15,8 +13,5 @@ namespace Domain
 
         public ICollection<OrderAttribute>? OrderAttributes { get; set; }
         public ICollection<TemplateAttribute>? TemplateAttributes { get; set; }
-
-        public string? DeletedBy { get; set; }
-        public DateTime? DeletedAt { get; set; }
     }
 }

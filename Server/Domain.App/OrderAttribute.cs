@@ -5,7 +5,7 @@ using Domain.Base;
 
 namespace Domain
 {
-    public class OrderAttribute : DomainEntityIdMetadata, IDomainEntitySoftDelete
+    public class OrderAttribute : DomainEntityIdSoftDelete
     {
         //has to be displayed in calendar view
         public bool Featured { get; set; }
@@ -28,8 +28,5 @@ namespace Domain
         //label
         public long AttributeId { get; set; } = default!;
         [JsonIgnore] public Attribute? Attribute { get; set; }
-
-        public string? DeletedBy { get; set; }
-        public DateTime? DeletedAt { get; set; }
     }
 }

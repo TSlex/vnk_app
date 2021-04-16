@@ -6,7 +6,7 @@ using Domain.Base;
 
 namespace Domain
 {
-    public class Order: DomainEntityIdMetadata, IDomainEntitySoftDelete
+    public class Order: DomainEntityIdSoftDelete
     {
         public string Name { get; set; } = default!;
         
@@ -16,8 +16,5 @@ namespace Domain
         public DateTime? ExecutionDateTime { get; set; }
 
         public ICollection<OrderAttribute>? OrderAttributes { get; set; }
-
-        public string? DeletedBy { get; set; }
-        public DateTime? DeletedAt { get; set; }
     }
 }

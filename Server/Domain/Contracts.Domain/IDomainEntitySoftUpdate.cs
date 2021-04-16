@@ -6,7 +6,7 @@ namespace Contracts.Domain
     {
     }
     
-    public interface IDomainEntitySoftUpdate<TKey>
+    public interface IDomainEntitySoftUpdate<TKey> : IDomainEntitySoftDelete
     where TKey : struct, IEquatable<TKey>
     {
         TKey? MasterId { get; set; }

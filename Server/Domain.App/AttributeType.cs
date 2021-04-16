@@ -6,7 +6,7 @@ using Domain.Enums;
 
 namespace Domain
 {
-    public class AttributeType : DomainEntityIdMetadata, IDomainEntitySoftDelete
+    public class AttributeType : DomainEntityIdSoftDelete
     {
         public string Name { get; set; } = default!;
         public string? DefaultCustomValue { get; set; }
@@ -23,8 +23,5 @@ namespace Domain
         public ICollection<Attribute>? Attributes { get; set; }
         public ICollection<AttributeTypeValue>? TypeValues { get; set; }
         public ICollection<AttributeTypeUnit>? TypeUnits { get; set; }
-
-        public string? DeletedBy { get; set; }
-        public DateTime? DeletedAt { get; set; }
     }
 }
