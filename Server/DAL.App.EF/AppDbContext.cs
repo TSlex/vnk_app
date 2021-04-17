@@ -21,11 +21,11 @@ namespace DAL.App.EF
         public DbSet<AttributeTypeValue> TypeValues { get; set; } = default!;
         public DbSet<AttributeTypeUnit> TypeUnits { get; set; } = default!;
 
-        private readonly IUserNameProvider _userNameProvider;
+        private readonly IUserProvider _userProvider;
 
-        public AppDbContext(DbContextOptions options, IUserNameProvider userNameProvider) : base(options)
+        public AppDbContext(DbContextOptions options, IUserProvider userProvider) : base(options)
         {
-            _userNameProvider = userNameProvider;
+            _userProvider = userProvider;
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -35,7 +35,6 @@ namespace DAL.App.EF
             builder.Entity<AppUser>(b => b.ToTable("AppUser"));
             builder.Entity<AppRole>(b => b.ToTable("AppRole"));
 
-            //remove cascade delete
             foreach (var relationship in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
@@ -44,52 +43,46 @@ namespace DAL.App.EF
 
         private void SaveChangesMetadataUpdate()
         {
-            // update the state of ef tracked objects
             ChangeTracker.DetectChanges();
 
-            var markedAsAdded = ChangeTracker.Entries().Where(x => x.State == EntityState.Added);
+            var addedEntities = ChangeTracker.Entries().Where(x => x.State == EntityState.Added);
 
-            foreach (var entityEntry in markedAsAdded)
+            foreach (var entityEntry in addedEntities)
             {
                 if (!(entityEntry.Entity is IDomainEntityMetadata entityWithMetaData)) continue;
                 if (entityEntry.Entity is IDomainEntitySoftUpdate softUpdateEntity &&
                     softUpdateEntity.MasterId != null) continue;
 
                 entityWithMetaData.CreatedAt = DateTime.UtcNow;
-
-                if (entityWithMetaData.CreatedBy == null)
-                {
-                    entityWithMetaData.CreatedBy = _userNameProvider.CurrentUserName;
-                }
+                entityWithMetaData.CreatedBy ??= _userProvider.CurrentName;
 
                 entityWithMetaData.ChangedAt = entityWithMetaData.CreatedAt;
                 entityWithMetaData.ChangedBy = entityWithMetaData.CreatedBy;
             }
 
-            var markedAsDeleted = ChangeTracker.Entries().Where(x => x.State == EntityState.Deleted);
+            var deletedEntities = ChangeTracker.Entries().Where(x => x.State == EntityState.Deleted);
 
-            foreach (var entityEntry in markedAsDeleted)
+            foreach (var entityEntry in deletedEntities)
             {
-                if (entityEntry.Entity is IDomainEntitySoftDelete softDeleteEntity)
-                {
-                    softDeleteEntity.DeletedAt = DateTime.UtcNow;
-                    softDeleteEntity.DeletedBy = _userNameProvider.CurrentUserName;
+                if (entityEntry.Entity is not IDomainEntitySoftDelete softDeleteEntity) continue;
 
-                    entityEntry.State = EntityState.Modified;
-                }
+                softDeleteEntity.DeletedAt = DateTime.UtcNow;
+                softDeleteEntity.DeletedBy = _userProvider.CurrentName;
+
+                entityEntry.State = EntityState.Modified;
             }
 
-            var markedAsModified = ChangeTracker.Entries().Where(x => x.State == EntityState.Modified);
+            var updatedEntities = ChangeTracker.Entries().Where(x => x.State == EntityState.Modified);
 
-            foreach (var entityEntry in markedAsModified)
+            foreach (var entityEntry in updatedEntities)
             {
-                // check for IDomainEntityMetadata
                 if (!(entityEntry.Entity is IDomainEntityMetadata entityWithMetaData)) continue;
 
                 entityWithMetaData.ChangedAt = DateTime.UtcNow;
-                entityWithMetaData.ChangedBy = _userNameProvider.CurrentUserName;
+                entityWithMetaData.ChangedBy = _userProvider.CurrentName;
 
                 if (entityEntry.Entity is IDomainEntitySoftUpdate) continue;
+
                 entityEntry.Property(nameof(entityWithMetaData.CreatedAt)).IsModified = false;
                 entityEntry.Property(nameof(entityWithMetaData.CreatedBy)).IsModified = false;
             }
@@ -102,7 +95,7 @@ namespace DAL.App.EF
             return base.SaveChanges();
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
         {
             SaveChangesMetadataUpdate();
             return await base.SaveChangesAsync(cancellationToken);

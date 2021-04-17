@@ -16,23 +16,5 @@ namespace Extensions
 
             return long.Parse(stringId);
         }
-
-        public static string GenerateJWT(IEnumerable<Claim> claims, string signingKey, string issuer, int expiresInDays)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
-            var singingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
-            var expires = DateTime.UtcNow.AddDays(expiresInDays);
-            
-            var token = new JwtSecurityToken(
-                issuer,
-                issuer,
-                claims,
-                null,
-                expires,
-                singingCredentials
-            );
-            
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
     }
 }

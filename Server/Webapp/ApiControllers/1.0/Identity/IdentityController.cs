@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using DAL.App.EF;
 using Domain;
 using Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -14,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PublicApi.v1.Common;
 using PublicApi.v1.Identity;
+using WebApp.Helpers;
 
 namespace Webapp.ApiControllers._1._0.Identity
 {
@@ -62,11 +61,12 @@ namespace Webapp.ApiControllers._1._0.Identity
 
             if (result.Succeeded)
             {
-                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user); //get the User analog
+                var claimsPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
 
-                var jwt = IdentityExtensions.GenerateJWT(claimsPrincipal.Claims,
+                var jwt = JWTGenerator.GenerateJWT(claimsPrincipal.Claims,
                     _configuration["JWT:SigningKey"],
-                    _configuration["JWT:Issuer"],
+                    _configuration["JWT:Issuer"], 
+                    _configuration["JWT:audience"],
                     _configuration.GetValue<int>("JWT:ExpirationInDays")
                 );
 
@@ -369,7 +369,7 @@ namespace Webapp.ApiControllers._1._0.Identity
             }
 
             var passwordValidator = new PasswordValidator<AppUser>();
-            var valid = await passwordValidator.ValidateAsync(_userManager, null, model.NewPassword);
+            var valid = await passwordValidator.ValidateAsync(_userManager, null!, model.NewPassword);
 
             if (!valid.Succeeded)
             {

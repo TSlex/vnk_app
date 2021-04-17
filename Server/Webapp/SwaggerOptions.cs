@@ -6,14 +6,13 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace WebApp.Helpers
+namespace WebApp
 {
-    /// <inheritdoc />
-    public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
+    public class SwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
         private readonly IApiVersionDescriptionProvider _provider;
 
-        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) =>
+        public SwaggerOptions(IApiVersionDescriptionProvider provider) =>
             _provider = provider;
 
         public void Configure(SwaggerGenOptions options)
@@ -65,12 +64,6 @@ namespace WebApp.Helpers
                 }
             });
             
-            // include xml comments (enable creation in csproj file)
-            /*var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            options.IncludeXmlComments(xmlPath);*/
-
-            // use fullname for schemaId - avoids conflicts between classes using the same name (which are in different namespaces)
             options.CustomSchemaIds(i => i.FullName);
         }
     }

@@ -3,7 +3,8 @@
     <v-col cols="8" class="mt-4">
       <template v-if="fetched">
         <v-container>
-          <v-btn></v-btn>
+          <v-btn class="mr-2">Заказы с датой</v-btn>
+          <v-btn>Заказы без даты</v-btn>
         </v-container>
         <v-toolbar flat class="rounded-t-lg">
           <v-btn outlined text large to="templates/create">Добавить</v-btn>

@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using WebApp;
 using WebApp.Helpers;
 
 namespace Webapp
@@ -46,7 +47,7 @@ namespace Webapp
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddScoped<IUserNameProvider, UserNameProvider>();
+            services.AddScoped<IUserProvider, UserProvider>();
 
             services.AddRouting(options => options.LowercaseUrls = true);
 
@@ -75,15 +76,19 @@ namespace Webapp
                 .AddCookie(options => { options.SlidingExpiration = true; })
                 .AddJwtBearer(cfg =>
                 {
-                    cfg.RequireHttpsMetadata = false;
                     cfg.SaveToken = true;
+                    cfg.RequireHttpsMetadata = false;
                     cfg.TokenValidationParameters = new TokenValidationParameters
                     {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
                         ValidIssuer = Configuration["JWT:Issuer"],
-                        ValidAudience = Configuration["JWT:Issuer"],
+                        ValidAudience = Configuration["JWT:Audience"],
                         IssuerSigningKey =
                             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:SigningKey"])),
-                        ClockSkew = TimeSpan.Zero // remove delay of token when expire
+                        ClockSkew = TimeSpan.Zero
                     };
                 });
 
@@ -94,6 +99,7 @@ namespace Webapp
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ReportApiVersions = true;
             });
+            
             services.AddVersionedApiExplorer(options =>
                 {
                     options.GroupNameFormat = "'v'VVV";
@@ -102,7 +108,7 @@ namespace Webapp
             );
 
             //Swagger support
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerOptions>();
             services.AddSwaggerGen(options =>
                 {
                     options.ResolveConflictingActions(enumerable => enumerable.First());
@@ -123,7 +129,6 @@ namespace Webapp
             else
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
@@ -156,7 +161,6 @@ namespace Webapp
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapRazorPages();
             });
         }
 
@@ -165,28 +169,28 @@ namespace Webapp
         {
             using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
 
-            using var ctx = serviceScope.ServiceProvider.GetService<AppDbContext>();
-            using var userManager = serviceScope.ServiceProvider.GetService<UserManager<AppUser>>();
-            using var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<AppRole>>();
+            using var ctx = serviceScope.ServiceProvider.GetService<AppDbContext>()!;
+            using var userManager = serviceScope.ServiceProvider.GetService<UserManager<AppUser>>()!;
+            using var roleManager = serviceScope.ServiceProvider.GetService<RoleManager<AppRole>>()!;
 
             var logger = serviceScope.ServiceProvider.GetService<ILogger<Startup>>();
 
-            if (configuration["AppDataInitialization:DropDatabase"] == "True")
+            if (configuration["DatabaseSetupConfiguration:DropDatabase"] == "True")
             {
                 DAL.Helpers.DataInitializers.DeleteDatabase(ctx, logger);
             }
 
-            if (configuration["AppDataInitialization:MigrateDatabase"] == "True")
+            if (configuration["DatabaseSetupConfiguration:MigrateDatabase"] == "True")
             {
                 DAL.Helpers.DataInitializers.MigrateDatabase(ctx, logger);
             }
 
-            if (configuration["AppDataInitialization:SeedIdentity"] == "True")
+            if (configuration["DatabaseSetupConfiguration:SeedIdentity"] == "True")
             {
                 DAL.Helpers.DataInitializers.SeedIdentity(userManager, roleManager, logger, configuration);
             }
 
-            if (configuration.GetValue<bool>("AppDataInitialization:SeedData"))
+            if (configuration.GetValue<bool>("DatabaseSetupConfiguration:SeedData"))
             {
                 DAL.Helpers.DataInitializers.SeedData(ctx, logger);
             }
