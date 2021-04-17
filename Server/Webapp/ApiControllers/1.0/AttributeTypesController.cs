@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
+using DAL.App.Entities;
 using PublicApi._1._0;
 using PublicApi._1._0.Common;
 using PublicApi._1._0.Enums;
@@ -148,7 +149,7 @@ namespace Webapp.ApiControllers._1._0
             var attributeType = new AttributeType()
             {
                 Name = dto.Name,
-                DataType = (DAL.App.Enums.AttributeDataType) dto.DataType,
+                DataType = (DAL.App.Entities.Enums.AttributeDataType) dto.DataType,
                 DefaultCustomValue = dto.DefaultCustomValue,
                 UsesDefinedUnits = dto.UsesDefinedUnits,
                 UsesDefinedValues = dto.UsesDefinedValues,
@@ -255,7 +256,7 @@ namespace Webapp.ApiControllers._1._0
             attributeType.DefaultUnitId = dto.DefaultUnitId;
             attributeType.DefaultValueId = dto.DefaultValueId;
 
-            attributeType.DataType = (DAL.App.Enums.AttributeDataType) dto.DataType;
+            attributeType.DataType = (DAL.App.Entities.Enums.AttributeDataType) dto.DataType;
 
             _context.AttributeTypes.Update(attributeType);
 

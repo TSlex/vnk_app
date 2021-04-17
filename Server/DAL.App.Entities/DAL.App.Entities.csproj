@@ -9,7 +9,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Domain\DAL.Base\DAL.Base.csproj" />
+      <ProjectReference Include="..\Domain\DAL.Base.Entities\DAL.Base.Entities.csproj" />
     </ItemGroup>
 
 </Project>

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using DAL.Base;
+using DAL.Base.Entities;
 
-namespace DAL.App
+namespace DAL.App.Entities
 {
     public class Order: DomainEntityIdSoftDelete
     {

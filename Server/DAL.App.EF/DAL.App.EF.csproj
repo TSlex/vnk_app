@@ -10,7 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DAL.App\DAL.App.csproj" />
+      <ProjectReference Include="..\DAL.App.Entities\DAL.App.Entities.csproj" />
     </ItemGroup>
-
+    
 </Project>

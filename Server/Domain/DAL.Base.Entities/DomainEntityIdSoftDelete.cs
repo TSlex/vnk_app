@@ -1,13 +1,14 @@
 ﻿using System;
 using DAL.Contracts;
 
-namespace DAL.Base
+namespace DAL.Base.Entities
 {
-    public abstract class DomainEntityIdMetadata : DomainEntityIdMetadata<long>
+    public abstract class DomainEntityIdSoftDelete: DomainEntityIdSoftDelete<long>
     {
+        
     }
-
-    public abstract class DomainEntityIdMetadata<TKey> : IDomainEntityId<TKey>, IDomainEntityMetadata
+    
+    public abstract class DomainEntityIdSoftDelete<TKey> : IDomainEntityId<TKey>, IDomainEntityMetadata, IDomainEntitySoftDelete
         where TKey : IEquatable<TKey>
     {
         public virtual TKey Id { get; set; } = default!;
@@ -17,5 +18,8 @@ namespace DAL.Base
 
         public virtual string? ChangedBy { get; set; }
         public virtual DateTime ChangedAt { get; set; }
+        
+        public virtual string? DeletedBy { get; set; }
+        public virtual DateTime? DeletedAt { get; set; }
     }
 }

@@ -12,7 +12,7 @@ using PublicApi._1._0;
 using PublicApi._1._0.Common;
 using PublicApi._1._0.Enums;
 using PublicApi._1._0.Responses;
-using Attribute = DAL.App.Attribute;
+using Attribute = DAL.App.Entities.Attribute;
 
 namespace Webapp.ApiControllers._1._0
 {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using DAL.Base;
+using DAL.Base.Entities;
 using PublicApi._1._0.Enums;
 
 namespace PublicApi._1._0

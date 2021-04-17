@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
+using DAL.App.Entities;
 using PublicApi._1._0;
 using PublicApi._1._0.Common;
 using PublicApi._1._0.Enums;
@@ -55,7 +56,7 @@ namespace Webapp.ApiControllers._1._0
                     Type = oa.Attribute!.AttributeType!.Name,
                     TypeId = oa.Attribute!.Id,
                     AttributeId = oa.AttributeId,
-                    DataType = oa.Attribute!.AttributeType!.DataType,
+                    DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
                     CustomValue = oa.CustomValue,
                     UnitId = oa.UnitId,
                     ValueId = oa.ValueId,
@@ -148,7 +149,7 @@ namespace Webapp.ApiControllers._1._0
                         Type = oa.Attribute!.AttributeType!.Name,
                         TypeId = oa.Attribute!.Id,
                         AttributeId = oa.AttributeId,
-                        DataType = oa.Attribute!.AttributeType!.DataType,
+                        DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
                         CustomValue = oa.CustomValue,
                         UnitId = oa.UnitId,
                         ValueId = oa.ValueId,
@@ -318,7 +319,7 @@ namespace Webapp.ApiControllers._1._0
                 Type = ta.Attribute!.AttributeType!.Name,
                 TypeId = ta.Attribute!.Id,
                 AttributeId = ta.AttributeId,
-                DataType = ta.Attribute!.AttributeType!.DataType,
+                DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
             }).ToListAsync();
 
             return Ok(new ResponseDTO<IEnumerable<OrderAttributeGetDTO>>
@@ -360,7 +361,7 @@ namespace Webapp.ApiControllers._1._0
                     Type = orderAttribute.Attribute!.AttributeType!.Name,
                     TypeId = orderAttribute.Attribute!.Id,
                     AttributeId = orderAttribute.AttributeId,
-                    DataType = orderAttribute.Attribute!.AttributeType!.DataType,
+                    DataType = (AttributeDataType) orderAttribute.Attribute!.AttributeType!.DataType,
                 }
             });
         }

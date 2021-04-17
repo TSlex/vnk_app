@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using DAL.App.Enums;
-using DAL.App.Identity;
+using DAL.App.Entities;
+using DAL.App.Entities.Enums;
+using DAL.App.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

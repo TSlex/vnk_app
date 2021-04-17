@@ -1,7 +1,7 @@
 ﻿using System;
 using DAL.Contracts;
 
-namespace DAL.Base
+namespace DAL.Base.Entities
 {
     public abstract class DomainEntityId : IDomainEntityId
     {

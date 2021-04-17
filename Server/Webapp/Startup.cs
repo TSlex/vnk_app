@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using DAL.App.EF;
 using DAL.App.EF.Helpers;
-using DAL.App.Identity;
+using DAL.App.Entities.Identity;
 using DAL.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;

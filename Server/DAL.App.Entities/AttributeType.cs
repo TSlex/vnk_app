@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
-using DAL.App.Enums;
+using DAL.App.Entities.Enums;
 using DAL.Base;
+using DAL.Base.Entities;
 
-namespace DAL.App
+namespace DAL.App.Entities
 {
     public class AttributeType : DomainEntityIdSoftDelete
     {

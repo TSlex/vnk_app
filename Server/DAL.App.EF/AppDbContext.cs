@@ -2,11 +2,12 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using DAL.App.Identity;
+using DAL.App.Entities;
+using DAL.App.Entities.Identity;
 using DAL.Contracts;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Attribute = DAL.App.Attribute;
+using Attribute = DAL.App.Entities.Attribute;
 
 namespace DAL.App.EF
 {

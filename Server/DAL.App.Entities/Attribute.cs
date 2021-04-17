@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using DAL.Base;
+using DAL.Base.Entities;
 
-namespace DAL.App
+namespace DAL.App.Entities
 {
     public class Attribute : DomainEntityIdSoftDelete
     {

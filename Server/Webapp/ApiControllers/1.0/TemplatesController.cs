@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
+using DAL.App.Entities;
 using PublicApi._1._0;
 using PublicApi._1._0.Common;
 using PublicApi._1._0.Enums;
@@ -47,7 +48,7 @@ namespace Webapp.ApiControllers._1._0
                     Type = ta.Attribute!.AttributeType!.Name,
                     TypeId = ta.Attribute!.Id,
                     AttributeId = ta.AttributeId,
-                    DataType = ta.Attribute!.AttributeType!.DataType,
+                    DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
                 }).ToList()
             });
 
@@ -99,7 +100,7 @@ namespace Webapp.ApiControllers._1._0
                         Type = ta.Attribute!.AttributeType!.Name,
                         TypeId = ta.Attribute!.Id,
                         AttributeId = ta.AttributeId,
-                        DataType = ta.Attribute!.AttributeType!.DataType,
+                        DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
                     }).ToList()
                 }).FirstOrDefaultAsync();
 
@@ -229,7 +230,7 @@ namespace Webapp.ApiControllers._1._0
                 Type = ta.Attribute!.AttributeType!.Name,
                 TypeId = ta.Attribute!.Id,
                 AttributeId = ta.AttributeId,
-                DataType = ta.Attribute!.AttributeType!.DataType,
+                DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
             }).ToListAsync();
 
             return Ok(new ResponseDTO<IEnumerable<TemplateAttributeGetDTO>>
@@ -271,7 +272,7 @@ namespace Webapp.ApiControllers._1._0
                     Type = templateAttribute.Attribute!.AttributeType!.Name,
                     TypeId = templateAttribute.Attribute!.Id,
                     AttributeId = templateAttribute.AttributeId,
-                    DataType = templateAttribute.Attribute!.AttributeType!.DataType,
+                    DataType = (AttributeDataType) templateAttribute.Attribute!.AttributeType!.DataType,
                 }
             });
         }

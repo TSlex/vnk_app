@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using DAL.Base;
+using DAL.Base.Entities;
 
 namespace PublicApi._1._0.Identity
 {
