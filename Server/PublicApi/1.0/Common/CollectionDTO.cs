@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PublicApi.v1.Common
+namespace PublicApi._1._0.Common
 {
     public class CollectionDTO<TKey>
     {

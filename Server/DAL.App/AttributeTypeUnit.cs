@@ -1,9 +1,7 @@
-﻿using System;
-using System.Text.Json.Serialization;
-using Contracts.Domain;
-using Domain.Base;
+﻿using System.Text.Json.Serialization;
+using DAL.Base;
 
-namespace Domain
+namespace DAL.App
 {
     public class AttributeTypeUnit: DomainEntityIdMetadata
     {

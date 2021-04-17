@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using DAL.App.EF;
-using Domain;
-using Domain.Enums;
+using DAL.App.Enums;
+using DAL.App.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace DAL.Helpers
+namespace DAL.App.EF.Helpers
 {
     public class DataInitializers
     {

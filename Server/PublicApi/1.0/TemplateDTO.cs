@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Domain.Base;
-using Domain.Enums;
+using DAL.App.Enums;
+using DAL.Base;
 
-namespace PublicApi.v1
+namespace PublicApi._1._0
 {
     #region GET
 

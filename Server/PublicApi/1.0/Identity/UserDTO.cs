@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using Domain.Base;
+﻿using System.ComponentModel.DataAnnotations;
+using DAL.Base;
 
-namespace PublicApi.v1.Identity
+namespace PublicApi._1._0.Identity
 {
     public class UserGetDTO : DomainEntityId
     {

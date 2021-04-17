@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Domain.Base;
+using DAL.Base;
 
-namespace PublicApi.v1
+namespace PublicApi._1._0
 {
     public class AttributeTypeValueGetDTO : DomainEntityId
     {

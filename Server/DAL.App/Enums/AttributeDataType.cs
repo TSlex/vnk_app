@@ -1,4 +1,4 @@
-﻿namespace Domain.Enums
+﻿namespace DAL.App.Enums
 {
     public enum AttributeDataType
     {

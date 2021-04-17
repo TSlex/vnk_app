@@ -1,7 +1,7 @@
 ﻿using System;
-using Contracts.Domain;
+using DAL.Contracts;
 
-namespace Domain.Base
+namespace DAL.Base
 {
     public class DomainEntityIdSoftDelete: DomainEntityIdSoftDelete<long>
     {

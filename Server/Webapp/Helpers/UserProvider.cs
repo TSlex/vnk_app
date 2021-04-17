@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Security.Claims;
-using Contracts.Domain;
+using DAL.Contracts;
 using Microsoft.AspNetCore.Http;
 
 namespace WebApp.Helpers

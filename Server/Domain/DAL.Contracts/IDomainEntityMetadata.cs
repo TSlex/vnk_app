@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Contracts.Domain
+namespace DAL.Contracts
 {
     public interface IDomainEntityMetadata
     {

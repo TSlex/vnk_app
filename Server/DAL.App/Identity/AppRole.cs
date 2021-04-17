@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace Domain
+namespace DAL.App.Identity
 {
     public class AppRole : IdentityRole<long>
     {

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Contracts.Domain;
-using Domain.Base;
+﻿using System.Collections.Generic;
+using DAL.Base;
 
-namespace Domain
+namespace DAL.App
 {
     public class Template : DomainEntityIdMetadata
     {

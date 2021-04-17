@@ -1,4 +1,4 @@
-﻿namespace PublicApi.v1.Enums
+﻿namespace PublicApi._1._0.Enums
 {
     public enum AttributeDataType
     {

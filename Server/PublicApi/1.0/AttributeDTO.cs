@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Domain.Base;
-using PublicApi.v1.Enums;
+using DAL.Base;
+using PublicApi._1._0.Enums;
 
-namespace PublicApi.v1
+namespace PublicApi._1._0
 {
     public class AttributeGetDTO : DomainEntityId
     {

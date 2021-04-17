@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Contracts.Domain;
-using Domain.Base;
-using Domain.Enums;
+﻿using System.Collections.Generic;
+using DAL.App.Enums;
+using DAL.Base;
 
-namespace Domain
+namespace DAL.App
 {
     public class AttributeType : DomainEntityIdSoftDelete
     {

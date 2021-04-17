@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using DAL.App.EF;
-using Domain;
+using DAL.App.Identity;
 using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -10,8 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PublicApi.v1.Common;
-using PublicApi.v1.Identity;
+using PublicApi._1._0.Identity;
+using PublicApi._1._0.Responses;
 using WebApp.Helpers;
 
 namespace Webapp.ApiControllers._1._0.Identity

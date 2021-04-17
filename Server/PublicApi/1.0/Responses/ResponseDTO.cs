@@ -1,4 +1,4 @@
-﻿namespace PublicApi.v1.Common
+﻿namespace PublicApi._1._0.Responses
 {
     public class ResponseDTO<TKey>
     {

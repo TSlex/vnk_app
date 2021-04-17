@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
- namespace PublicApi.v1.Identity
+namespace PublicApi._1._0.Identity
 {
     public class LoginDTO
     {

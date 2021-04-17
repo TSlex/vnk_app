@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DAL.App;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
-using Domain;
-using PublicApi.v1;
-using PublicApi.v1.Common;
-using PublicApi.v1.Enums;
+using PublicApi._1._0;
+using PublicApi._1._0.Common;
+using PublicApi._1._0.Enums;
+using PublicApi._1._0.Responses;
 
 namespace Webapp.ApiControllers._1._0
 {

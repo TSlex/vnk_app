@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DAL.App.EF;
-using Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using PublicApi.v1;
-using PublicApi.v1.Common;
-using PublicApi.v1.Enums;
-using Attribute = Domain.Attribute;
+using PublicApi._1._0;
+using PublicApi._1._0.Common;
+using PublicApi._1._0.Enums;
+using PublicApi._1._0.Responses;
+using Attribute = DAL.App.Attribute;
 
 namespace Webapp.ApiControllers._1._0
 {

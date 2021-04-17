@@ -2,9 +2,10 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
-using Contracts.Domain;
 using DAL.App.EF;
-using Domain;
+using DAL.App.EF.Helpers;
+using DAL.App.Identity;
+using DAL.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -177,22 +178,22 @@ namespace Webapp
 
             if (configuration["DatabaseSetupConfiguration:DropDatabase"] == "True")
             {
-                DAL.Helpers.DataInitializers.DeleteDatabase(ctx, logger);
+                DataInitializers.DeleteDatabase(ctx, logger);
             }
 
             if (configuration["DatabaseSetupConfiguration:MigrateDatabase"] == "True")
             {
-                DAL.Helpers.DataInitializers.MigrateDatabase(ctx, logger);
+                DataInitializers.MigrateDatabase(ctx, logger);
             }
 
             if (configuration["DatabaseSetupConfiguration:SeedIdentity"] == "True")
             {
-                DAL.Helpers.DataInitializers.SeedIdentity(userManager, roleManager, logger, configuration);
+                DataInitializers.SeedIdentity(userManager, roleManager, logger, configuration);
             }
 
             if (configuration.GetValue<bool>("DatabaseSetupConfiguration:SeedData"))
             {
-                DAL.Helpers.DataInitializers.SeedData(ctx, logger);
+                DataInitializers.SeedData(ctx, logger);
             }
         }
     }

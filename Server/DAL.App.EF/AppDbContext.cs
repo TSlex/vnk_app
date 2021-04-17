@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Contracts.Domain;
-using Domain;
+using DAL.App.Identity;
+using DAL.Contracts;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Attribute = Domain.Attribute;
+using Attribute = DAL.App.Attribute;
 
 namespace DAL.App.EF
 {

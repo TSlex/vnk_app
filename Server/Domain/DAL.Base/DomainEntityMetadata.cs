@@ -1,7 +1,7 @@
 ﻿using System;
-using Contracts.Domain;
+using DAL.Contracts;
 
-namespace Domain.Base
+namespace DAL.Base
 {
     public abstract class DomainEntityMetadata: IDomainEntityMetadata
     {
