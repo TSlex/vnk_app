@@ -168,6 +168,23 @@ namespace Webapp.ApiControllers._1._0
                 return BadRequest(new ErrorResponseDTO(notFoundException.Message));
             }
         }
+        
+        [HttpPatch("{id}/restore")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        public async Task<IActionResult> Restore(long id)
+        {
+            try
+            {
+                await _bll.Orders.RestoreAsync(id);
+
+                return NoContent();
+            }
+            catch (NotFoundException notFoundException)
+            {
+                return NotFound(new ErrorResponseDTO(notFoundException.Message));
+            }
+        }
 
         #endregion
 

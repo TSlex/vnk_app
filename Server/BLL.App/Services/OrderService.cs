@@ -160,6 +160,20 @@ namespace BLL.App.Services
             await UnitOfWork.SaveChangesAsync();
         }
 
+        public async Task RestoreAsync(long id)
+        {
+            var orderExists = await UnitOfWork.Orders.AnyIncludeDeletedAsync(id);
+            
+            if (!orderExists)
+            {
+                throw new NotFoundException("Заказ не найден");
+            }
+
+            await UnitOfWork.Orders.RestoreAsync(id);
+            
+            await UnitOfWork.SaveChangesAsync();
+        }
+
         #region Helpers
 
         private static OrderGetDTO MapToGetDTO(Order item, DateTime? checkDatetime)
@@ -190,9 +204,16 @@ namespace BLL.App.Services
             };
         }
 
-        private Task<Order> ValidateAndReturnOrderAsync(long id)
+        private async Task<Order> ValidateAndReturnOrderAsync(long id)
         {
-            return ValidateAndReturnOrderAsync(id, id);
+            var order = await UnitOfWork.Orders.FirstOrDefaultAsync(id);
+
+            if (order == null)
+            {
+                throw new NotFoundException("Заказ не найден");
+            }
+
+            return order;
         }
 
         private async Task<Order> ValidateAndReturnOrderAsync(long id, long orderDTOId)

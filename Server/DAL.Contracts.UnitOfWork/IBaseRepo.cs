@@ -8,9 +8,11 @@ namespace DAL.Contracts
         where TDTO : class, IDomainEntityId, new()
     {
         Task<bool> AnyAsync(long id);
+        Task<bool> AnyIncludeDeletedAsync(long id);
         Task UpdateAsync(TDTO dto);
         Task RemoveAsync(TDTO dto);
         Task RemoveRangeAsync(IEnumerable<TDTO> enumerable);
         
+        Task RestoreAsync(long id);
     }
 }

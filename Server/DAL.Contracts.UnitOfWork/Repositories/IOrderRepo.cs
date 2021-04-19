@@ -21,6 +21,5 @@ namespace DAL.Base.UnitOfWork.Repositories
         Task<Func<long>> AddAsync(Order order);
         
         Task<Order> FirstOrDefaultAsync(long id);
-        
     }
 }

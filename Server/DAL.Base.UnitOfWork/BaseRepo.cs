@@ -27,6 +27,19 @@ namespace DAL.Base.UnitOfWork
         {
             var query = GetActualDataAsQueryable(id);
             
+            
+            return await query.AnyAsync();
+        }
+        
+        public virtual async Task<bool> AnyIncludeDeletedAsync(long id)
+        {
+            var query = DbSet.Where(e => e.Id == id);
+            
+            if (IsEntitySoftUpdatable())
+            {
+                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.MasterId == null);
+            }
+            
             return await query.AnyAsync();
         }
         
@@ -35,23 +48,6 @@ namespace DAL.Base.UnitOfWork
             var query = GetActualDataAsQueryable(id);
 
             return MapToDTO(await query.FirstOrDefaultAsync());
-        }
-        
-        private IQueryable<TEntity> GetActualDataAsQueryable(long id)
-        {
-            var query = DbSet.Where(e => e.Id == id);
-
-            if (IsEntitySoftDeletable())
-            {
-                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.DeletedAt == null);
-            }
-
-            if (IsEntitySoftUpdatable())
-            {
-                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.MasterId == null);
-            }
-
-            return query;
         }
 
         public virtual async Task UpdateAsync(TDTO dto)
@@ -75,7 +71,7 @@ namespace DAL.Base.UnitOfWork
                 
             DbSet.Update(entityToTrack);
         }
-        
+
 
         public virtual async Task RemoveAsync(TDTO dto)
         {
@@ -83,7 +79,7 @@ namespace DAL.Base.UnitOfWork
 
             DbSet.Remove(trackedEntity);
         }
-        
+
         public virtual async Task RemoveRangeAsync(IEnumerable<TDTO> enumerable)
         {
             foreach (var dto in enumerable)
@@ -92,13 +88,26 @@ namespace DAL.Base.UnitOfWork
             }
         }
 
+        public virtual async Task RestoreAsync(long id)
+        {
+            var deletedEntity = await DbSet.FindAsync(id);
+
+            if (deletedEntity is IDomainEntitySoftDelete softDelete)
+            {
+                softDelete.DeletedAt = null;
+                softDelete.DeletedBy = null;
+            }
+
+            DbSet.Update(deletedEntity);
+        }
+
         protected TEntity MapToEntity(TDTO dto)
         {
             return Mapper.Map<TDTO, TEntity>(dto);
         }
-        
+
         protected TDTO MapToDTO(TEntity entity)
-        {
+        {   
             return Mapper.Map<TEntity, TDTO>(entity);
         }
 
@@ -106,11 +115,27 @@ namespace DAL.Base.UnitOfWork
         {
             return typeof(TEntity).GetInterfaces().Contains(typeof(IDomainEntitySoftDelete));
         }
-        
+
         protected bool IsEntitySoftUpdatable()
         {
             return typeof(TEntity).GetInterfaces().Contains(typeof(IDomainEntitySoftUpdate));
         }
-    
+
+        private IQueryable<TEntity> GetActualDataAsQueryable(long id)
+        {
+            var query = DbSet.Where(e => e.Id == id);
+
+            if (IsEntitySoftDeletable())
+            {
+                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.DeletedAt == null);
+            }
+
+            if (IsEntitySoftUpdatable())
+            {
+                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.MasterId == null);
+            }
+
+            return query;
+        }
     }
 }
