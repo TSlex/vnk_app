@@ -5,7 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AppAPI\AppAPI.csproj" />
+      <ProjectReference Include="..\BLL.Contracts\BLL.Contracts.csproj" />
+      <ProjectReference Include="..\DAL.Contracts.UnitOfWork\DAL.Contracts.UnitOfWork.csproj" />
     </ItemGroup>
 
 </Project>

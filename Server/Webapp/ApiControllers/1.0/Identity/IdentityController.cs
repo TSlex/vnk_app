@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AppAPI._1._0.Identity;
+using AppAPI._1._0.Responses;
 using DAL.App.EF;
 using DAL.App.Entities.Identity;
 using Extensions;
@@ -10,8 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using PublicApi._1._0.Identity;
-using PublicApi._1._0.Responses;
 using WebApp.Helpers;
 
 namespace Webapp.ApiControllers._1._0.Identity

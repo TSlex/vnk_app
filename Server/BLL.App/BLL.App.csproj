@@ -4,4 +4,12 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\AppAPI\AppAPI.csproj" />
+      <ProjectReference Include="..\BLL.Base\BLL.Base.csproj" />
+      <ProjectReference Include="..\BLL.Contracts\BLL.Contracts.csproj" />
+      <ProjectReference Include="..\DAL.App.UnitOfWork\DAL.App.UnitOfWork.csproj" />
+      <ProjectReference Include="..\DAL.Contracts.UnitOfWork\DAL.Contracts.UnitOfWork.csproj" />
+    </ItemGroup>
+
 </Project>

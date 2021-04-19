@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AppAPI\AppAPI.csproj" />
+      <ProjectReference Include="..\Domain\DAL.Base.Entities\DAL.Base.Entities.csproj" />
     </ItemGroup>
 
 </Project>

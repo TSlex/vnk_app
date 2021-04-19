@@ -2,9 +2,12 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
+using BLL.App;
+using BLL.Contracts;
 using DAL.App.EF;
 using DAL.App.EF.Helpers;
 using DAL.App.Entities.Identity;
+using DAL.App.UnitOfWork;
 using DAL.Contracts;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -48,7 +51,10 @@ namespace Webapp
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
+            //DI
             services.AddScoped<IUserProvider, UserProvider>();
+            services.AddScoped<IAppUnitOfWork, AppUnitOfWork>();
+            services.AddScoped<IAppBLL, AppBLL>();
 
             services.AddRouting(options => options.LowercaseUrls = true);
 
