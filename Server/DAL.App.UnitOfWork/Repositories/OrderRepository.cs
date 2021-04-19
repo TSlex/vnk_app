@@ -17,34 +17,45 @@ namespace DAL.App.UnitOfWork.Repositories
         public OrderRepository(AppDbContext dbContext, IUniversalMapper mapper) : base(dbContext, mapper)
         {
         }
-        
-        public async Task<IEnumerable<Order>> GetAll(int pageIndex, int itemsOnPage,
-            SortOption byName, bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
+
+        public async Task<IEnumerable<Order>> GetAllAsync(int pageIndex, int itemsOnPage,
+            SortOption byName, bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime)
         {
-            var ordersQuery = DbContext.Orders
+            var query = DbContext.Orders
                 .WhereActual()
                 .IncludeAttributesFull()
                 .AsQueryable();
 
-            ordersQuery = ordersQuery.WhereSuid(hasExecutionDate, completed, searchKey, startDateTime,
+            query = query.WhereSuid(hasExecutionDate, completed, searchKey, startDateTime,
                 endDateTime);
 
-            ordersQuery = ordersQuery.OrderBy(at => at.Id);
+            query = query.OrderBy(at => at.Id);
 
-            ordersQuery = byName switch
+            query = byName switch
             {
-                SortOption.True => ordersQuery.OrderBy(at => at.Name),
-                SortOption.Reversed => ordersQuery.OrderByDescending(at => at.Name),
-                _ => ordersQuery
+                SortOption.True => query.OrderBy(at => at.Name),
+                SortOption.Reversed => query.OrderByDescending(at => at.Name),
+                _ => query
             };
 
-            ordersQuery = ordersQuery.Skip(itemsOnPage * pageIndex).Take(itemsOnPage);
+            query = query.Skip(itemsOnPage * pageIndex).Take(itemsOnPage);
 
-            return (await ordersQuery.ToListAsync()).Select(Mapper.Map<Entities.Order, Order>);
+            return (await query.ToListAsync()).Select(Mapper.Map<Entities.Order, Order>);
         }
 
-        public async Task<int> Count(bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
+        public async Task<Order> GetByIdAsync(long id)
+        {
+            var query = DbContext.Orders
+                .WhereActual()
+                .IncludeAttributesFull()
+                .Where(o => o.Id == id);
+
+            return Mapper.Map<Entities.Order, Order>(await query.FirstOrDefaultAsync());
+        }
+
+        public async Task<int> CountAsync(bool? hasExecutionDate, bool? completed, string? searchKey,
+            DateTime? startDateTime,
             DateTime? endDateTime)
         {
             var ordersQuery = DbContext.Orders.WhereActual();
@@ -52,17 +63,25 @@ namespace DAL.App.UnitOfWork.Repositories
             return await ordersQuery.WhereSuid(hasExecutionDate, completed, searchKey, startDateTime,
                 endDateTime).CountAsync();
         }
+
+        public async Task<bool> ExistsAsync(long id)
+        {
+            return await DbContext.Orders.AnyAsync(o => o.Id == id);
+        }
     }
 
     internal static class Extensions
     {
         internal static IQueryable<Entities.Order> WhereSuid(this IQueryable<Entities.Order> query,
-            bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
+            bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime)
         {
-            query = hasExecutionDate
-                ? query.Where(o => o.ExecutionDateTime != null)
-                : query.Where(o => o.ExecutionDateTime == null);
+            if (hasExecutionDate != null)
+            {
+                query = hasExecutionDate.Value
+                    ? query.Where(o => o.ExecutionDateTime != null)
+                    : query.Where(o => o.ExecutionDateTime == null);
+            }
 
             if (startDateTime != null)
             {

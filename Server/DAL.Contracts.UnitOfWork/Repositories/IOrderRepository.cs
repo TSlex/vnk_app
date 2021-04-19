@@ -9,12 +9,15 @@ namespace DAL.Base.UnitOfWork.Repositories
 {
     public interface IOrderRepository : IBaseRepo
     {
-        Task<IEnumerable<Order>> GetAll(int pageIndex, int itemsOnPage,
-            SortOption byName, bool hasExecutionDate, bool? completed, string? searchKey,
+        Task<IEnumerable<Order>> GetAllAsync(int pageIndex, int itemsOnPage,
+            SortOption byName, bool? hasExecutionDate, bool? completed, string? searchKey,
             DateTime? startDateTime,
             DateTime? endDateTime);
 
-        Task<int> Count(bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
+        Task<int> CountAsync(bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime);
+
+        Task<bool> ExistsAsync(long id);
+        Task<Order> GetByIdAsync(long id);
     }
 }

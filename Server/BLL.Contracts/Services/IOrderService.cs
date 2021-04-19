@@ -12,11 +12,6 @@ namespace BLL.Contracts.Services
             SortOption byName, bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime, DateTime? checkDatetime);
 
-        // Task<OrderGetDTO> GetById(long id);
-        // Task<OrderGetDTO> Create(OrderPostDTO orderPostDTO);
-        // Task Update(long id, OrderPatchDTO orderPatchDTO);
-        // Task SetCompleted(long id, OrderCompletionPatchDTO orderPatchDTO);
-        // Task Delete(long id);
-        // Task<CollectionDTO<OrderHistoryGetDTO>> GetHistory(long id);
+        Task<OrderGetDTO> GetById(long id, DateTime? checkDatetime);
     }
 }

@@ -6,6 +6,7 @@ using AppAPI._1._0;
 using AppAPI._1._0.Common;
 using AppAPI._1._0.Enums;
 using AppAPI._1._0.Responses;
+using BLL.App.Exceptions;
 using BLL.Contracts;
 using DAL.App;
 using Microsoft.AspNetCore.Http;
@@ -65,46 +66,20 @@ namespace Webapp.ApiControllers._1._0
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<OrderGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult> GetById(long id)
+        public async Task<ActionResult> GetById(long id, DateTime? checkDatetime)
         {
-            var overdueDatetime = DateTime.UtcNow;
-
-            var item = await _context.Orders
-                .Where(o => o.Id == id)
-                .Select(o => new OrderGetDTO
+            try
+            {
+                return Ok(new ResponseDTO<OrderGetDTO>
                 {
-                    Id = o.Id,
-                    Name = o.Name,
-                    Completed = o.Completed,
-                    Notation = o.Notation,
-                    ExecutionDateTime = o.ExecutionDateTime,
-                    Overdued = o.ExecutionDateTime.HasValue && o.ExecutionDateTime < overdueDatetime,
-                    Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
-                    {
-                        Id = oa.Id,
-                        Featured = oa.Featured,
-                        Name = oa.Attribute!.Name,
-                        Type = oa.Attribute!.AttributeType!.Name,
-                        TypeId = oa.Attribute!.Id,
-                        AttributeId = oa.AttributeId,
-                        DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
-                        CustomValue = oa.CustomValue,
-                        UnitId = oa.UnitId,
-                        ValueId = oa.ValueId,
-                        UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
-                        UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
-                    }).ToList()
-                }).FirstOrDefaultAsync();
-
-            if (item == null)
-            {
-                return NotFound(new ErrorResponseDTO("Aтрибут не найдет"));
+                    Data = await _bll.Orders.GetById(id, checkDatetime)
+                });
             }
-
-            return Ok(new ResponseDTO<OrderGetDTO>
+            
+            catch (NotFoundException exception)
             {
-                Data = item
-            });
+                return NotFound(new ErrorResponseDTO(exception.Message));
+            }
         }
 
         [HttpPost]
@@ -179,7 +154,7 @@ namespace Webapp.ApiControllers._1._0
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), await GetById(order.Id));
+            return CreatedAtAction(nameof(GetById), await GetById(order.Id, DateTime.Now));
         }
 
         [HttpPatch("{id}")]
