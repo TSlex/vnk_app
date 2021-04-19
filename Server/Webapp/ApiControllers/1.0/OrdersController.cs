@@ -97,7 +97,7 @@ namespace Webapp.ApiControllers._1._0
             {
                 return NotFound(new ErrorResponseDTO(notFoundException.Message));
             }
-            catch (ValidationFailedException notFoundException)
+            catch (ValidationException notFoundException)
             {
                 return BadRequest(new ErrorResponseDTO(notFoundException.Message));
             }
@@ -119,7 +119,7 @@ namespace Webapp.ApiControllers._1._0
             {
                 return NotFound(new ErrorResponseDTO(notFoundException.Message));
             }
-            catch (ValidationFailedException notFoundException)
+            catch (ValidationException notFoundException)
             {
                 return BadRequest(new ErrorResponseDTO(notFoundException.Message));
             }
@@ -141,7 +141,7 @@ namespace Webapp.ApiControllers._1._0
             {
                 return NotFound(new ErrorResponseDTO(notFoundException.Message));
             }
-            catch (ValidationFailedException notFoundException)
+            catch (ValidationException notFoundException)
             {
                 return BadRequest(new ErrorResponseDTO(notFoundException.Message));
             }

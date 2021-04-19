@@ -6,6 +6,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DAL.App.DTO\DAL.App.DTO.csproj" />
+      <ProjectReference Include="..\DAL.App.Entities\DAL.App.Entities.csproj" />
     </ItemGroup>
 
 </Project>

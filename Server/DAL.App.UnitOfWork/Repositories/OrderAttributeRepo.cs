@@ -20,10 +20,5 @@ namespace DAL.App.UnitOfWork.Repositories
         {
             return (await DbSet.Where(ta => ta.OrderId == id).ToListAsync()).Select(MapToDTO);
         }
-
-        public void RemoveRange(IEnumerable<OrderAttribute> orderAttributes)
-        {
-            DbSet.RemoveRange(orderAttributes.Select(MapToEntity));
-        }
     }
 }

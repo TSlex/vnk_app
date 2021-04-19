@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AppAPI._1._0;
@@ -115,7 +114,7 @@ namespace BLL.App.Services
 
                 if (attribute.AttributeType!.UsesDefinedValues)
                 {
-                    if (orderAttributePostDTO.ValueId.HasValue ||
+                    if (!orderAttributePostDTO.ValueId.HasValue ||
                         !await UnitOfWork.AttributeTypeValues.AnyAsync(orderAttributePostDTO.ValueId!.Value,
                             attribute.AttributeTypeId))
                     {
@@ -124,6 +123,8 @@ namespace BLL.App.Services
                 }
                 else
                 {
+                    orderAttributePostDTO.ValueId = null;
+
                     if (orderAttributePostDTO.CustomValue == null)
                     {
                         throw new ValidationException($"Значение атрибута '{attribute.Name}' неверно");
@@ -132,12 +133,16 @@ namespace BLL.App.Services
 
                 if (attribute.AttributeType!.UsesDefinedUnits)
                 {
-                    if (orderAttributePostDTO.UnitId.HasValue ||
+                    if (!orderAttributePostDTO.UnitId.HasValue ||
                         !await UnitOfWork.AttributeTypeUnits.AnyAsync(orderAttributePostDTO.UnitId!.Value,
                             attribute.AttributeTypeId))
                     {
                         throw new ValidationException($"Единица измерения атрибута '{attribute.Name}' неверна");
                     }
+                }
+                else
+                {
+                    orderAttributePostDTO.UnitId = null;
                 }
             }
 
@@ -157,17 +162,18 @@ namespace BLL.App.Services
                 }).ToList()
             };
 
-            await UnitOfWork.Orders.AddAsync(order);
+            var orderIdCallBack = await UnitOfWork.Orders.AddAsync(order);
+
             await UnitOfWork.SaveChangesAsync();
 
-            return order.Id;
+            return orderIdCallBack();
         }
 
         public async Task UpdateAsync(long id, OrderPatchDTO orderPatchDTO)
         {
             if (id != orderPatchDTO.Id)
             {
-                throw new ValidationFailedException("Идентификаторы должны совпадать");
+                throw new ValidationException("Идентификаторы должны совпадать");
             }
 
             var order = await UnitOfWork.Orders.FirstOrDefaultAsync(id);
@@ -179,7 +185,7 @@ namespace BLL.App.Services
 
             order.Name = orderPatchDTO.Name;
 
-            UnitOfWork.Orders.Update(order);
+            await UnitOfWork.Orders.UpdateAsync(order);
 
             await UnitOfWork.SaveChangesAsync();
         }
@@ -195,8 +201,8 @@ namespace BLL.App.Services
 
             var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByOrderId(id);
 
-            UnitOfWork.OrderAttributes.RemoveRange(orderAttributes);
-            UnitOfWork.Orders.Remove(order);
+            await UnitOfWork.OrderAttributes.RemoveRangeAsync(orderAttributes);
+            await UnitOfWork.Orders.RemoveAsync(order);
 
             await UnitOfWork.SaveChangesAsync();
         }

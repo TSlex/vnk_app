@@ -68,7 +68,7 @@ namespace AppAPI._1._0
 
         public string? Notation { get; set; }
 
-        public DateTime ExecutionDateTime { get; set; }
+        public DateTime? ExecutionDateTime { get; set; }
 
         public ICollection<OrderAttributePostDTO> Attributes { get; set; } = default!;
     }
@@ -96,7 +96,7 @@ namespace AppAPI._1._0
 
         public string? Notation { get; set; }
 
-        public DateTime ExecutionDateTime { get; set; }
+        public DateTime? ExecutionDateTime { get; set; }
     }
     
     public class OrderCompletionPatchDTO: DomainEntityId

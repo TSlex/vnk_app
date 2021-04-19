@@ -54,24 +54,16 @@ namespace DAL.App.UnitOfWork.Repositories
             return Mapper.Map<Entities.Order, Order>(await query.FirstOrDefaultAsync());
         }
 
-        public async Task AddAsync(Order order)
+        public async Task<Func<long>> AddAsync(Order order)
         {
-            order.Id = (await DbSet.AddAsync(MapToEntity(order))).Entity.Id;
+            var entity = await DbSet.AddAsync(MapToEntity(order));
+
+            return () => entity.Entity.Id;
         }
 
         public async Task<Order> FirstOrDefaultAsync(long id)
         {
             return MapToDTO(await DbSet.FirstOrDefaultAsync(order => order.Id == id));
-        }
-
-        public void Update(Order order)
-        {
-            DbSet.Update(MapToEntity(order));
-        }
-
-        public void Remove(Order order)
-        {
-            DbSet.Remove(MapToEntity(order));
         }
 
         public async Task<int> CountAsync(bool? hasExecutionDate, bool? completed, string? searchKey,

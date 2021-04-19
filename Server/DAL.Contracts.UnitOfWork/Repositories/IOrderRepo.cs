@@ -7,7 +7,7 @@ using DAL.Contracts;
 
 namespace DAL.Base.UnitOfWork.Repositories
 {
-    public interface IOrderRepo : IBaseRepo
+    public interface IOrderRepo : IBaseRepo<DAL.App.Entities.Order, Order>
     {
         Task<IEnumerable<Order>> GetAllAsync(int pageIndex, int itemsOnPage,
             SortOption byName, bool? hasExecutionDate, bool? completed, string? searchKey,
@@ -18,10 +18,9 @@ namespace DAL.Base.UnitOfWork.Repositories
             DateTime? endDateTime);
 
         Task<Order> GetByIdAsync(long id);
-        Task AddAsync(Order order);
+        Task<Func<long>> AddAsync(Order order);
         
         Task<Order> FirstOrDefaultAsync(long id);
-        void Update(Order order);
-        void Remove(Order order);
+        
     }
 }
