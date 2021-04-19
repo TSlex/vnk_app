@@ -12,9 +12,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.App.UnitOfWork.Repositories
 {
-    public class OrderRepository : BaseRepo<AppDbContext>, IOrderRepository
+    public class OrderRepo : BaseRepo<Entities.Order, Order, AppDbContext>, IOrderRepo
     {
-        public OrderRepository(AppDbContext dbContext, IUniversalMapper mapper) : base(dbContext, mapper)
+        public OrderRepo(AppDbContext dbContext, IUniversalMapper mapper) : base(dbContext, mapper)
         {
         }
 
@@ -62,11 +62,6 @@ namespace DAL.App.UnitOfWork.Repositories
 
             return await ordersQuery.WhereSuid(hasExecutionDate, completed, searchKey, startDateTime,
                 endDateTime).CountAsync();
-        }
-
-        public async Task<bool> ExistsAsync(long id)
-        {
-            return await DbContext.Orders.AnyAsync(o => o.Id == id);
         }
     }
 

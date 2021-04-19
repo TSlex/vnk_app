@@ -3,7 +3,7 @@ using DAL.Contracts;
 
 namespace DAL.Base.Entities
 {
-    public abstract class DomainEntityIdSoftUpdate: DomainEntityIdSoftUpdate<long>
+    public abstract class DomainEntityIdSoftUpdate: DomainEntityIdSoftUpdate<long>, IDomainEntityId
     {
         
     }

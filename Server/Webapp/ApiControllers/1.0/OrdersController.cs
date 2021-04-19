@@ -44,7 +44,7 @@ namespace Webapp.ApiControllers._1._0
         {
             return Ok(new ResponseDTO<CollectionDTO<OrderGetDTO>>
             {
-                Data = await _bll.Orders.GetAll(pageIndex, itemsOnPage,
+                Data = await _bll.Orders.GetAllAsync(pageIndex, itemsOnPage,
                     byName, true, completed, searchKey, startDateTime,
                     endDateTime, checkDatetime)
             });
@@ -57,7 +57,7 @@ namespace Webapp.ApiControllers._1._0
         {
             return Ok(new ResponseDTO<CollectionDTO<OrderGetDTO>>
             {
-                Data = await _bll.Orders.GetAll(pageIndex, itemsOnPage,
+                Data = await _bll.Orders.GetAllAsync(pageIndex, itemsOnPage,
                     byName, false, completed, searchKey, null,
                     null, null)
             });
@@ -72,7 +72,7 @@ namespace Webapp.ApiControllers._1._0
             {
                 return Ok(new ResponseDTO<OrderGetDTO>
                 {
-                    Data = await _bll.Orders.GetById(id, checkDatetime)
+                    Data = await _bll.Orders.GetByIdAsync(id, checkDatetime)
                 });
             }
             
@@ -153,6 +153,8 @@ namespace Webapp.ApiControllers._1._0
 
             await _context.Orders.AddAsync(order);
             await _context.SaveChangesAsync();
+
+            await _bll.Orders.CreateAsync(orderPostDTO);
 
             return CreatedAtAction(nameof(GetById), await GetById(order.Id, DateTime.Now));
         }

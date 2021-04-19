@@ -7,7 +7,7 @@ using DAL.Contracts;
 
 namespace DAL.Base.UnitOfWork.Repositories
 {
-    public interface IOrderRepository : IBaseRepo
+    public interface IOrderRepo : IBaseRepo
     {
         Task<IEnumerable<Order>> GetAllAsync(int pageIndex, int itemsOnPage,
             SortOption byName, bool? hasExecutionDate, bool? completed, string? searchKey,
@@ -17,7 +17,6 @@ namespace DAL.Base.UnitOfWork.Repositories
         Task<int> CountAsync(bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime);
 
-        Task<bool> ExistsAsync(long id);
         Task<Order> GetByIdAsync(long id);
     }
 }

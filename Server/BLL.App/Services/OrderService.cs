@@ -17,7 +17,7 @@ namespace BLL.App.Services
         {
         }
 
-        public async Task<CollectionDTO<OrderGetDTO>> GetAll(int pageIndex, int itemsOnPage,
+        public async Task<CollectionDTO<OrderGetDTO>> GetAllAsync(int pageIndex, int itemsOnPage,
             SortOption byName, bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime, DateTime? checkDatetime)
         {
@@ -59,7 +59,7 @@ namespace BLL.App.Services
             };
         }
 
-        public async Task<OrderGetDTO> GetById(long id, DateTime? checkDatetime)
+        public async Task<OrderGetDTO> GetByIdAsync(long id, DateTime? checkDatetime)
         {
             if (!await UnitOfWork.Orders.ExistsAsync(id))
             {
@@ -95,25 +95,20 @@ namespace BLL.App.Services
                 }).ToList()
             };
         }
-        
-        // public async Task<OrderGetDTO> Create(OrderPostDTO orderPostDTO)
-        // {
-        // }
-        //
-        // public async Task Update(long id, OrderPatchDTO orderPatchDTO)
-        // {
-        // }
-        //
-        // public async Task SetCompleted(long id, OrderCompletionPatchDTO orderPatchDTO)
-        // {
-        // }
-        //
-        // public async Task Delete(long id)
-        // {
-        // }
-        //
-        // public async Task<CollectionDTO<OrderHistoryGetDTO>> GetHistory(long id)
-        // {
-        // }
+
+        public Task CreateAsync(OrderPostDTO orderPostDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAsync(OrderPatchDTO orderPatchDTO)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

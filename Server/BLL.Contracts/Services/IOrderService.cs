@@ -8,10 +8,15 @@ namespace BLL.Contracts.Services
 {
     public interface IOrderService
     {
-        Task<CollectionDTO<OrderGetDTO>> GetAll(int pageIndex, int itemsOnPage,
+        Task<CollectionDTO<OrderGetDTO>> GetAllAsync(int pageIndex, int itemsOnPage,
             SortOption byName, bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime, DateTime? checkDatetime);
 
-        Task<OrderGetDTO> GetById(long id, DateTime? checkDatetime);
+        Task<OrderGetDTO> GetByIdAsync(long id, DateTime? checkDatetime);
+        
+        Task CreateAsync(OrderPostDTO orderPostDTO);
+        Task UpdateAsync(OrderPatchDTO orderPatchDTO);
+        
+        Task DeleteAsync(long id);
     }
 }

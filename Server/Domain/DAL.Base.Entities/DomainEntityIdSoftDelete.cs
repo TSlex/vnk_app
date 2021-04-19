@@ -3,7 +3,7 @@ using DAL.Contracts;
 
 namespace DAL.Base.Entities
 {
-    public abstract class DomainEntityIdSoftDelete: DomainEntityIdSoftDelete<long>
+    public abstract class DomainEntityIdSoftDelete: DomainEntityIdSoftDelete<long>, IDomainEntityId
     {
         
     }

@@ -4,6 +4,6 @@ namespace DAL.Contracts
 {
     public interface IAppUnitOfWork: IBaseUnitOfWork
     {
-        IOrderRepository Orders { get; }
+        IOrderRepo Orders { get; }
     }
 }

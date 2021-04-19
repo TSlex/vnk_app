@@ -13,6 +13,6 @@ namespace DAL.App.UnitOfWork
         {
         }
 
-        public IOrderRepository Orders => GetRepository<IOrderRepository>(() => new OrderRepository(DbContext, Mapper));
+        public IOrderRepo Orders => GetRepository<IOrderRepo>(() => new OrderRepo(DbContext, Mapper));
     }
 }
