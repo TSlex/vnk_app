@@ -23,11 +23,11 @@ namespace DAL.App.UnitOfWork.Repositories
             DateTime? endDateTime)
         {
             var query = DbSet
-                .WhereActual()
+                .WhereDataActual()
                 .IncludeAttributesFull()
                 .AsQueryable();
 
-            query = query.WhereSuid(hasExecutionDate, completed, searchKey, startDateTime,
+            query = query.WhereSuidConditions(hasExecutionDate, completed, searchKey, startDateTime,
                 endDateTime);
 
             query = query.OrderBy(at => at.Id);
@@ -47,7 +47,7 @@ namespace DAL.App.UnitOfWork.Repositories
         public async Task<Order> GetByIdAsync(long id)
         {
             var query = DbSet
-                .WhereActual()
+                .WhereDataActual()
                 .IncludeAttributesFull()
                 .Where(o => o.Id == id);
 
@@ -65,16 +65,31 @@ namespace DAL.App.UnitOfWork.Repositories
             DateTime? startDateTime,
             DateTime? endDateTime)
         {
-            var ordersQuery = DbSet.WhereActual();
+            var ordersQuery = DbSet.WhereDataActual();
 
-            return await ordersQuery.WhereSuid(hasExecutionDate, completed, searchKey, startDateTime,
+            return await ordersQuery.WhereSuidConditions(hasExecutionDate, completed, searchKey, startDateTime,
                 endDateTime).CountAsync();
+        }
+
+        public async Task<IEnumerable<Order>> GetHistoryAsync(long id, int pageIndex, int itemsOnPage)
+        {
+            var query = DbSet.Where(o => o.Id == id || o.MasterId == id);
+
+            query = query.IncludeAttributesFull();
+            query = query.OrderBy(at => at.Id);
+
+            return (await query.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()).Select(MapToDTO);
+        }
+
+        public async Task<long> CountHistoryAsync(long id)
+        {
+            return await DbSet.CountAsync(o => o.Id == id || o.MasterId == id);
         }
     }
 
     internal static class Extensions
     {
-        internal static IQueryable<Entities.Order> WhereSuid(this IQueryable<Entities.Order> query,
+        internal static IQueryable<Entities.Order> WhereSuidConditions(this IQueryable<Entities.Order> query,
             bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime)
         {
@@ -110,7 +125,7 @@ namespace DAL.App.UnitOfWork.Repositories
             return query.Where(o => o.DeletedAt == null && o.MasterId == null);
         }
 
-        internal static IQueryable<Entities.Order> WhereActual(this IQueryable<Entities.Order> query)
+        internal static IQueryable<Entities.Order> WhereDataActual(this IQueryable<Entities.Order> query)
         {
             return query.Where(o => o.DeletedAt == null && o.MasterId == null);
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AppAPI._1._0;
@@ -48,6 +49,48 @@ namespace BLL.App.Services
             var item = await UnitOfWork.Orders.GetByIdAsync(id);
 
             return MapToGetDTO(item, checkDatetime);
+        }
+
+        public async Task<CollectionDTO<OrderHistoryGetDTO>> GetHistoryAsync(long id, int pageIndex, int itemsOnPage)
+        {
+            if (!await UnitOfWork.Orders.AnyIncludeDeletedAsync(id))
+            {
+                throw new NotFoundException("Заказ не найдет");
+            }
+            
+            return new CollectionDTO<OrderHistoryGetDTO>()
+            {
+                Items = (await UnitOfWork.Orders.GetHistoryAsync(id, pageIndex, itemsOnPage)).Select(item => new OrderHistoryGetDTO
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Completed = item.Completed,
+                    Notation = item.Notation,
+                    ExecutionDateTime = item.ExecutionDateTime,
+                    DeletedAt = item.DeletedAt,
+                    DeletedBy = item.DeletedBy,
+                    ChangedAt = item.ChangedAt,
+                    ChangedBy = item.ChangedBy,
+                    CreatedAt = item.CreatedAt,
+                    CreatedBy = item.CreatedBy,
+                    Attributes = item.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
+                    {
+                        Id = oa.Id,
+                        Featured = oa.Featured,
+                        Name = oa.Attribute!.Name,
+                        Type = oa.Attribute!.AttributeType!.Name,
+                        TypeId = oa.Attribute!.Id,
+                        AttributeId = oa.AttributeId,
+                        DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
+                        CustomValue = oa.CustomValue,
+                        UnitId = oa.UnitId,
+                        ValueId = oa.ValueId,
+                        UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
+                        UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
+                    }).ToList()
+                }),
+                TotalCount = await UnitOfWork.Orders.CountHistoryAsync(id)
+            };
         }
 
         public async Task<long> CreateAsync(OrderPostDTO orderPostDTO)

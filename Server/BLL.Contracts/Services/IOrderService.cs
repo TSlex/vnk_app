@@ -20,5 +20,7 @@ namespace BLL.Contracts.Services
         Task DeleteAsync(long id);
         Task UpdateCompletionAsync(long id, OrderCompletionPatchDTO orderCompletionPatchDTO);
         Task RestoreAsync(long id);
+        
+        Task<CollectionDTO<OrderHistoryGetDTO>> GetHistoryAsync(long id, int pageIndex, int itemsOnPage);
     }
 }

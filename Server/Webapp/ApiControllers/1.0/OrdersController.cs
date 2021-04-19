@@ -81,6 +81,16 @@ namespace Webapp.ApiControllers._1._0
             }
         }
 
+        [HttpGet("{id}/history")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<OrderHistoryGetDTO>>))]
+        public async Task<ActionResult> GetHistoryRecordsById(long id, int pageIndex, int itemsOnPage)
+        {
+            return Ok(new ResponseDTO<CollectionDTO<OrderHistoryGetDTO>>
+            {
+                Data = await _bll.Orders.GetHistoryAsync(id, pageIndex, itemsOnPage)
+            });
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<OrderGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]

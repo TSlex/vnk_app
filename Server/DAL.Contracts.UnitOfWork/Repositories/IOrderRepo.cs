@@ -21,5 +21,8 @@ namespace DAL.Base.UnitOfWork.Repositories
         Task<Func<long>> AddAsync(Order order);
         
         Task<Order> FirstOrDefaultAsync(long id);
+        
+        Task<IEnumerable<Order>> GetHistoryAsync(long id, int pageIndex, int itemsOnPage);
+        Task<long> CountHistoryAsync(long id);
     }
 }
