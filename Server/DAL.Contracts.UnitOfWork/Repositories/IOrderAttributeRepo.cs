@@ -2,7 +2,7 @@
 
 namespace DAL.Base.UnitOfWork.Repositories
 {
-    public interface IOrderAttribute: IBaseRepo
+    public interface IOrderAttributeRepo: IBaseRepo
     {
         
     }
