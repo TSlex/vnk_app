@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DAL.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -24,9 +25,35 @@ namespace DAL.Base.UnitOfWork
         
         public virtual async Task<bool> AnyAsync(long id)
         {
-            return await DbSet.AnyAsync(o => o.Id == id);
+            var query = GetActualDataAsQueryable(id);
+            
+            return await query.AnyAsync();
         }
         
+        public async Task<TDTO> FirstOrDefaultAsync(long id)
+        {
+            var query = GetActualDataAsQueryable(id);
+
+            return MapToDTO(await query.FirstOrDefaultAsync());
+        }
+        
+        private IQueryable<TEntity> GetActualDataAsQueryable(long id)
+        {
+            var query = DbSet.Where(e => e.Id == id);
+
+            if (IsEntitySoftDeletable())
+            {
+                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.DeletedAt == null);
+            }
+
+            if (IsEntitySoftUpdatable())
+            {
+                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.MasterId == null);
+            }
+
+            return query;
+        }
+
         public virtual async Task UpdateAsync(TDTO dto)
         {
             var now = DateTime.UtcNow;
@@ -48,15 +75,12 @@ namespace DAL.Base.UnitOfWork
                 
             DbSet.Update(entityToTrack);
         }
+        
 
         public virtual async Task RemoveAsync(TDTO dto)
         {
             TEntity trackedEntity = await DbSet.FindAsync(dto.Id);
-            // TEntity entityToTrack = MapToEntity(dto);
-            //
-            // DbContext.Entry(trackedEntity).State = EntityState.Detached;
-            // trackedEntity.Id = 0;
-            
+
             DbSet.Remove(trackedEntity);
         }
         
@@ -77,5 +101,16 @@ namespace DAL.Base.UnitOfWork
         {
             return Mapper.Map<TEntity, TDTO>(entity);
         }
+
+        protected bool IsEntitySoftDeletable()
+        {
+            return typeof(TEntity).GetInterfaces().Contains(typeof(IDomainEntitySoftDelete));
+        }
+        
+        protected bool IsEntitySoftUpdatable()
+        {
+            return typeof(TEntity).GetInterfaces().Contains(typeof(IDomainEntitySoftUpdate));
+        }
+    
     }
 }

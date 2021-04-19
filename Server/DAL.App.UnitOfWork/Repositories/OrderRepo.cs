@@ -61,11 +61,6 @@ namespace DAL.App.UnitOfWork.Repositories
             return () => entity.Entity.Id;
         }
 
-        public async Task<Order> FirstOrDefaultAsync(long id)
-        {
-            return MapToDTO(await DbSet.FirstOrDefaultAsync(order => order.Id == id));
-        }
-
         public async Task<int> CountAsync(bool? hasExecutionDate, bool? completed, string? searchKey,
             DateTime? startDateTime,
             DateTime? endDateTime)
