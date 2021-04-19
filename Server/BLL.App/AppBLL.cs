@@ -11,6 +11,6 @@ namespace BLL.App
         {
         }
         
-        public IOrderService BlockedProfiles => GetService<IOrderService>(() => new OrderService(UnitOfWork));
+        public IOrderService Orders => GetService<IOrderService>(() => new OrderService(UnitOfWork));
     }
 }

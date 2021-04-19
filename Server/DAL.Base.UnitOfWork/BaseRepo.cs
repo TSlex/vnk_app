@@ -7,10 +7,12 @@ namespace DAL.Base.UnitOfWork
         where TDbContext : DbContext
     {
         protected readonly TDbContext DbContext;
+        protected readonly IUniversalMapper Mapper;
 
-        public BaseRepo(TDbContext dbContext)
+        public BaseRepo(TDbContext dbContext, IUniversalMapper mapper)
         {
             DbContext = dbContext;
+            Mapper = mapper;
         }
     }
 }

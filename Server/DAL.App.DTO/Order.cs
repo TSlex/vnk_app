@@ -4,7 +4,7 @@ using DAL.Base.Entities;
 
 namespace DAL.App.DTO
 {
-    public class Order: DomainEntityIdSoftDelete
+    public class Order: DomainEntityIdSoftUpdate
     {
         public string Name { get; set; } = default!;
         

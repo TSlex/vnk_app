@@ -37,93 +37,28 @@ namespace Webapp.ApiControllers._1._0
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<OrderGetDTO>>))]
-        public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage,
+        public async Task<ActionResult> GetAllWithDate(int pageIndex, int itemsOnPage,
             SortOption byName, bool? completed, string? searchKey, DateTime? startDateTime,
-            DateTime? endDateTime, DateTime? overdueDatetime)
+            DateTime? endDateTime, DateTime? checkDatetime)
         {
-            overdueDatetime ??= DateTime.UtcNow;
-
-            var ordersQuery = _context.Orders.Select(o => new OrderGetDTO
-            {
-                Id = o.Id,
-                Name = o.Name,
-                Completed = o.Completed,
-                Notation = o.Notation,
-                ExecutionDateTime = o.ExecutionDateTime,
-                Overdued = o.ExecutionDateTime.HasValue && o.ExecutionDateTime < overdueDatetime,
-                Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
-                {
-                    Id = oa.Id,
-                    Featured = oa.Featured,
-                    Name = oa.Attribute!.Name,
-                    Type = oa.Attribute!.AttributeType!.Name,
-                    TypeId = oa.Attribute!.Id,
-                    AttributeId = oa.AttributeId,
-                    DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
-                    CustomValue = oa.CustomValue,
-                    UnitId = oa.UnitId,
-                    ValueId = oa.ValueId,
-                    UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
-                    UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
-                }).ToList()
-            });
-
-            ordersQuery = ordersQuery.Where(o => o.ExecutionDateTime != null);
-
-            if (startDateTime != null)
-            {
-                ordersQuery = ordersQuery.Where(
-                    o => o.ExecutionDateTime >= startDateTime
-                );
-            }
-
-            if (endDateTime != null)
-            {
-                ordersQuery = ordersQuery.Where(
-                    o => o.ExecutionDateTime < endDateTime
-                );
-            }
-
-            if (completed == true)
-            {
-                ordersQuery = ordersQuery.Where(
-                    o => o.Completed
-                );
-            }
-
-            if (completed == true)
-            {
-                ordersQuery = ordersQuery.Where(
-                    o => o.Completed
-                );
-            }
-
-            if (!string.IsNullOrEmpty(searchKey))
-            {
-                ordersQuery = ordersQuery.Where(
-                    a =>
-                        a.Name.ToLower().Contains(searchKey.ToLower())
-                );
-            }
-
-            ordersQuery = ordersQuery.OrderBy(at => at.Id);
-
-            ordersQuery = byName switch
-            {
-                SortOption.True => ordersQuery.OrderBy(at => at.Name),
-                SortOption.Reversed => ordersQuery.OrderByDescending(at => at.Name),
-                _ => ordersQuery
-            };
-
-            var items = new CollectionDTO<OrderGetDTO>
-            {
-                TotalCount = await _context.Orders.CountAsync(),
-                Items = await ordersQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
-            };
-
             return Ok(new ResponseDTO<CollectionDTO<OrderGetDTO>>
             {
-                Data = items
+                Data = await _bll.Orders.GetAll(pageIndex, itemsOnPage,
+                    byName, true, completed, searchKey, startDateTime,
+                    endDateTime, checkDatetime)
+            });
+        }
+        
+        [HttpGet("noDate")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<OrderGetDTO>>))]
+        public async Task<ActionResult> GetAllWithoutDate(int pageIndex, int itemsOnPage,
+            SortOption byName, bool? completed, string? searchKey)
+        {
+            return Ok(new ResponseDTO<CollectionDTO<OrderGetDTO>>
+            {
+                Data = await _bll.Orders.GetAll(pageIndex, itemsOnPage,
+                    byName, false, completed, searchKey, null,
+                    null, null)
             });
         }
 
@@ -197,9 +132,10 @@ namespace Webapp.ApiControllers._1._0
 
                 if (attribute.AttributeType!.UsesDefinedValues)
                 {
-                    if (orderAttributePostDTO.ValueId == null || 
-                        !await _context.TypeValues.AnyAsync(value => value.Id == orderAttributePostDTO.ValueId && 
-                                                                    value.AttributeTypeId == attribute.AttributeTypeId))
+                    if (orderAttributePostDTO.ValueId == null ||
+                        !await _context.TypeValues.AnyAsync(value => value.Id == orderAttributePostDTO.ValueId &&
+                                                                     value.AttributeTypeId ==
+                                                                     attribute.AttributeTypeId))
                     {
                         return BadRequest(new ErrorResponseDTO($"Значение атрибута '{attribute.Name}' неверно"));
                     }
@@ -211,14 +147,15 @@ namespace Webapp.ApiControllers._1._0
                         return BadRequest(new ErrorResponseDTO($"Значение атрибута '{attribute.Name}' неверно"));
                     }
                 }
-                
+
                 if (attribute.AttributeType!.UsesDefinedUnits)
                 {
-                    if (orderAttributePostDTO.UnitId == null || 
-                        !await _context.TypeUnits.AnyAsync(unit => unit.Id == orderAttributePostDTO.UnitId && 
-                                                                    unit.AttributeTypeId == attribute.AttributeTypeId))
+                    if (orderAttributePostDTO.UnitId == null ||
+                        !await _context.TypeUnits.AnyAsync(unit => unit.Id == orderAttributePostDTO.UnitId &&
+                                                                   unit.AttributeTypeId == attribute.AttributeTypeId))
                     {
-                        return BadRequest(new ErrorResponseDTO($"Единица измерения атрибута '{attribute.Name}' неверна"));
+                        return BadRequest(
+                            new ErrorResponseDTO($"Единица измерения атрибута '{attribute.Name}' неверна"));
                     }
                 }
             }

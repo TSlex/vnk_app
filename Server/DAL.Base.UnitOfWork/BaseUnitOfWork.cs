@@ -11,11 +11,14 @@ namespace DAL.Base.UnitOfWork
         where TDbContext : DbContext
     {
         protected readonly TDbContext DbContext;
+        public IUniversalMapper Mapper { get; }
+        
         private readonly Dictionary<Type, object> _repoInstances = new Dictionary<Type, object>();
 
-        protected BaseUnitOfWork(TDbContext dbContext)
+        protected BaseUnitOfWork(TDbContext dbContext, IUniversalMapper mapper)
         {
             DbContext = dbContext;
+            Mapper = mapper;
         }
 
         protected TRepository GetRepository<TRepository>(Func<TRepository> repoCreationMethod)

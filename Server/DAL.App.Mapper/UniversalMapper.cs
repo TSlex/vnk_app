@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
+using DAL.Contracts;
 
 namespace DAL.App.Mapper
 {
-    public class Mapper
+
+public class UniversalMapper : IUniversalMapper
     {
         private readonly IMapper _mapper;
+        private readonly MapperConfiguration _configuration;
 
-        public Mapper()
+        public UniversalMapper()
         {
-            _mapper = new MapperConfiguration(config =>
+            _configuration = new MapperConfiguration(config =>
             {
                 CreateTwoWayMap<Entities.Attribute, DTO.Attribute>(config);
                 CreateTwoWayMap<Entities.AttributeType, DTO.AttributeType>(config);
@@ -22,8 +25,12 @@ namespace DAL.App.Mapper
                 CreateTwoWayMap<Entities.Enums.AttributeDataType, DTO.Enums.AttributeDataType>(config);
 
                 config.AllowNullDestinationValues = true;
-            }).CreateMapper();
+            });
+
+            _mapper = _configuration.CreateMapper();
         }
+
+        public MapperConfiguration Configuration => _configuration;
 
         public virtual TOutObject Map<TInObject, TOutObject>(TInObject inObject) =>
             _mapper.Map<TInObject, TOutObject>(inObject);

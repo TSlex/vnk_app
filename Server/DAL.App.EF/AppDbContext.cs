@@ -7,6 +7,7 @@ using DAL.App.Entities.Identity;
 using DAL.Contracts;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Attribute = DAL.App.Entities.Attribute;
 
 namespace DAL.App.EF
@@ -27,6 +28,12 @@ namespace DAL.App.EF
         public AppDbContext(DbContextOptions options, IUserProvider userProvider) : base(options)
         {
             _userProvider = userProvider;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
+            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder builder)

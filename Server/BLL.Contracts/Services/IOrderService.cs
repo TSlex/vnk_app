@@ -9,14 +9,14 @@ namespace BLL.Contracts.Services
     public interface IOrderService
     {
         Task<CollectionDTO<OrderGetDTO>> GetAll(int pageIndex, int itemsOnPage,
-            SortOption byName, bool? completed, string? searchKey, DateTime? startDateTime,
-            DateTime? endDateTime, DateTime? overdueDatetime);
+            SortOption byName, bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
+            DateTime? endDateTime, DateTime? checkDatetime);
 
-        Task<OrderGetDTO> GetById(long id);
-        Task<OrderGetDTO> Create(OrderPostDTO orderPostDTO);
-        Task Update(long id, OrderPatchDTO orderPatchDTO);
-        Task SetCompleted(long id, OrderCompletionPatchDTO orderPatchDTO);
-        Task Delete(long id);
-        Task<CollectionDTO<OrderHistoryGetDTO>> GetHistory(long id);
+        // Task<OrderGetDTO> GetById(long id);
+        // Task<OrderGetDTO> Create(OrderPostDTO orderPostDTO);
+        // Task Update(long id, OrderPatchDTO orderPatchDTO);
+        // Task SetCompleted(long id, OrderCompletionPatchDTO orderPatchDTO);
+        // Task Delete(long id);
+        // Task<CollectionDTO<OrderHistoryGetDTO>> GetHistory(long id);
     }
 }
