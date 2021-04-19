@@ -29,30 +29,7 @@ namespace BLL.App.Services
 
             return new CollectionDTO<OrderGetDTO>()
             {
-                Items = items.Select(o => new OrderGetDTO
-                {
-                    Id = o.Id,
-                    Name = o.Name,
-                    Completed = o.Completed,
-                    Notation = o.Notation,
-                    ExecutionDateTime = o.ExecutionDateTime,
-                    Overdued = o.ExecutionDateTime.HasValue && o.ExecutionDateTime < checkDatetime,
-                    Attributes = o.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
-                    {
-                        Id = oa.Id,
-                        Featured = oa.Featured,
-                        Name = oa.Attribute!.Name,
-                        Type = oa.Attribute!.AttributeType!.Name,
-                        TypeId = oa.Attribute!.Id,
-                        AttributeId = oa.AttributeId,
-                        DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
-                        CustomValue = oa.CustomValue,
-                        UnitId = oa.UnitId,
-                        ValueId = oa.ValueId,
-                        UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
-                        UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
-                    }).ToList()
-                }),
+                Items = items.Select(item => MapToGetDTO(item, checkDatetime)),
 
                 TotalCount = await UnitOfWork.Orders.CountAsync(hasExecutionDate, completed,
                     searchKey, startDateTime, endDateTime)
@@ -70,30 +47,7 @@ namespace BLL.App.Services
 
             var item = await UnitOfWork.Orders.GetByIdAsync(id);
 
-            return new OrderGetDTO
-            {
-                Id = item.Id,
-                Name = item.Name,
-                Completed = item.Completed,
-                Notation = item.Notation,
-                ExecutionDateTime = item.ExecutionDateTime,
-                Overdued = item.ExecutionDateTime.HasValue && item.ExecutionDateTime < checkDatetime,
-                Attributes = item.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
-                {
-                    Id = oa.Id,
-                    Featured = oa.Featured,
-                    Name = oa.Attribute!.Name,
-                    Type = oa.Attribute!.AttributeType!.Name,
-                    TypeId = oa.Attribute!.Id,
-                    AttributeId = oa.AttributeId,
-                    DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
-                    CustomValue = oa.CustomValue,
-                    UnitId = oa.UnitId,
-                    ValueId = oa.ValueId,
-                    UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
-                    UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
-                }).ToList()
-            };
+            return MapToGetDTO(item, checkDatetime);
         }
 
         public async Task<long> CreateAsync(OrderPostDTO orderPostDTO)
@@ -171,7 +125,79 @@ namespace BLL.App.Services
 
         public async Task UpdateAsync(long id, OrderPatchDTO orderPatchDTO)
         {
-            if (id != orderPatchDTO.Id)
+            var order = await ValidateAndReturnOrderAsync(id, orderPatchDTO.Id);
+
+            order.Name = orderPatchDTO.Name;
+            order.Completed = orderPatchDTO.Completed;
+            order.Notation = orderPatchDTO.Notation;
+            order.ExecutionDateTime = orderPatchDTO.ExecutionDateTime;
+
+            await UnitOfWork.Orders.UpdateAsync(order);
+
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task UpdateCompletionAsync(long id, OrderCompletionPatchDTO orderCompletionPatchDTO)
+        {
+            var order = await ValidateAndReturnOrderAsync(id, orderCompletionPatchDTO.Id);
+
+            order.Completed = orderCompletionPatchDTO.Completed;
+
+            await UnitOfWork.Orders.UpdateAsync(order);
+
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(long id)
+        {
+            var order = await ValidateAndReturnOrderAsync(id);
+
+            var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByOrderId(id);
+
+            await UnitOfWork.OrderAttributes.RemoveRangeAsync(orderAttributes);
+            await UnitOfWork.Orders.RemoveAsync(order);
+
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        #region Helpers
+
+        private static OrderGetDTO MapToGetDTO(Order item, DateTime? checkDatetime)
+        {
+            return new OrderGetDTO
+            {
+                Id = item.Id,
+                Name = item.Name,
+                Completed = item.Completed,
+                Notation = item.Notation,
+                ExecutionDateTime = item.ExecutionDateTime,
+                Overdued = item.ExecutionDateTime.HasValue && item.ExecutionDateTime < checkDatetime,
+                Attributes = item.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
+                {
+                    Id = oa.Id,
+                    Featured = oa.Featured,
+                    Name = oa.Attribute!.Name,
+                    Type = oa.Attribute!.AttributeType!.Name,
+                    TypeId = oa.Attribute!.Id,
+                    AttributeId = oa.AttributeId,
+                    DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
+                    CustomValue = oa.CustomValue,
+                    UnitId = oa.UnitId,
+                    ValueId = oa.ValueId,
+                    UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
+                    UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
+                }).ToList()
+            };
+        }
+
+        private Task<Order> ValidateAndReturnOrderAsync(long id)
+        {
+            return ValidateAndReturnOrderAsync(id, id);
+        }
+
+        private async Task<Order> ValidateAndReturnOrderAsync(long id, long orderDTOId)
+        {
+            if (id != orderDTOId)
             {
                 throw new ValidationException("Идентификаторы должны совпадать");
             }
@@ -183,28 +209,9 @@ namespace BLL.App.Services
                 throw new NotFoundException("Заказ не найден");
             }
 
-            order.Name = orderPatchDTO.Name;
-
-            await UnitOfWork.Orders.UpdateAsync(order);
-
-            await UnitOfWork.SaveChangesAsync();
+            return order;
         }
 
-        public async Task DeleteAsync(long id)
-        {
-            var order = await UnitOfWork.Orders.FirstOrDefaultAsync(id);
-
-            if (order == null)
-            {
-                throw new NotFoundException("Заказ не найден");
-            }
-
-            var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByOrderId(id);
-
-            await UnitOfWork.OrderAttributes.RemoveRangeAsync(orderAttributes);
-            await UnitOfWork.Orders.RemoveAsync(order);
-
-            await UnitOfWork.SaveChangesAsync();
-        }
+        #endregion
     }
 }

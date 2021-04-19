@@ -124,6 +124,28 @@ namespace Webapp.ApiControllers._1._0
                 return BadRequest(new ErrorResponseDTO(notFoundException.Message));
             }
         }
+        
+        [HttpPatch("{id}/completion")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
+        public async Task<IActionResult> UpdateCompletion(long id, OrderCompletionPatchDTO orderCompletionPatchDTO)
+        {
+            try
+            {
+                await _bll.Orders.UpdateCompletionAsync(id, orderCompletionPatchDTO);
+
+                return NoContent();
+            }
+            catch (NotFoundException notFoundException)
+            {
+                return NotFound(new ErrorResponseDTO(notFoundException.Message));
+            }
+            catch (ValidationException notFoundException)
+            {
+                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
+            }
+        }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

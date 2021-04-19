@@ -18,5 +18,6 @@ namespace BLL.Contracts.Services
         Task UpdateAsync(long id, OrderPatchDTO orderPatchDTO);
         
         Task DeleteAsync(long id);
+        Task UpdateCompletionAsync(long id, OrderCompletionPatchDTO orderCompletionPatchDTO);
     }
 }
