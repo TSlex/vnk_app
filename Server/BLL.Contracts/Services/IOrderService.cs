@@ -14,8 +14,8 @@ namespace BLL.Contracts.Services
 
         Task<OrderGetDTO> GetByIdAsync(long id, DateTime? checkDatetime);
         
-        Task CreateAsync(OrderPostDTO orderPostDTO);
-        Task UpdateAsync(OrderPatchDTO orderPatchDTO);
+        Task<long> CreateAsync(OrderPostDTO orderPostDTO);
+        Task UpdateAsync(long id, OrderPatchDTO orderPatchDTO);
         
         Task DeleteAsync(long id);
     }

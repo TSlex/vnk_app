@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AppAPI._1._0;
@@ -54,18 +55,18 @@ namespace BLL.App.Services
                     }).ToList()
                 }),
 
-                TotalCount = await UnitOfWork.Orders.CountAsync(hasExecutionDate, completed, 
+                TotalCount = await UnitOfWork.Orders.CountAsync(hasExecutionDate, completed,
                     searchKey, startDateTime, endDateTime)
             };
         }
 
         public async Task<OrderGetDTO> GetByIdAsync(long id, DateTime? checkDatetime)
         {
-            if (!await UnitOfWork.Orders.ExistsAsync(id))
+            if (!await UnitOfWork.Orders.AnyAsync(id))
             {
                 throw new NotFoundException("Заказ не найдет");
             }
-            
+
             checkDatetime ??= DateTime.UtcNow;
 
             var item = await UnitOfWork.Orders.GetByIdAsync(id);
@@ -96,19 +97,108 @@ namespace BLL.App.Services
             };
         }
 
-        public Task CreateAsync(OrderPostDTO orderPostDTO)
+        public async Task<long> CreateAsync(OrderPostDTO orderPostDTO)
         {
-            throw new NotImplementedException();
+            if (orderPostDTO.Attributes.Count == 0)
+            {
+                throw new ValidationException("В заказе должен быть как минимум один атрибут");
+            }
+
+            foreach (var orderAttributePostDTO in orderPostDTO.Attributes)
+            {
+                var attribute = await UnitOfWork.Attributes.GetByIdWithType(orderAttributePostDTO.AttributeId);
+
+                if (attribute == null)
+                {
+                    throw new ValidationException("Как минимум один из атрибутов неверен");
+                }
+
+                if (attribute.AttributeType!.UsesDefinedValues)
+                {
+                    if (orderAttributePostDTO.ValueId.HasValue ||
+                        !await UnitOfWork.AttributeTypeValues.AnyAsync(orderAttributePostDTO.ValueId!.Value,
+                            attribute.AttributeTypeId))
+                    {
+                        throw new ValidationException($"Значение атрибута '{attribute.Name}' неверно");
+                    }
+                }
+                else
+                {
+                    if (orderAttributePostDTO.CustomValue == null)
+                    {
+                        throw new ValidationException($"Значение атрибута '{attribute.Name}' неверно");
+                    }
+                }
+
+                if (attribute.AttributeType!.UsesDefinedUnits)
+                {
+                    if (orderAttributePostDTO.UnitId.HasValue ||
+                        !await UnitOfWork.AttributeTypeUnits.AnyAsync(orderAttributePostDTO.UnitId!.Value,
+                            attribute.AttributeTypeId))
+                    {
+                        throw new ValidationException($"Единица измерения атрибута '{attribute.Name}' неверна");
+                    }
+                }
+            }
+
+            var order = new Order()
+            {
+                Name = orderPostDTO.Name,
+                Completed = orderPostDTO.Completed,
+                Notation = orderPostDTO.Notation,
+                ExecutionDateTime = orderPostDTO.ExecutionDateTime,
+                OrderAttributes = orderPostDTO.Attributes!.Select(oa => new OrderAttribute
+                {
+                    Featured = oa.Featured,
+                    AttributeId = oa.AttributeId,
+                    ValueId = oa.ValueId,
+                    UnitId = oa.UnitId,
+                    CustomValue = oa.CustomValue,
+                }).ToList()
+            };
+
+            await UnitOfWork.Orders.AddAsync(order);
+            await UnitOfWork.SaveChangesAsync();
+
+            return order.Id;
         }
 
-        public Task UpdateAsync(OrderPatchDTO orderPatchDTO)
+        public async Task UpdateAsync(long id, OrderPatchDTO orderPatchDTO)
         {
-            throw new NotImplementedException();
+            if (id != orderPatchDTO.Id)
+            {
+                throw new ValidationFailedException("Идентификаторы должны совпадать");
+            }
+
+            var order = await UnitOfWork.Orders.FirstOrDefaultAsync(id);
+
+            if (order == null)
+            {
+                throw new NotFoundException("Заказ не найден");
+            }
+
+            order.Name = orderPatchDTO.Name;
+
+            UnitOfWork.Orders.Update(order);
+
+            await UnitOfWork.SaveChangesAsync();
         }
 
-        public Task DeleteAsync(long id)
+        public async Task DeleteAsync(long id)
         {
-            throw new NotImplementedException();
+            var order = await UnitOfWork.Orders.FirstOrDefaultAsync(id);
+
+            if (order == null)
+            {
+                throw new NotFoundException("Заказ не найден");
+            }
+
+            var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByOrderId(id);
+
+            UnitOfWork.OrderAttributes.RemoveRange(orderAttributes);
+            UnitOfWork.Orders.Remove(order);
+
+            await UnitOfWork.SaveChangesAsync();
         }
     }
 }

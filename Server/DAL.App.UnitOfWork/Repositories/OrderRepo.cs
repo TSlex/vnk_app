@@ -22,7 +22,7 @@ namespace DAL.App.UnitOfWork.Repositories
             SortOption byName, bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime)
         {
-            var query = DbContext.Orders
+            var query = DbSet
                 .WhereActual()
                 .IncludeAttributesFull()
                 .AsQueryable();
@@ -46,7 +46,7 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<Order> GetByIdAsync(long id)
         {
-            var query = DbContext.Orders
+            var query = DbSet
                 .WhereActual()
                 .IncludeAttributesFull()
                 .Where(o => o.Id == id);
@@ -54,11 +54,31 @@ namespace DAL.App.UnitOfWork.Repositories
             return Mapper.Map<Entities.Order, Order>(await query.FirstOrDefaultAsync());
         }
 
+        public async Task AddAsync(Order order)
+        {
+            order.Id = (await DbSet.AddAsync(MapToEntity(order))).Entity.Id;
+        }
+
+        public async Task<Order> FirstOrDefaultAsync(long id)
+        {
+            return MapToDTO(await DbSet.FirstOrDefaultAsync(order => order.Id == id));
+        }
+
+        public void Update(Order order)
+        {
+            DbSet.Update(MapToEntity(order));
+        }
+
+        public void Remove(Order order)
+        {
+            DbSet.Remove(MapToEntity(order));
+        }
+
         public async Task<int> CountAsync(bool? hasExecutionDate, bool? completed, string? searchKey,
             DateTime? startDateTime,
             DateTime? endDateTime)
         {
-            var ordersQuery = DbContext.Orders.WhereActual();
+            var ordersQuery = DbSet.WhereActual();
 
             return await ordersQuery.WhereSuid(hasExecutionDate, completed, searchKey, startDateTime,
                 endDateTime).CountAsync();

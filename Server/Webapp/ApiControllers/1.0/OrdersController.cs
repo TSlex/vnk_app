@@ -8,7 +8,6 @@ using AppAPI._1._0.Enums;
 using AppAPI._1._0.Responses;
 using BLL.App.Exceptions;
 using BLL.Contracts;
-using DAL.App;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +48,7 @@ namespace Webapp.ApiControllers._1._0
                     endDateTime, checkDatetime)
             });
         }
-        
+
         [HttpGet("noDate")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<OrderGetDTO>>))]
         public async Task<ActionResult> GetAllWithoutDate(int pageIndex, int itemsOnPage,
@@ -75,7 +74,7 @@ namespace Webapp.ApiControllers._1._0
                     Data = await _bll.Orders.GetByIdAsync(id, checkDatetime)
                 });
             }
-            
+
             catch (NotFoundException exception)
             {
                 return NotFound(new ErrorResponseDTO(exception.Message));
@@ -88,75 +87,20 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> Create(OrderPostDTO orderPostDTO)
         {
-            if (orderPostDTO.Attributes.Count == 0)
+            try
             {
-                return BadRequest(new ErrorResponseDTO("В заказе должен быть как минимум один атрибут"));
+                var orderId = await _bll.Orders.CreateAsync(orderPostDTO);
+
+                return CreatedAtAction(nameof(GetById), await GetById(orderId, DateTime.Now));
             }
-
-            foreach (var orderAttributePostDTO in orderPostDTO.Attributes)
+            catch (NotFoundException notFoundException)
             {
-                var attribute =
-                    await _context.Attributes
-                        .Include(a => a.AttributeType)
-                        .FirstOrDefaultAsync(a => a.Id == orderAttributePostDTO.AttributeId);
-
-                if (attribute == null)
-                {
-                    return NotFound(new ErrorResponseDTO("Как минимум один из атрибутов неверен"));
-                }
-
-                if (attribute.AttributeType!.UsesDefinedValues)
-                {
-                    if (orderAttributePostDTO.ValueId == null ||
-                        !await _context.TypeValues.AnyAsync(value => value.Id == orderAttributePostDTO.ValueId &&
-                                                                     value.AttributeTypeId ==
-                                                                     attribute.AttributeTypeId))
-                    {
-                        return BadRequest(new ErrorResponseDTO($"Значение атрибута '{attribute.Name}' неверно"));
-                    }
-                }
-                else
-                {
-                    if (orderAttributePostDTO.CustomValue == null)
-                    {
-                        return BadRequest(new ErrorResponseDTO($"Значение атрибута '{attribute.Name}' неверно"));
-                    }
-                }
-
-                if (attribute.AttributeType!.UsesDefinedUnits)
-                {
-                    if (orderAttributePostDTO.UnitId == null ||
-                        !await _context.TypeUnits.AnyAsync(unit => unit.Id == orderAttributePostDTO.UnitId &&
-                                                                   unit.AttributeTypeId == attribute.AttributeTypeId))
-                    {
-                        return BadRequest(
-                            new ErrorResponseDTO($"Единица измерения атрибута '{attribute.Name}' неверна"));
-                    }
-                }
+                return NotFound(new ErrorResponseDTO(notFoundException.Message));
             }
-
-            var order = new Order()
+            catch (ValidationFailedException notFoundException)
             {
-                Name = orderPostDTO.Name,
-                Completed = orderPostDTO.Completed,
-                Notation = orderPostDTO.Notation,
-                ExecutionDateTime = orderPostDTO.ExecutionDateTime,
-                OrderAttributes = orderPostDTO.Attributes!.Select(oa => new OrderAttribute
-                {
-                    Featured = oa.Featured,
-                    AttributeId = oa.AttributeId,
-                    ValueId = oa.ValueId,
-                    UnitId = oa.UnitId,
-                    CustomValue = oa.CustomValue,
-                }).ToList()
-            };
-
-            await _context.Orders.AddAsync(order);
-            await _context.SaveChangesAsync();
-
-            await _bll.Orders.CreateAsync(orderPostDTO);
-
-            return CreatedAtAction(nameof(GetById), await GetById(order.Id, DateTime.Now));
+                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
+            }
         }
 
         [HttpPatch("{id}")]
@@ -165,25 +109,20 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Update(long id, OrderPatchDTO orderPatchDTO)
         {
-            if (id != orderPatchDTO.Id)
+            try
             {
-                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+                await _bll.Orders.UpdateAsync(id, orderPatchDTO);
+
+                return NoContent();
             }
-
-            var order = await _context.Orders.FirstOrDefaultAsync(t => t.Id == id);
-
-            if (order == null)
+            catch (NotFoundException notFoundException)
             {
-                return NotFound(new ErrorResponseDTO("Заказ не найден"));
+                return NotFound(new ErrorResponseDTO(notFoundException.Message));
             }
-
-            order.Name = orderPatchDTO.Name;
-
-            _context.Orders.Update(order);
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (ValidationFailedException notFoundException)
+            {
+                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
+            }
         }
 
         [HttpDelete("{id}")]
@@ -192,24 +131,20 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Delete(long id)
         {
-            var order = await _context.Orders.FirstOrDefaultAsync(t => t.Id == id);
-
-            if (order == null)
+            try
             {
-                return NotFound(new ErrorResponseDTO("Заказ не найден"));
+                await _bll.Orders.DeleteAsync(id);
+
+                return NoContent();
             }
-
-            var orderAttributes = await _context.OrderAttributes
-                .Where(ta => ta.OrderId == id)
-                .ToListAsync();
-
-            _context.OrderAttributes.RemoveRange(orderAttributes);
-
-            _context.Orders.Remove(order);
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (NotFoundException notFoundException)
+            {
+                return NotFound(new ErrorResponseDTO(notFoundException.Message));
+            }
+            catch (ValidationFailedException notFoundException)
+            {
+                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
+            }
         }
 
         #endregion

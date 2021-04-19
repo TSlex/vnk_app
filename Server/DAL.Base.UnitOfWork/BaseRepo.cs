@@ -20,7 +20,7 @@ namespace DAL.Base.UnitOfWork
             Mapper = mapper;
         }
         
-        public async Task<bool> ExistsAsync(long id)
+        public async Task<bool> AnyAsync(long id)
         {
             return await DbSet.AnyAsync(o => o.Id == id);
         }

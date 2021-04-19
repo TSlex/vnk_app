@@ -4,6 +4,6 @@ namespace DAL.Contracts
 {
     public interface IBaseRepo
     {
-        Task<bool> ExistsAsync(long id);
+        Task<bool> AnyAsync(long id);
     }
 }

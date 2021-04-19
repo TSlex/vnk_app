@@ -18,5 +18,10 @@ namespace DAL.Base.UnitOfWork.Repositories
             DateTime? endDateTime);
 
         Task<Order> GetByIdAsync(long id);
+        Task AddAsync(Order order);
+        
+        Task<Order> FirstOrDefaultAsync(long id);
+        void Update(Order order);
+        void Remove(Order order);
     }
 }
