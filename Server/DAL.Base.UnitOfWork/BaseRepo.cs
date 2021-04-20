@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Base.UnitOfWork
 {
-    public class BaseRepo<TEntity, TDTO, TDbContext>: IBaseRepo<TEntity, TDTO>
+    public class BaseRepo<TEntity, TDTO, TDbContext> : IBaseRepo<TEntity, TDTO>
         where TEntity : class, IDomainEntityId, new()
         where TDTO : class, IDomainEntityId, new()
         where TDbContext : DbContext
@@ -16,34 +16,40 @@ namespace DAL.Base.UnitOfWork
         protected readonly IUniversalMapper Mapper;
         protected readonly DbSet<TEntity> DbSet;
 
-        public BaseRepo(TDbContext dbContext, IUniversalMapper mapper)
+        protected BaseRepo(TDbContext dbContext, IUniversalMapper mapper)
         {
             DbContext = dbContext;
             DbSet = dbContext.Set<TEntity>();
             Mapper = mapper;
         }
-        
+
+        public virtual async Task<Func<long>> AddAsync(TDTO dto)
+        {
+            var entity = await DbSet.AddAsync(MapToEntity(dto));
+
+            return () => entity.Entity.Id;
+        }
+
         public virtual async Task<bool> AnyAsync(long id)
         {
             var query = GetActualDataByIdAsQueryable(id);
-            
-            
+
             return await query.AnyAsync();
         }
-        
+
         public virtual async Task<bool> AnyIncludeDeletedAsync(long id)
         {
             var query = DbSet.Where(e => e.Id == id);
-            
+
             if (IsEntitySoftUpdatable())
             {
                 query = query.Where(e => (e as IDomainEntitySoftUpdate)!.MasterId == null);
             }
-            
+
             return await query.AnyAsync();
         }
-        
-        public async Task<TDTO> FirstOrDefaultAsync(long id)
+
+        public virtual async Task<TDTO> FirstOrDefaultAsync(long id)
         {
             var query = GetActualDataByIdAsQueryable(id);
 
@@ -64,14 +70,19 @@ namespace DAL.Base.UnitOfWork
 
                 await DbSet.AddAsync(trackedEntity);
             }
-                
+
             DbSet.Update(entityToTrack);
         }
 
 
         public virtual async Task RemoveAsync(TDTO dto)
         {
-            TEntity trackedEntity = await DbSet.FindAsync(dto.Id);
+            await RemoveAsync(dto.Id);
+        }
+
+        public virtual async Task RemoveAsync(long id)
+        {
+            TEntity trackedEntity = await DbSet.FindAsync(id);
 
             DbSet.Remove(trackedEntity);
         }
@@ -103,7 +114,7 @@ namespace DAL.Base.UnitOfWork
         }
 
         protected TDTO MapToDTO(TEntity entity)
-        {   
+        {
             return Mapper.Map<TEntity, TDTO>(entity);
         }
 
@@ -123,7 +134,7 @@ namespace DAL.Base.UnitOfWork
 
             if (IsEntitySoftDeletable())
             {
-                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.DeletedAt == null);
+                query = query.Where(e => (e as IDomainEntitySoftDelete)!.DeletedAt == null);
             }
 
             if (IsEntitySoftUpdatable())

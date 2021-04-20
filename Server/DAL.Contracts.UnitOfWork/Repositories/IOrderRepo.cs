@@ -18,10 +18,7 @@ namespace DAL.Base.UnitOfWork.Repositories
             DateTime? endDateTime);
 
         Task<Order> GetByIdAsync(long id);
-        Task<Func<long>> AddAsync(Order order);
-        
-        Task<Order> FirstOrDefaultAsync(long id);
-        
+
         Task<IEnumerable<Order>> GetHistoryAsync(long id, int pageIndex, int itemsOnPage);
         Task<long> CountHistoryAsync(long id);
     }

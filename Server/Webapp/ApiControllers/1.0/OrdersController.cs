@@ -300,23 +300,23 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> UpdateOrderAttribute(long id,
-            OrderAttributePatchDTO orderAttributePatchDTO)
+            OrderAttributeSeparatePatchDTO orderAttributeSeparatePatchDTO)
         {
-            if (id != orderAttributePatchDTO.Id)
+            if (id != orderAttributeSeparatePatchDTO.Id)
             {
                 return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
             }
 
             var orderAttribute = await _context.OrderAttributes.FirstOrDefaultAsync(typeOrderAttribute =>
-                typeOrderAttribute.Id == orderAttributePatchDTO.Id);
+                typeOrderAttribute.Id == orderAttributeSeparatePatchDTO.Id);
 
             if (orderAttribute == null)
             {
                 return NotFound(new ErrorResponseDTO("Атрибут не найден"));
             }
 
-            orderAttribute.Featured = orderAttributePatchDTO.Featured;
-            orderAttribute.AttributeId = orderAttributePatchDTO.AttributeId;
+            orderAttribute.Featured = orderAttributeSeparatePatchDTO.Featured;
+            orderAttribute.AttributeId = orderAttributeSeparatePatchDTO.AttributeId;
 
             _context.OrderAttributes.Update(orderAttribute);
             await _context.SaveChangesAsync();

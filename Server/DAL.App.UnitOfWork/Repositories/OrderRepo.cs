@@ -52,13 +52,6 @@ namespace DAL.App.UnitOfWork.Repositories
             return Mapper.Map<Entities.Order, Order>(await query.FirstOrDefaultAsync());
         }
 
-        public async Task<Func<long>> AddAsync(Order order)
-        {
-            var entity = await DbSet.AddAsync(MapToEntity(order));
-
-            return () => entity.Entity.Id;
-        }
-
         public async Task<int> CountAsync(bool? hasExecutionDate, bool? completed, string? searchKey,
             DateTime? startDateTime,
             DateTime? endDateTime)

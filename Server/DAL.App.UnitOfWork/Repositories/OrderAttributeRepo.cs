@@ -20,5 +20,15 @@ namespace DAL.App.UnitOfWork.Repositories
         {
             return (await DbSet.Where(ta => ta.OrderId == id).ToListAsync()).Select(MapToDTO);
         }
+
+        public async Task<bool> AnyAsync(long id, long orderId)
+        {
+            return await DbSet.AnyAsync(oa => oa.Id == id && oa.OrderId == orderId && oa.DeletedAt == null);
+        }
+
+        public async Task<int> CountByOrderId(long orderId)
+        {
+            return await DbSet.CountAsync(oa => oa.OrderId == orderId && oa.DeletedAt == null);
+        }
     }
 }
