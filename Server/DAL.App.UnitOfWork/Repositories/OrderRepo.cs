@@ -22,8 +22,7 @@ namespace DAL.App.UnitOfWork.Repositories
             SortOption byName, bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime)
         {
-            var query = DbSet
-                .WhereDataActual()
+            var query = GetActualDataAsQueryable()
                 .IncludeAttributesFull()
                 .AsQueryable();
 
@@ -46,8 +45,7 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<Order> GetByIdAsync(long id)
         {
-            var query = DbSet
-                .WhereDataActual()
+            var query = GetActualDataAsQueryable()
                 .IncludeAttributesFull()
                 .Where(o => o.Id == id);
 
@@ -65,7 +63,7 @@ namespace DAL.App.UnitOfWork.Repositories
             DateTime? startDateTime,
             DateTime? endDateTime)
         {
-            var ordersQuery = DbSet.WhereDataActual();
+            var ordersQuery = GetActualDataAsQueryable();
 
             return await ordersQuery.WhereSuidConditions(hasExecutionDate, completed, searchKey, startDateTime,
                 endDateTime).CountAsync();
@@ -75,10 +73,26 @@ namespace DAL.App.UnitOfWork.Repositories
         {
             var query = DbSet.Where(o => o.Id == id || o.MasterId == id);
 
-            query = query.IncludeAttributesFull();
             query = query.OrderBy(at => at.Id);
 
-            return (await query.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()).Select(MapToDTO);
+            var orders = await query.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync();
+
+            var attributes = await DbContext.OrderAttributes
+                .Include(oa => oa.Attribute)
+                .ThenInclude(a => a!.AttributeType)
+                .Where(oa => oa.OrderId == id).ToListAsync();
+
+            foreach (var order in orders)
+            {
+                order.OrderAttributes = attributes
+                    .Where(oa =>
+                        oa.ChangedAt <= order.ChangedAt &&
+                        (!oa.DeletedAt.HasValue || oa.DeletedAt >= order.ChangedAt || oa.DeletedAt >= order.DeletedAt)
+                    )
+                    .ToList();
+            }
+
+            return orders.Select(MapToDTO);
         }
 
         public async Task<long> CountHistoryAsync(long id)
@@ -125,15 +139,11 @@ namespace DAL.App.UnitOfWork.Repositories
             return query.Where(o => o.DeletedAt == null && o.MasterId == null);
         }
 
-        internal static IQueryable<Entities.Order> WhereDataActual(this IQueryable<Entities.Order> query)
-        {
-            return query.Where(o => o.DeletedAt == null && o.MasterId == null);
-        }
-
         internal static IQueryable<Entities.Order> IncludeAttributesFull(this IQueryable<Entities.Order> query)
         {
             return query
-                .Include(o => o.OrderAttributes)
+                .Include(o => o.OrderAttributes!.Where(oa =>
+                    oa.DeletedAt == null))
                 .ThenInclude(oa => oa.Attribute)
                 .ThenInclude(a => a!.AttributeType);
         }

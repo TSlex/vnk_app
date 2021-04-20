@@ -25,7 +25,7 @@ namespace DAL.Base.UnitOfWork
         
         public virtual async Task<bool> AnyAsync(long id)
         {
-            var query = GetActualDataAsQueryable(id);
+            var query = GetActualDataByIdAsQueryable(id);
             
             
             return await query.AnyAsync();
@@ -45,15 +45,13 @@ namespace DAL.Base.UnitOfWork
         
         public async Task<TDTO> FirstOrDefaultAsync(long id)
         {
-            var query = GetActualDataAsQueryable(id);
+            var query = GetActualDataByIdAsQueryable(id);
 
             return MapToDTO(await query.FirstOrDefaultAsync());
         }
 
         public virtual async Task UpdateAsync(TDTO dto)
         {
-            var now = DateTime.UtcNow;
-            
             TEntity trackedEntity = await DbSet.FindAsync(dto.Id);
             TEntity entityToTrack = MapToEntity(dto);
 
@@ -62,8 +60,6 @@ namespace DAL.Base.UnitOfWork
             if (trackedEntity is IDomainEntitySoftUpdate softUpdate)
             {
                 softUpdate.MasterId = trackedEntity.Id;
-                softUpdate.DeletedAt = now;
-                softUpdate.DeletedBy = "history";
                 trackedEntity.Id = 0;
 
                 await DbSet.AddAsync(trackedEntity);
@@ -121,9 +117,26 @@ namespace DAL.Base.UnitOfWork
             return typeof(TEntity).GetInterfaces().Contains(typeof(IDomainEntitySoftUpdate));
         }
 
-        private IQueryable<TEntity> GetActualDataAsQueryable(long id)
+        protected IQueryable<TEntity> GetActualDataByIdAsQueryable(long id)
         {
             var query = DbSet.Where(e => e.Id == id);
+
+            if (IsEntitySoftDeletable())
+            {
+                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.DeletedAt == null);
+            }
+
+            if (IsEntitySoftUpdatable())
+            {
+                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.MasterId == null);
+            }
+
+            return query;
+        }
+
+        protected IQueryable<TEntity> GetActualDataAsQueryable()
+        {
+            var query = DbSet.AsQueryable();
 
             if (IsEntitySoftDeletable())
             {

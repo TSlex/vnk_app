@@ -46,17 +46,24 @@ namespace DAL.App.EF
         private void SaveChangesMetadataUpdate()
         {
             ChangeTracker.DetectChanges();
+            var now = DateTime.UtcNow;
 
             var addedEntities = ChangeTracker.Entries().Where(x => x.State == EntityState.Added);
 
             foreach (var entityEntry in addedEntities)
             {
                 if (!(entityEntry.Entity is IDomainEntityMetadata entityWithMetaData)) continue;
-                if (entityEntry.Entity is IDomainEntitySoftUpdate softUpdateEntity &&
-                    softUpdateEntity.MasterId != null) continue;
 
-                entityWithMetaData.CreatedAt = DateTime.UtcNow;
-                entityWithMetaData.CreatedBy ??= _userProvider.CurrentName;
+                if (entityEntry.Entity is IDomainEntitySoftUpdate softUpdateEntity &&
+                    softUpdateEntity.MasterId != null)
+                {
+                    softUpdateEntity.DeletedAt = now;
+                    softUpdateEntity.DeletedBy = _userProvider.CurrentName;
+                    continue;
+                };
+
+                entityWithMetaData.CreatedAt = now;
+                entityWithMetaData.CreatedBy = _userProvider.CurrentName;
 
                 entityWithMetaData.ChangedAt = entityWithMetaData.CreatedAt;
                 entityWithMetaData.ChangedBy = entityWithMetaData.CreatedBy;
@@ -68,7 +75,7 @@ namespace DAL.App.EF
             {
                 if (entityEntry.Entity is not IDomainEntitySoftDelete softDeleteEntity) continue;
 
-                softDeleteEntity.DeletedAt = DateTime.UtcNow;
+                softDeleteEntity.DeletedAt = now;
                 softDeleteEntity.DeletedBy = _userProvider.CurrentName;
 
                 entityEntry.State = EntityState.Modified;
@@ -80,7 +87,7 @@ namespace DAL.App.EF
             {
                 if (!(entityEntry.Entity is IDomainEntityMetadata entityWithMetaData)) continue;
 
-                entityWithMetaData.ChangedAt = DateTime.UtcNow;
+                entityWithMetaData.ChangedAt = now;
                 entityWithMetaData.ChangedBy = _userProvider.CurrentName;
 
                 if (entityEntry.Entity is IDomainEntitySoftUpdate) continue;
