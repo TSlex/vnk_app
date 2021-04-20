@@ -101,7 +101,7 @@
 import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { templatesStore } from "~/store";
 import { TemplateGetDTO } from "~/models/TemplateDTO";
-import { SortOptions } from "~/models/Enums/SortOptions";
+import { SortOption } from "~/models/Enums/SortOption";
 import TemplateDeleteDialog from "~/components/templates/TemplateDeleteDialog.vue";
 
 @Component({
@@ -114,8 +114,8 @@ export default class templatesIndex extends Vue {
   createDialog = false;
   currentPage = 1;
   searchKey = "";
-  byName = SortOptions.False;
-  byType = SortOptions.False;
+  byName = SortOption.False;
+  byType = SortOption.False;
 
   headers = [{ text: "Название", value: "name", align: "center" }];
 
@@ -166,8 +166,8 @@ export default class templatesIndex extends Vue {
   }
 
   setOrdering(options: any) {
-    this.byName = SortOptions.False;
-    this.byType = SortOptions.False;
+    this.byName = SortOption.False;
+    this.byType = SortOption.False;
 
     switch (options.sortBy[0]) {
       case "name":

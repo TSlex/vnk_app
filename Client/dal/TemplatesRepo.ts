@@ -1,4 +1,4 @@
-import { SortOptions } from './../models/Enums/SortOptions';
+import { SortOption } from './../models/Enums/SortOption';
 import { NuxtAxiosInstance } from "@nuxtjs/axios";
 import { CollectionDTO } from "~/models/Common/CollectionDTO";
 import { EmptyResponseDTO } from "~/models/Responses/EmptyResponseDTO";
@@ -11,7 +11,7 @@ export class TemplatesRepo extends BaseRepo {
     super(axios, "templates");
   }
 
-  async getAll(pageIndex: number, itemsOnPage: number, byName: SortOptions, searchKey: string | null) {
+  async getAll(pageIndex: number, itemsOnPage: number, byName: SortOption, searchKey: string | null) {
     return await this._get<ResponseDTO<CollectionDTO<TemplateGetDTO>>>(this.baseURL, undefined, {
       params: {
         pageIndex: pageIndex,

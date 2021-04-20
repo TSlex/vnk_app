@@ -2,7 +2,7 @@ import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 import { AttributeGetDTO, AttributePostDTO, AttributePatchDTO, AttributeDetailsGetDTO } from '~/models/AttributeDTO';
 import { CollectionDTO } from '~/models/Common/CollectionDTO';
-import { SortOptions } from '~/models/Enums/SortOptions';
+import { SortOption } from '~/models/Enums/SortOption';
 import { config } from 'vuex-module-decorators'
 
 config.rawError = true
@@ -73,7 +73,7 @@ export default class AttributesStore extends VuexModule {
   }
 
   @Action
-  async getAttributes(payload: { pageIndex: number, byName: SortOptions, byType: SortOptions, searchKey: string | null }) {
+  async getAttributes(payload: { pageIndex: number, byName: SortOption, byType: SortOption, searchKey: string | null }) {
     let response = await $ctx.$uow.attributes.getAll(payload.pageIndex, this.itemsOnPage, payload.byName, payload.byType, payload.searchKey)
 
     if (response.error) {

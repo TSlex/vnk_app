@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
-import { SortOptions } from "~/models/Enums/SortOptions";
+import { SortOption } from "~/models/Enums/SortOption";
 import { attributesStore } from "~/store";
 import { isSellected } from "~/utils/form-validation";
 
@@ -52,8 +52,8 @@ export default class AttributeSellect extends Vue {
     attributesStore
       .getAttributes({
         pageIndex: 0,
-        byName: SortOptions.False,
-        byType: SortOptions.False,
+        byName: SortOption.False,
+        byType: SortOption.False,
         searchKey: this.searchKey,
       })
       .then((_) => {

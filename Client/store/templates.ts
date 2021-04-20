@@ -1,4 +1,4 @@
-import { SortOptions } from './../models/Enums/SortOptions';
+import { SortOption } from './../models/Enums/SortOption';
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
 import { $ctx } from "@/utils/vue-context"
 import { TemplateGetDTO, TemplatePatchDTO, TemplatePostDTO } from '~/models/TemplateDTO';
@@ -73,7 +73,7 @@ export default class TemplatesStore extends VuexModule {
   }
 
   @Action
-  async getTemplates(payload: { pageIndex: number, byName: SortOptions, searchKey: string | null }) {
+  async getTemplates(payload: { pageIndex: number, byName: SortOption, searchKey: string | null }) {
     let response = await $ctx.$uow.templates.getAll(payload.pageIndex, this.itemsOnPage, payload.byName, payload.searchKey)
 
     if (response.error) {

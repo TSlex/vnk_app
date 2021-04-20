@@ -1,7 +1,7 @@
 import { NuxtAxiosInstance } from "@nuxtjs/axios";
 import { AttributeGetDTO, AttributePostDTO, AttributePatchDTO, AttributeDetailsGetDTO } from "~/models/AttributeDTO";
 import { CollectionDTO } from "~/models/Common/CollectionDTO";
-import { SortOptions } from "~/models/Enums/SortOptions";
+import { SortOption } from "~/models/Enums/SortOption";
 import { EmptyResponseDTO } from "~/models/Responses/EmptyResponseDTO";
 import { ResponseDTO } from "~/models/Responses/ResponseDTO";
 import { BaseRepo } from "./BaseRepo";
@@ -11,7 +11,7 @@ export class AttributesRepo extends BaseRepo {
     super(axios, "attributes");
   }
 
-  async getAll(pageIndex: number, itemsOnPage: number, byName: SortOptions, byType: SortOptions, searchKey: string | null) {
+  async getAll(pageIndex: number, itemsOnPage: number, byName: SortOption, byType: SortOption, searchKey: string | null) {
     return await this._get<ResponseDTO<CollectionDTO<AttributeGetDTO>>>(this.baseURL, undefined, {
       params: {
         pageIndex: pageIndex,

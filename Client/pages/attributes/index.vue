@@ -56,7 +56,7 @@
 import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { attributesStore } from "~/store";
 import { AttributeGetDTO } from "~/models/AttributeDTO";
-import { SortOptions } from "~/models/Enums/SortOptions";
+import { SortOption } from "~/models/Enums/SortOption";
 
 @Component({})
 export default class AttributesIndex extends Vue {
@@ -64,8 +64,8 @@ export default class AttributesIndex extends Vue {
   createDialog = false;
   currentPage = 1;
   searchKey = "";
-  byName = SortOptions.False;
-  byType = SortOptions.False;
+  byName = SortOption.False;
+  byType = SortOption.False;
 
   headers = [
     { text: "Название", value: "name", align: "left" },
@@ -95,8 +95,8 @@ export default class AttributesIndex extends Vue {
   }
 
   setOrdering(options: any) {
-    this.byName = SortOptions.False;
-    this.byType = SortOptions.False;
+    this.byName = SortOption.False;
+    this.byType = SortOption.False;
 
     switch (options.sortBy[0]) {
       case "name":
