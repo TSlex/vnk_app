@@ -30,7 +30,7 @@ namespace BLL.App.Services
 
             return new CollectionDTO<OrderGetDTO>()
             {
-                Items = items.Select(item => MapToGetDTO(item, checkDatetime)),
+                Items = items.Select(item => MapOrderToGetDTO(item, checkDatetime)),
 
                 TotalCount = await UnitOfWork.Orders.CountAsync(hasExecutionDate, completed,
                     searchKey, startDateTime, endDateTime)
@@ -48,7 +48,7 @@ namespace BLL.App.Services
 
             var item = await UnitOfWork.Orders.GetByIdAsync(id);
 
-            return MapToGetDTO(item, checkDatetime);
+            return MapOrderToGetDTO(item, checkDatetime);
         }
 
         public async Task<CollectionDTO<OrderHistoryGetDTO>> GetHistoryAsync(long id, int pageIndex, int itemsOnPage)
@@ -74,21 +74,7 @@ namespace BLL.App.Services
                         ChangedBy = item.ChangedBy,
                         CreatedAt = item.CreatedAt,
                         CreatedBy = item.CreatedBy,
-                        Attributes = item.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
-                        {
-                            Id = oa.Id,
-                            Featured = oa.Featured,
-                            Name = oa.Attribute!.Name,
-                            Type = oa.Attribute!.AttributeType!.Name,
-                            TypeId = oa.Attribute!.Id,
-                            AttributeId = oa.AttributeId,
-                            DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
-                            CustomValue = oa.CustomValue,
-                            UnitId = oa.UnitId,
-                            ValueId = oa.ValueId,
-                            UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
-                            UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
-                        }).ToList()
+                        Attributes = item.OrderAttributes!.Select(MapAttributesToDTO).ToList()
                     }),
                 TotalCount = await UnitOfWork.Orders.CountHistoryAsync(id)
             };
@@ -302,9 +288,9 @@ namespace BLL.App.Services
 
         #region Helpers
 
-        private static OrderGetDTO MapToGetDTO(Order item, DateTime? checkDatetime)
+        private static OrderGetDTO MapOrderToGetDTO(Order item, DateTime? checkDatetime)
         {
-            return new OrderGetDTO
+            return new()
             {
                 Id = item.Id,
                 Name = item.Name,
@@ -312,21 +298,27 @@ namespace BLL.App.Services
                 Notation = item.Notation,
                 ExecutionDateTime = item.ExecutionDateTime,
                 Overdued = item.ExecutionDateTime.HasValue && item.ExecutionDateTime < checkDatetime,
-                Attributes = item.OrderAttributes!.Select(oa => new OrderAttributeGetDTO
-                {
-                    Id = oa.Id,
-                    Featured = oa.Featured,
-                    Name = oa.Attribute!.Name,
-                    Type = oa.Attribute!.AttributeType!.Name,
-                    TypeId = oa.Attribute!.Id,
-                    AttributeId = oa.AttributeId,
-                    DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
-                    CustomValue = oa.CustomValue,
-                    UnitId = oa.UnitId,
-                    ValueId = oa.ValueId,
-                    UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
-                    UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
-                }).ToList()
+                Attributes = item.OrderAttributes!.Select(MapAttributesToDTO).ToList()
+            };
+        }
+
+        private static OrderAttributeGetDTO MapAttributesToDTO(OrderAttribute oa)
+        {
+            return new()
+            {
+                Id = oa.Id,
+                Featured = oa.Featured,
+                Name = oa.Attribute!.Name,
+                Type = oa.Attribute!.AttributeType!.Name,
+                TypeId = oa.Attribute!.Id,
+                AttributeId = oa.AttributeId,
+                DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
+                Value = oa.Value?.Value ?? oa.CustomValue ?? "",
+                Unit = oa.Unit?.Value ?? "",
+                UnitId = oa.UnitId,
+                ValueId = oa.ValueId,
+                UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
+                UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
             };
         }
 

@@ -27,7 +27,6 @@ namespace AppAPI._1._0
         public string Name { get; set; } = default!;
 
         public bool Completed { get; set; }
-        public bool Overdued { get; set; }
 
         public string? Notation { get; set; }
 
@@ -43,7 +42,9 @@ namespace AppAPI._1._0
         public bool UsesDefinedValues { get; set; }
         public bool UsesDefinedUnits { get; set; }
 
-        public string? CustomValue { get; set; }
+        public string? Value { get; set; }
+        public string? Unit { get; set; }
+        
         public long? ValueId { get; set; }
         public long? UnitId { get; set; }
 

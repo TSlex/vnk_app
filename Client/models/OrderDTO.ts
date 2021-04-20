@@ -13,7 +13,8 @@ export interface OrderAttributeGetDTO {
   name: string;
   usesDefinedValues: boolean;
   usesDefinedUnits: boolean;
-  customValue: string;
+  value: string;
+  unit: string;
   valueId: number;
   unitId: number;
   attributeId: number;
@@ -74,23 +75,7 @@ export interface OrderHistoryDTO {
   deletedAt: Date;
   name: string;
   completed: boolean;
-  overdued: boolean;
   notation: string;
   executionDateTime: Date;
-  attributes: OrderAttributeHistoryDTO[];
-}
-
-export interface OrderAttributeHistoryDTO {
-  id: number;
-  name: string;
-  usesDefinedValues: boolean;
-  usesDefinedUnits: boolean;
-  customValue: string;
-  valueId: number;
-  unitId: number;
-  attributeId: number;
-  typeId: number;
-  type: string;
-  dataType: number;
-  featured: boolean;
+  attributes: OrderAttributeGetDTO[];
 }

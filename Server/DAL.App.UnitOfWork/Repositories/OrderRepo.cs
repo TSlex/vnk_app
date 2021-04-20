@@ -73,6 +73,10 @@ namespace DAL.App.UnitOfWork.Repositories
             var attributes = await DbContext.OrderAttributes
                 .Include(oa => oa.Attribute)
                 .ThenInclude(a => a!.AttributeType)
+                .ThenInclude(t => t!.TypeValues)
+                .Include(oa => oa.Attribute)
+                .ThenInclude(a => a!.AttributeType)
+                .ThenInclude(t => t!.TypeUnits)
                 .Where(oa => oa.OrderId == id).ToListAsync();
 
             foreach (var order in orders)
@@ -138,7 +142,13 @@ namespace DAL.App.UnitOfWork.Repositories
                 .Include(o => o.OrderAttributes!.Where(oa =>
                     oa.DeletedAt == null))
                 .ThenInclude(oa => oa.Attribute)
-                .ThenInclude(a => a!.AttributeType);
+                .ThenInclude(a => a!.AttributeType)
+                .ThenInclude(t => t!.TypeValues)
+                .Include(o => o.OrderAttributes!.Where(oa =>
+                    oa.DeletedAt == null))
+                .ThenInclude(oa => oa.Attribute)
+                .ThenInclude(a => a!.AttributeType)
+                .ThenInclude(t => t!.TypeUnits);
         }
     }
 }
