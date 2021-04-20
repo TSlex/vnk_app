@@ -12,9 +12,9 @@ export class OrdersRepo extends BaseRepo {
   }
 
   async getAllWithDate(
-    pageIndex: number, itemsOnPage: number, byName: SortOption, completed: boolean | null,
-    searchKey: string | null, startDatetime: Date | null, endDatetime: Date | null,
-    checkDatetime: Date | null
+    pageIndex: number, itemsOnPage: number, byName: SortOption, completed?: boolean,
+    searchKey?: string, startDatetime?: Date, endDatetime?: Date,
+    checkDatetime?: Date
   ) {
     return await this._get<ResponseDTO<CollectionDTO<OrderGetDTO>>>(this.baseURL, undefined, {
       params: {
@@ -31,8 +31,8 @@ export class OrdersRepo extends BaseRepo {
   }
 
   async getAllWithoutDate(
-    pageIndex: number, itemsOnPage: number, byName: SortOption, completed: boolean | null,
-    searchKey: string | null) {
+    pageIndex: number, itemsOnPage: number, byName: SortOption, completed?: boolean,
+    searchKey?: string) {
     return await this._get<ResponseDTO<CollectionDTO<OrderGetDTO>>>(`${this.baseURL}/nodate`, undefined, {
       params: {
         pageIndex: pageIndex,

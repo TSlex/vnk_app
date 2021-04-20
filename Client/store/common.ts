@@ -13,7 +13,7 @@ config.rawError = true
 export default class CommonStore extends VuexModule {
   @Action
   async checkServer() {
-    let response = await $ctx.$uow.identity.serverOnline()
+    let response = await $ctx.$uow.identity?.serverOnline()
 
     return response
   }

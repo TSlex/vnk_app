@@ -27,7 +27,7 @@ import { commonStore } from "~/store";
 @Component({})
 export default class ErrorLayout extends Vue {
   @Prop({ default: null, type: Object })
-  error!: Object;
+  error?: Object;
 
   pageNotFound = "Страница не найдена";
   otherError = "Системная ошибка";
@@ -43,7 +43,7 @@ export default class ErrorLayout extends Vue {
   }
 
   mounted() {
-    commonStore.checkServer().then((online) => {
+    commonStore?.checkServer().then((online) => {
       if (!online) {
         this.$router.push("/offline");
       }

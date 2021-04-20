@@ -17,7 +17,7 @@ import { commonStore, identityStore } from "~/store"
 @Component({})
 export default class DafultLayout extends Vue {
   mounted() {
-    commonStore.checkServer().then((online) => {
+    commonStore?.checkServer().then((online) => {
       if (online){
         identityStore.initializeIdentity()
       }

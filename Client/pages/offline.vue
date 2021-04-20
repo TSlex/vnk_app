@@ -27,7 +27,7 @@ import { commonStore } from "~/store";
 @Component({})
 export default class MyClass extends Vue {
   mounted() {
-    commonStore.checkServer().then((online) => {
+    commonStore?.checkServer().then((online) => {
       if (online) {
         this.$router.push("/");
       }

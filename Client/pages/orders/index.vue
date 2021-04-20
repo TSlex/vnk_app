@@ -1,14 +1,25 @@
 <template>
   <v-row justify="center" class="text-center">
-    <v-col cols="8" class="mt-4">
+    <v-col cols="6" class="mt-4">
       <template v-if="fetched">
         <v-container>
           <v-btn class="mr-2">Заказы с датой</v-btn>
           <v-btn>Заказы без даты</v-btn>
         </v-container>
         <v-toolbar flat class="rounded-t-lg">
-          <v-btn outlined text large to="templates/create">Добавить</v-btn>
+          <v-btn outlined text large to="orders/create">Добавить</v-btn>
+          <v-btn
+            outlined
+            text
+            large
+            class="ml-2"
+            @click.stop="exportDialog = true"
+            >Экспорт</v-btn
+          >
           <v-spacer></v-spacer>
+          <v-btn large icon @click.stop="filterDialog = true"
+            ><v-icon>mdi-filter</v-icon></v-btn
+          >
           <v-text-field
             rounded
             outlined
@@ -25,7 +36,7 @@
         </v-toolbar>
         <v-data-table
           @update:options="setOrdering"
-          :items="templates"
+          :items="orders"
           :headers="headers"
           :items-per-page="itemsOnPage"
           sort-by="name"
@@ -33,6 +44,14 @@
           @click:row="openDetails"
           class="rounded-b-lg rounded-t-0"
         >
+          <template v-slot:[`item.date`]="{ item }">
+            {{ item.executionDateTime | formatDateTime }}
+          </template>
+          <template v-slot:[`item.status`]="{ item }">
+            <v-chip v-if="item.completed" color="success"> Выполнен </v-chip>
+            <v-chip v-else-if="item.overdued" color="error"> Просрочен </v-chip>
+            <v-chip v-else color="primary"> Запланирован </v-chip>
+          </template>
         </v-data-table>
         <v-pagination
           v-model="currentPage"
@@ -41,114 +60,106 @@
           class="mt-2"
         ></v-pagination>
       </template>
+      <FilterDialog v-model="filterDialog" v-if="filterDialog" />
+      <ExportDialog v-model="exportDialog" v-if="exportDialog" />
     </v-col>
   </v-row>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Watch } from "nuxt-property-decorator";
-import { templatesStore } from "~/store";
-import { TemplateGetDTO } from "~/models/TemplateDTO";
+import { ordersStore } from "~/store";
+import { OrderGetDTO } from "~/models/OrderDTO";
 import { SortOption } from "~/models/Enums/SortOption";
 
+import FilterDialog from "~/components/orders/FilterDialog.vue";
+import ExportDialog from "~/components/orders/ExportDialog.vue";
+
 @Component({
-  components: {},
+  components: {
+    FilterDialog,
+    ExportDialog,
+  },
 })
-export default class templatesIndex extends Vue {
+export default class ordersIndex extends Vue {
   fetched = false;
   createDialog = false;
+  completed = undefined;
   currentPage = 1;
   searchKey = "";
   byName = SortOption.False;
-  byType = SortOption.False;
 
-  headers = [{ text: "Название", value: "name", align: "center" }];
+  startDatetime?: Date;
+  endDatetime?: Date;
+  checkDatetime?: Date;
 
-  deleteDialog = false;
+  filterDialog = false;
+  exportDialog = false;
+
+  headers = [
+    { text: "Название", value: "name", align: "left" },
+    { text: "Дата", value: "date", align: "center", sortable: false },
+    { text: "Статус", value: "status", align: "right", sortable: false },
+  ];
 
   get currentPageIndex() {
     return (this.currentPage ?? 1) - 1;
   }
 
-  get template() {
-    return templatesStore.selectedTemplate;
-  }
-
-  get templates() {
-    return templatesStore.templates;
-  }
-
-  get itemsOnPage() {
-    return templatesStore.itemsOnPage;
+  get orders() {
+    return ordersStore.ordersDate;
   }
 
   get pagesCount() {
-    return templatesStore.pagesCount;
+    return ordersStore.datePagesCount;
   }
 
-  onEdit(id: number) {
-    this.$router.push(`templates/edit/${id}`);
+  get itemsOnPage() {
+    return ordersStore.itemsOnPage;
   }
 
-  onDelete(id: number) {
-    templatesStore.getTemplate(id).then((succeeded) => {
-      if (succeeded) {
-        this.deleteDialog = true;
-      }
-    });
-  }
-
-  onNavigateToAttribute(attributeId: number) {
-    this.$router.push(`attributes/${attributeId}`);
-  }
-
-  onNavigateToType(typeId: number) {
-    this.$router.push(`types/${typeId}`);
-  }
-
-  openDetails(item: TemplateGetDTO) {
-    this.$router.push(`templates/${item.id}`);
+  openDetails(item: OrderGetDTO) {
+    this.$router.push(`orders/${item.id}`);
   }
 
   setOrdering(options: any) {
     this.byName = SortOption.False;
-    this.byType = SortOption.False;
 
     switch (options.sortBy[0]) {
       case "name":
         this.byName =
           options.sortDesc[0] == undefined ? 0 : !!options.sortDesc[0] ? 1 : -1;
         break;
-      case "type":
-        this.byType =
-          options.sortDesc[0] == undefined ? 0 : !!options.sortDesc[1] ? 1 : -1;
-        break;
     }
   }
 
   mounted() {
-    this.fetchtemplates();
+    this.fetchorders();
   }
 
-  fetchtemplates() {
-    templatesStore
-      .getTemplates({
+  fetchorders() {
+    ordersStore
+      .getOrdersWithDate({
         pageIndex: this.currentPageIndex,
         byName: this.byName,
+        completed: this.completed,
         searchKey: this.searchKey ?? "",
+        startDatetime: this.startDatetime,
+        endDatetime: this.endDatetime,
+        checkDatetime: this.checkDatetime,
       })
-      .then((_) => {
+      .then((_: any) => {
         this.fetched = true;
       });
   }
 
-  @Watch("template")
+  @Watch("order")
   @Watch("currentPage")
   @Watch("searchKey")
   @Watch("byName")
   @Watch("byType")
   updateWatcher() {
-    this.fetchtemplates();
+    this.fetchorders();
   }
 }
 </script>

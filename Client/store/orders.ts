@@ -124,12 +124,12 @@ export default class OrdersStore extends VuexModule {
 
   @Action
   async getOrdersWithDate(payload: {
-    pageIndex: number, itemsOnPage?: number, byName: SortOption, completed: boolean | null,
-    searchKey: string | null, startDatetime: Date | null, endDatetime: Date | null,
-    checkDatetime: Date | null
+    pageIndex: number, byName: SortOption, completed?: boolean,
+    searchKey?: string, startDatetime?: Date, endDatetime?: Date,
+    checkDatetime?: Date
   }) {
     let response = await $ctx.$uow.orders.getAllWithDate(
-      payload.pageIndex, payload.itemsOnPage ?? this.itemsOnPage, payload.byName, payload.completed, payload.searchKey,
+      payload.pageIndex, this.itemsOnPage, payload.byName, payload.completed, payload.searchKey,
       payload.startDatetime, payload.endDatetime, payload.checkDatetime
     )
 
@@ -145,11 +145,11 @@ export default class OrdersStore extends VuexModule {
 
   @Action
   async getOrdersWithoutDate(payload: {
-    pageIndex: number, itemsOnPage?: number, byName: SortOption, completed: boolean | null,
-    searchKey: string | null
+    pageIndex: number, byName: SortOption, completed?: boolean,
+    searchKey?: string
   }) {
     let response = await $ctx.$uow.orders.getAllWithoutDate(
-      payload.pageIndex, payload.itemsOnPage ?? this.itemsOnPage, payload.byName, payload.completed, payload.searchKey)
+      payload.pageIndex, this.itemsOnPage, payload.byName, payload.completed, payload.searchKey)
 
     if (response.error) {
       this.context.commit("ACTION_FAILED", response.error)
@@ -163,10 +163,9 @@ export default class OrdersStore extends VuexModule {
 
   @Action
   async getOrderHistory(payload: {
-    id: number, pageIndex: number, itemsOnPage?: number
-  }) {
+    id: number, pageIndex: number}) {
     let response = await $ctx.$uow.orders.getHistory(
-      payload.id, payload.pageIndex, payload.itemsOnPage ?? this.itemsOnPage)
+      payload.id, payload.pageIndex, this.itemsOnPage)
 
     if (response.error) {
       this.context.commit("ACTION_FAILED", response.error)
