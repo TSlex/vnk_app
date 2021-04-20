@@ -64,6 +64,7 @@ namespace BLL.App.Services
                     new OrderHistoryGetDTO
                     {
                         Id = item.Id,
+                        MasterId = item.MasterId,
                         Name = item.Name,
                         Completed = item.Completed,
                         Notation = item.Notation,
