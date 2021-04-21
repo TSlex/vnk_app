@@ -18,6 +18,8 @@
                 :rules="rules.name"
                 v-model="model.name"
               ></v-text-field>
+              <!-- Deadline -->
+              <DateTimePicker :label="'Дата исполнения'" v-model="model.executionDateTime"/>
               <!-- Attributes section -->
               <v-toolbar flat>
                 <v-btn text outlined large @click="onAddAttribute"
@@ -119,19 +121,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "nuxt-property-decorator";
-import { attributeTypesStore, ordersStore } from "~/store";
+import { Component, Vue } from "nuxt-property-decorator";
+import { attributeTypesStore } from "~/store";
 import { notEmpty, required } from "~/utils/form-validation";
 import { OrderPostDTO } from "~/models/OrderDTO";
 import AttributeSellect from "~/components/common/AttributeSellect.vue";
 import AttributeValueSellect from "~/components/common/AttributeValueSellect.vue";
 import { AttributeGetDTO } from "~/models/AttributeDTO";
 import { DataType } from "~/models/Enums/DataType";
+import DateTimePicker from "~/components/common/DateTimePicker.vue";
 
 @Component({
   components: {
     AttributeSellect,
     AttributeValueSellect,
+    DateTimePicker,
   },
 })
 export default class OrderCreate extends Vue {

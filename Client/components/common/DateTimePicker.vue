@@ -16,7 +16,8 @@
           readonly
           v-bind="attrs"
           v-on="on"
-        >{{dateValue | formatDateTime}}</v-text-field>
+          >{{ dateValue | formatDateTime }}</v-text-field
+        >
       </template>
 
       <v-sheet>
@@ -72,6 +73,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "nuxt-property-decorator";
+import { DataType } from "~/models/Enums/DataType";
 
 @Component({})
 export default class DateTimePicker extends Vue {
@@ -95,11 +97,7 @@ export default class DateTimePicker extends Vue {
   }
 
   set fieldValue(value: any) {
-    let newValue = value;
-
-    if (this.dataType === DataType.DateTime) {
-      newValue = this.dateValue + "T" + this.timeValue;
-    }
+    let newValue = this.dateValue + "T" + this.timeValue;
 
     this.$emit("input", String(newValue));
   }
