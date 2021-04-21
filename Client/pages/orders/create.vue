@@ -75,6 +75,10 @@
                           >mdi-delete</v-icon
                         >
                       </v-list-item-icon>
+                      <AttributeValueSellect
+                        v-model="attribute.value"
+                        :typeId="attribute.attribute.typeId"
+                      />
                     </v-list-item>
                   </template>
                 </div>
@@ -87,14 +91,17 @@
               <v-textarea
                 label="Примечание"
                 v-model="model.notation"
+                rows="1"
               ></v-textarea>
               <!-- Completion switch -->
-              <v-switch
-                :label="completedLabel"
-                v-model="model.completed"
-                inset
-                color="success"
-              ></v-switch>
+              <template>
+                <v-switch
+                  :label="completedLabel"
+                  v-model="model.completed"
+                  inset
+                  color="success"
+                ></v-switch>
+              </template>
             </v-container>
           </v-card-text>
           <v-card-actions>
@@ -112,17 +119,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "nuxt-property-decorator";
+import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { attributeTypesStore, ordersStore } from "~/store";
 import { notEmpty, required } from "~/utils/form-validation";
 import { OrderPostDTO } from "~/models/OrderDTO";
 import AttributeSellect from "~/components/common/AttributeSellect.vue";
+import AttributeValueSellect from "~/components/common/AttributeValueSellect.vue";
 import { AttributeGetDTO } from "~/models/AttributeDTO";
 import { DataType } from "~/models/Enums/DataType";
 
 @Component({
   components: {
     AttributeSellect,
+    AttributeValueSellect,
   },
 })
 export default class OrderCreate extends Vue {
@@ -130,17 +139,19 @@ export default class OrderCreate extends Vue {
     completed: false,
     notation: "",
     executionDateTime: null,
-    name: "",
+    name: "Новый заказ",
     attributes: [],
   };
 
   attributes: {
     attribute: AttributeGetDTO;
+    value: {
+      customValue: string | null;
+      valueId: number | null;
+      unitId: number | null;
+    };
     featured: boolean;
     changeMode: boolean;
-    customValue: string | null;
-    valueId: number | null;
-    unitId: number | null;
   }[] = [];
 
   rules = {
@@ -187,9 +198,11 @@ export default class OrderCreate extends Vue {
         usesDefinedValues: false,
         usesDefinedUnits: false,
       },
-      customValue: "",
-      valueId: null,
-      unitId: null,
+      value: {
+        customValue: "",
+        valueId: null,
+        unitId: null,
+      },
       featured: false,
       changeMode: true,
     });
@@ -236,9 +249,9 @@ export default class OrderCreate extends Vue {
         return {
           attributeId: attribute.attribute.id,
           featured: attribute.featured,
-          customValue: attribute.customValue,
-          valueId: attribute.valueId,
-          unitId: attribute.unitId,
+          customValue: attribute.value.customValue,
+          valueId: attribute.value.valueId,
+          unitId: attribute.value.unitId,
         };
       });
       console.log(this.model);

@@ -1,5 +1,6 @@
 <template>
   <v-autocomplete
+    name="attribute"
     v-model="attribute"
     :items="availableTypes"
     :loading="isLoading"
@@ -32,7 +33,7 @@ export default class AttributeSellect extends Vue {
   rules = {
     attribute: [
       (value?: { id: number; name: string }) =>
-        value != null && value.id > 0 || `Данное поле обязательно`,
+        (value != null && value.id > 0) || `Данное поле обязательно`,
     ],
   };
 
