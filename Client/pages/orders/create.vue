@@ -1,6 +1,7 @@
 <template>
   <v-row justify="center" class="text-center">
     <v-col cols="6" class="my-4">
+      <TemplateSellect v-on:apply="onTemplateApply" />
       <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
         <v-card>
           <v-card-title>
@@ -19,7 +20,10 @@
                 v-model="model.name"
               ></v-text-field>
               <!-- Deadline -->
-              <DateTimePicker :label="'Дата исполнения'" v-model="model.executionDateTime"/>
+              <DateTimePicker
+                :label="'Дата исполнения'"
+                v-model="model.executionDateTime"
+              />
               <!-- Attributes section -->
               <v-toolbar flat class="toolbar-no-padding">
                 <v-toolbar-title>Атрибуты заказа</v-toolbar-title>
@@ -130,12 +134,15 @@ import AttributeValueSellect from "~/components/common/AttributeValueSellect.vue
 import { AttributeGetDTO } from "~/models/AttributeDTO";
 import { DataType } from "~/models/Enums/DataType";
 import DateTimePicker from "~/components/common/DateTimePicker.vue";
+import TemplateSellect from "~/components/orders/TemplateSellect.vue";
+import { TemplateGetDTO } from "~/models/TemplateDTO";
 
 @Component({
   components: {
     AttributeSellect,
     AttributeValueSellect,
     DateTimePicker,
+    TemplateSellect,
   },
 })
 export default class OrderCreate extends Vue {
@@ -181,6 +188,31 @@ export default class OrderCreate extends Vue {
 
   get attributesCount() {
     return this.attributes?.length ?? 0;
+  }
+
+  onTemplateApply(template: TemplateGetDTO) {
+    this.attributes = []
+
+    template.attributes.forEach((attribute) => {
+      this.attributes.push({
+        attribute: {
+          id: attribute.id,
+          name: attribute.name,
+          type: attribute.type,
+          typeId: attribute.typeId,
+          dataType: attribute.dataType,
+          usesDefinedValues: false,
+          usesDefinedUnits: false,
+        },
+        value: {
+          customValue: "",
+          valueId: null,
+          unitId: null,
+        },
+        featured: attribute.featured,
+        changeMode: false,
+      });
+    });
   }
 
   onAddAttribute() {
