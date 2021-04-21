@@ -21,8 +21,13 @@ namespace AppAPI._1._0
         
         public string Name { get; set; } = default!;
         public string Type { get; set; } = default!;
+        
         public AttributeDataType DataType { get; set; }
+        
         public bool Featured { get; set; }
+        
+        public bool UsesDefinedValues { get; set; }
+        public bool UsesDefinedUnits { get; set; }
     }
 
     #endregion

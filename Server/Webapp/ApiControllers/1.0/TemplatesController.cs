@@ -49,6 +49,8 @@ namespace Webapp.ApiControllers._1._0
                     TypeId = ta.Attribute!.Id,
                     AttributeId = ta.AttributeId,
                     DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
+                    UsesDefinedUnits = ta.Attribute!.AttributeType.UsesDefinedValues,
+                    UsesDefinedValues = ta.Attribute!.AttributeType.UsesDefinedValues
                 }).ToList()
             });
 

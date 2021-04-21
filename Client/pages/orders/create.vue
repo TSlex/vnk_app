@@ -201,8 +201,8 @@ export default class OrderCreate extends Vue {
           type: attribute.type,
           typeId: attribute.typeId,
           dataType: attribute.dataType,
-          usesDefinedValues: false,
-          usesDefinedUnits: false,
+          usesDefinedValues: attribute.usesDefinedValues,
+          usesDefinedUnits: attribute.usesDefinedUnits,
         },
         value: {
           customValue: "",

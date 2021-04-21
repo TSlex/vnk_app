@@ -14,6 +14,8 @@ export interface TemplateAttributeGetDTO {
   dataType: DataType;
   featured: boolean;
   id: number;
+  usesDefinedValues: boolean,
+  usesDefinedUnits: boolean,
 }
 
 export interface TemplatePostDTO {

@@ -26,80 +26,44 @@
     :rules="rules.float"
   ></v-text-field>
   <div v-else-if="isDate">
-    <v-input v-model="fieldValue" :messages="label">
-      <v-date-picker
-        full-width
-        locale="ru"
-        :first-day-of-week="1"
-        v-model="fieldValue"
-        landscape
-        :label="label"
-      ></v-date-picker>
-    </v-input>
-    <v-input :rules="rules.date" v-model="fieldValue"></v-input>
+    <DateTimePicker
+      :key="dataType"
+      v-model="fieldValue"
+      :label="label"
+      :hasTime="false"
+      :rules="rules.date"
+    />
   </div>
   <div v-else-if="isTime">
-    <v-input v-model="fieldValue" :messages="label">
-      <v-time-picker
-        format="24hr"
-        full-width
-        landscape
-        locale="ru"
-        :first-day-of-week="1"
-        v-model="fieldValue"
-      ></v-time-picker>
-    </v-input>
-    <v-input :rules="rules.time" v-model="fieldValue"></v-input>
+    <DateTimePicker
+      :key="dataType"
+      v-model="fieldValue"
+      :label="label"
+      :hasDate="false"
+      :rules="rules.time"
+    />
   </div>
   <div v-else-if="isDateTime">
-    <v-tabs fixed-tabs v-model="dateTimeTab" class="mb-2">
-      <v-tab>Дата</v-tab>
-      <v-tab>Время</v-tab>
-    </v-tabs>
-    <v-tabs-items v-model="dateTimeTab">
-      <v-tab-item>
-        <v-card flat>
-          <v-input :messages="label">
-            <v-date-picker
-              full-width
-              locale="ru"
-              :first-day-of-week="1"
-              v-model="dateValue"
-              landscape
-            ></v-date-picker>
-          </v-input>
-        </v-card>
-      </v-tab-item>
-      <v-tab-item>
-        <v-card flat>
-          <v-input :messages="label">
-            <v-time-picker
-              format="24hr"
-              full-width
-              landscape
-              locale="ru"
-              :first-day-of-week="1"
-              v-model="timeValue"
-            ></v-time-picker>
-          </v-input>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
-    <v-input :rules="rules.dateTime" v-model="fieldValue"></v-input>
+    <DateTimePicker
+      :key="dataType"
+      v-model="fieldValue"
+      :label="label"
+      :rules="rules.dateTime"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
 import { DataType } from "~/models/Enums/DataType";
-import {
-  required,
-  integer,
-  float,
-  dateTimeRequired,
-} from "~/utils/form-validation";
+import DateTimePicker from "~/components/common/DateTimePicker.vue";
+import { required, integer, float } from "~/utils/form-validation";
 
-@Component({})
+@Component({
+  components: {
+    DateTimePicker,
+  },
+})
 export default class CustomValueField extends Vue {
   @Prop()
   dataType!: DataType;
@@ -107,16 +71,13 @@ export default class CustomValueField extends Vue {
   @Prop()
   value!: string;
 
-  timeValue = "";
-  dateValue = "";
-
   dateTimeTab = null;
 
   rules = {
     string: [required()],
     date: [required()],
     time: [required()],
-    dateTime: [dateTimeRequired()],
+    dateTime: [required()],
     integer: [required(), integer()],
     float: [required(), float()],
   };
@@ -134,13 +95,7 @@ export default class CustomValueField extends Vue {
   }
 
   set fieldValue(value: any) {
-    let newValue = value;
-
-    if (this.dataType === DataType.DateTime) {
-      newValue = this.dateValue + "T" + this.timeValue;
-    }
-
-    this.$emit("input", String(newValue));
+    this.$emit("input", String(value));
   }
 
   get switchLabel() {
@@ -179,8 +134,6 @@ export default class CustomValueField extends Vue {
   @Watch("dataType")
   onDataTypeChanged(newType: DataType) {
     let newValue = "";
-    this.timeValue = "";
-    this.dateValue = "";
 
     if (newType === DataType.Integer) {
       newValue = "0";
@@ -191,16 +144,6 @@ export default class CustomValueField extends Vue {
     }
 
     this.$emit("input", newValue);
-  }
-
-  @Watch("timeValue")
-  onDateTimeTimeChanged() {
-    this.fieldValue = "";
-  }
-
-  @Watch("dateValue")
-  onDateTimeDateChanged() {
-    this.fieldValue = "";
   }
 }
 </script>
