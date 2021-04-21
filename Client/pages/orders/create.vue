@@ -21,12 +21,12 @@
               <!-- Deadline -->
               <DateTimePicker :label="'Дата исполнения'" v-model="model.executionDateTime"/>
               <!-- Attributes section -->
-              <v-toolbar flat>
+              <v-toolbar flat class="toolbar-no-padding">
+                <v-toolbar-title>Атрибуты заказа</v-toolbar-title>
+                <v-spacer></v-spacer>
                 <v-btn text outlined large @click="onAddAttribute"
                   >Добавить</v-btn
                 >
-                <v-spacer></v-spacer>
-                <v-toolbar-title>Атрибуты</v-toolbar-title>
               </v-toolbar>
               <v-divider></v-divider>
               <template>

@@ -19,7 +19,7 @@ Vue.filter('formatDate', function (value: any) {
 Vue.filter('formatDateTime', function (value: any) {
   if (typeof value !== "string") return value;
   if (value) {
-    return context.$moment(String(value)).format('MMMM Do YYYY, h:mm')
+    return context.$moment(String(value)).format('MMMM Do YYYY, HH:mm')
   }
 })
 
