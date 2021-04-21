@@ -104,7 +104,7 @@ import { DataType } from "~/models/Enums/DataType";
     AttributeSellect,
   },
 })
-export default class AttributeTypesCreate extends Vue {
+export default class TemplateCreate extends Vue {
   model: TemplatePostDTO = {
     name: "",
     attributes: [],

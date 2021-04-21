@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DAL.App.Entities;
 using DAL.App.Entities.Enums;
 using DAL.App.Entities.Identity;
@@ -104,6 +105,11 @@ namespace DAL.App.EF.Helpers
 
             foreach (var user in users)
             {
+                if (user.RolesNames!.Contains("Root") && userManager.GetUsersInRoleAsync("Root").Result.Any())
+                {
+                    continue;
+                }
+                
                 var newUser = userManager.FindByEmailAsync(user.Email).Result;
                 if (newUser == null)
                 {
@@ -151,49 +157,49 @@ namespace DAL.App.EF.Helpers
 
             var types = new List<AttributeType>()
             {
-                new AttributeType()
+                new()
                 {
                     Name = "Строка",
                     DataType = AttributeDataType.String,
                     SystemicType = true,
                     DefaultCustomValue = ""
                 },
-                new AttributeType()
+                new()
                 {
                     Name = "Тождество",
                     DataType = AttributeDataType.Boolean,
                     SystemicType = true,
                     DefaultCustomValue = "false"
                 },
-                new AttributeType()
+                new()
                 {
                     Name = "Целое число",
                     DataType = AttributeDataType.Integer,
                     SystemicType = true,
                     DefaultCustomValue = "0"
                 },
-                new AttributeType()
+                new()
                 {
                     Name = "Число с плавающей точкой",
                     DataType = AttributeDataType.Float,
                     SystemicType = true,
                     DefaultCustomValue = "0.00"
                 },
-                new AttributeType()
+                new()
                 {
                     Name = "Дата",
                     DataType = AttributeDataType.Date,
                     SystemicType = true,
                     DefaultCustomValue = ""
                 },
-                new AttributeType()
+                new()
                 {
                     Name = "Время",
                     DataType = AttributeDataType.Time,
                     SystemicType = true,
                     DefaultCustomValue = "12:00"
                 },
-                new AttributeType()
+                new()
                 {
                     Name = "Дата со временем",
                     DataType = AttributeDataType.DateTime,

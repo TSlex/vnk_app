@@ -60,7 +60,7 @@
           class="mt-2"
         ></v-pagination>
       </template>
-      <FilterDialog v-model="filterDialog" v-if="filterDialog" />
+      <FilterDialog v-model="filterDialog" :filter.sync="filterModel" v-if="filterDialog" />
       <ExportDialog v-model="exportDialog" v-if="exportDialog" />
     </v-col>
   </v-row>
@@ -84,14 +84,16 @@ import ExportDialog from "~/components/orders/ExportDialog.vue";
 export default class ordersIndex extends Vue {
   fetched = false;
   createDialog = false;
-  completed = undefined;
   currentPage = 1;
   searchKey = "";
   byName = SortOption.False;
 
-  startDatetime?: Date;
-  endDatetime?: Date;
-  checkDatetime?: Date;
+  filterModel: {
+    startDatetime?: Date;
+    endDatetime?: Date;
+    checkDatetime?: Date;
+    completed?: boolean;
+  } = {};
 
   filterDialog = false;
   exportDialog = false;
@@ -142,11 +144,11 @@ export default class ordersIndex extends Vue {
       .getOrdersWithDate({
         pageIndex: this.currentPageIndex,
         byName: this.byName,
-        completed: this.completed,
+        completed: this.filterModel.completed,
         searchKey: this.searchKey ?? "",
-        startDatetime: this.startDatetime,
-        endDatetime: this.endDatetime,
-        checkDatetime: this.checkDatetime,
+        startDatetime: this.filterModel.startDatetime,
+        endDatetime: this.filterModel.endDatetime,
+        checkDatetime: this.filterModel.checkDatetime,
       })
       .then((_: any) => {
         this.fetched = true;

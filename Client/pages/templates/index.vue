@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center" class="text-center">
-    <v-col cols="8" class="mt-4">
+    <v-col cols="10" class="mt-4">
       <template v-if="fetched">
         <v-toolbar flat class="rounded-t-lg">
           <v-btn outlined text large to="templates/create">Добавить</v-btn>
