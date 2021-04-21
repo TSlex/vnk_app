@@ -20,7 +20,6 @@
 import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
 import { SortOption } from "~/models/Enums/SortOption";
 import { attributesStore } from "~/store";
-import { isSellected } from "~/utils/form-validation";
 
 @Component({})
 export default class AttributeSellect extends Vue {
@@ -31,7 +30,10 @@ export default class AttributeSellect extends Vue {
   isLoading = false;
 
   rules = {
-    attribute: [(value: { id: number; name: string }) => (value.id > 0) || `Данное поле обязательно`],
+    attribute: [
+      (value?: { id: number; name: string }) =>
+        value != null && value.id > 0 || `Данное поле обязательно`,
+    ],
   };
 
   get attribute() {
@@ -39,7 +41,9 @@ export default class AttributeSellect extends Vue {
   }
 
   set attribute(value) {
-    this.$emit("input", value);
+    if (value != null) {
+      this.$emit("input", value);
+    }
   }
 
   get availableTypes() {
