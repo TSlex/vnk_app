@@ -9,7 +9,7 @@ namespace BLL.Contracts.Services
     public interface IOrderService: IBaseService
     {
         Task<CollectionDTO<OrderGetDTO>> GetAllAsync(int pageIndex, int itemsOnPage,
-            SortOption byName, bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
+            SortOption byName, bool hasExecutionDate, bool? completed, bool? overdued, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime, DateTime? checkDatetime);
 
         Task<OrderGetDTO> GetByIdAsync(long id, DateTime? checkDatetime);

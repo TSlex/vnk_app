@@ -18,21 +18,21 @@ namespace BLL.App.Services
         }
 
         public async Task<CollectionDTO<OrderGetDTO>> GetAllAsync(int pageIndex, int itemsOnPage,
-            SortOption byName, bool hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
-            DateTime? endDateTime, DateTime? checkDatetime)
+            SortOption byName, bool hasExecutionDate, bool? completed, bool? overdued, string? searchKey,
+            DateTime? startDateTime, DateTime? endDateTime, DateTime? checkDatetime)
         {
             checkDatetime ??= DateTime.UtcNow;
 
             var items = await UnitOfWork.Orders.GetAllAsync(pageIndex, itemsOnPage,
-                (DAL.App.DTO.Enums.SortOption) byName, hasExecutionDate, completed, searchKey, startDateTime,
-                endDateTime);
+                (DAL.App.DTO.Enums.SortOption) byName, hasExecutionDate, completed, overdued, searchKey, startDateTime,
+                endDateTime, checkDatetime);
 
             return new CollectionDTO<OrderGetDTO>()
             {
                 Items = items.Select(item => MapOrderToGetDTO(item, checkDatetime)),
 
-                TotalCount = await UnitOfWork.Orders.CountAsync(hasExecutionDate, completed,
-                    searchKey, startDateTime, endDateTime)
+                TotalCount = await UnitOfWork.Orders.CountAsync(hasExecutionDate, completed, overdued,
+                    searchKey, startDateTime, endDateTime, checkDatetime)
             };
         }
 
@@ -125,13 +125,13 @@ namespace BLL.App.Services
             order.ExecutionDateTime = orderPatchDTO.ExecutionDateTime;
 
             await UnitOfWork.Orders.UpdateAsync(order);
-            
+
             int orderAttributesCount = await UnitOfWork.OrderAttributes.CountByOrderId(id);
 
             foreach (var attributePatchDTO in orderPatchDTO.Attributes)
             {
                 OrderAttribute attribute;
-                
+
                 switch (attributePatchDTO.PatchOption)
                 {
                     case PatchOption.Updated:
@@ -140,7 +140,7 @@ namespace BLL.App.Services
                         {
                             throw new NotFoundException("Атрибут не найден");
                         }
-                        
+
                         await ValidateAndFormatAttribute(attributePatchDTO);
 
                         attribute = await UnitOfWork.OrderAttributes.FirstOrDefaultAsync(attributePatchDTO.Id.Value)!;
@@ -153,11 +153,11 @@ namespace BLL.App.Services
 
                         await UnitOfWork.OrderAttributes.UpdateAsync(attribute);
                         break;
-                    
+
                     case PatchOption.Created:
-                        
+
                         await ValidateAndFormatAttribute(attributePatchDTO);
-                        
+
                         attribute = new OrderAttribute()
                         {
                             Featured = attributePatchDTO.Featured,
@@ -170,14 +170,14 @@ namespace BLL.App.Services
 
                         await UnitOfWork.OrderAttributes.AddAsync(attribute);
                         break;
-                    
+
                     case PatchOption.Deleted:
                         if (!(attributePatchDTO.Id.HasValue &&
                               await UnitOfWork.OrderAttributes.AnyAsync(attributePatchDTO.Id.Value)))
                         {
                             throw new NotFoundException("Атрибут не найден");
                         }
-                        
+
                         if (orderAttributesCount <= 1)
                         {
                             throw new ValidationException("В заказе должен быть как минимум один атрибут");
@@ -186,7 +186,7 @@ namespace BLL.App.Services
                         await UnitOfWork.OrderAttributes.RemoveAsync(attributePatchDTO.Id.Value);
 
                         orderAttributesCount--;
-                        
+
                         break;
                 }
             }
@@ -288,7 +288,7 @@ namespace BLL.App.Services
 
         #region Helpers
 
-        private static OrderGetDTO MapOrderToGetDTO(Order item, DateTime? checkDatetime)
+        private static OrderGetDTO MapOrderToGetDTO(Order item, DateTime? checkDateTime)
         {
             return new()
             {
@@ -297,7 +297,7 @@ namespace BLL.App.Services
                 Completed = item.Completed,
                 Notation = item.Notation,
                 ExecutionDateTime = item.ExecutionDateTime,
-                Overdued = item.ExecutionDateTime.HasValue && item.ExecutionDateTime < checkDatetime,
+                Overdued = item.ExecutionDateTime.HasValue && item.ExecutionDateTime < checkDateTime,
                 Attributes = item.OrderAttributes!.Select(MapAttributesToDTO).ToList()
             };
         }

@@ -93,6 +93,7 @@ export default class ordersIndex extends Vue {
     endDatetime?: Date;
     checkDatetime?: Date;
     completed?: boolean;
+    overdued?: boolean;
   } = {};
 
   filterDialog = false;
@@ -145,6 +146,7 @@ export default class ordersIndex extends Vue {
         pageIndex: this.currentPageIndex,
         byName: this.byName,
         completed: this.filterModel.completed,
+        overdued: this.filterModel.overdued,
         searchKey: this.searchKey ?? "",
         startDatetime: this.filterModel.startDatetime,
         endDatetime: this.filterModel.endDatetime,
@@ -159,7 +161,7 @@ export default class ordersIndex extends Vue {
   @Watch("currentPage")
   @Watch("searchKey")
   @Watch("byName")
-  @Watch("byType")
+  @Watch("filterModel")
   updateWatcher() {
     this.fetchorders();
   }

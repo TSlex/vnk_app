@@ -19,15 +19,15 @@ namespace DAL.App.UnitOfWork.Repositories
         }
 
         public async Task<IEnumerable<Order>> GetAllAsync(int pageIndex, int itemsOnPage,
-            SortOption byName, bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
-            DateTime? endDateTime)
+            SortOption byName, bool? hasExecutionDate, bool? completed, bool? overdued, string? searchKey,
+            DateTime? startDateTime, DateTime? endDateTime, DateTime? checkDateTime)
         {
             var query = GetActualDataAsQueryable()
                 .IncludeAttributesFull()
                 .AsQueryable();
 
-            query = query.WhereSuidConditions(hasExecutionDate, completed, searchKey, startDateTime,
-                endDateTime);
+            query = query.WhereSuidConditions(hasExecutionDate, completed, overdued, searchKey, startDateTime,
+                endDateTime, checkDateTime);
 
             query = query.OrderBy(at => at.Id);
 
@@ -52,14 +52,14 @@ namespace DAL.App.UnitOfWork.Repositories
             return Mapper.Map<Entities.Order, Order>(await query.FirstOrDefaultAsync());
         }
 
-        public async Task<int> CountAsync(bool? hasExecutionDate, bool? completed, string? searchKey,
-            DateTime? startDateTime,
-            DateTime? endDateTime)
+        public async Task<int> CountAsync(bool? hasExecutionDate, bool? completed, bool? overdued, string? searchKey,
+            DateTime? startDateTime, DateTime? endDateTime, DateTime? checkDateTime)
         {
             var ordersQuery = GetActualDataAsQueryable();
 
-            return await ordersQuery.WhereSuidConditions(hasExecutionDate, completed, searchKey, startDateTime,
-                endDateTime).CountAsync();
+            return await ordersQuery.WhereSuidConditions(hasExecutionDate, completed, overdued, searchKey,
+                startDateTime,
+                endDateTime, checkDateTime).CountAsync();
         }
 
         public async Task<IEnumerable<Order>> GetHistoryAsync(long id, int pageIndex, int itemsOnPage)
@@ -101,8 +101,8 @@ namespace DAL.App.UnitOfWork.Repositories
     internal static class Extensions
     {
         internal static IQueryable<Entities.Order> WhereSuidConditions(this IQueryable<Entities.Order> query,
-            bool? hasExecutionDate, bool? completed, string? searchKey, DateTime? startDateTime,
-            DateTime? endDateTime)
+            bool? hasExecutionDate, bool? completed, bool? overdued, string? searchKey, DateTime? startDateTime,
+            DateTime? endDateTime, DateTime? checkDateTime)
         {
             if (hasExecutionDate != null)
             {
@@ -113,12 +113,21 @@ namespace DAL.App.UnitOfWork.Repositories
 
             if (startDateTime != null)
             {
-                query = query.Where(o => o.ExecutionDateTime >= startDateTime);
+                query = query.Where(o => o.ExecutionDateTime.HasValue && o.ExecutionDateTime >= startDateTime);
             }
 
             if (endDateTime != null)
             {
-                query = query.Where(o => o.ExecutionDateTime < endDateTime);
+                query = query.Where(o => o.ExecutionDateTime.HasValue && o.ExecutionDateTime < endDateTime);
+            }
+
+            if (overdued != null)
+            {
+                checkDateTime ??= DateTime.UtcNow;
+
+                query = overdued.Value
+                    ? query.Where(o => o.ExecutionDateTime.HasValue && o.ExecutionDateTime < checkDateTime)
+                    : query.Where(o => o.ExecutionDateTime.HasValue && o.ExecutionDateTime >= checkDateTime);
             }
 
             if (completed != null)

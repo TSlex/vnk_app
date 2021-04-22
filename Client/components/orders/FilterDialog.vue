@@ -13,6 +13,13 @@
               tick-size="4"
               v-model.number="completed"
             ></v-slider>
+            <v-slider
+              :tick-labels="['Все', 'Не просроченные', 'Просроченные']"
+              :max="2"
+              step="1"
+              tick-size="4"
+              v-model.number="overdued"
+            ></v-slider>
             <br />
             <v-input label="Фильтровать по дате"> </v-input>
             <DateTimePicker
@@ -25,9 +32,9 @@
               v-model="model.endDatetime"
             />
             <br />
-            <v-input label="Указать дату выполнения"> </v-input>
+            <v-input label="Указать дату проверки"> </v-input>
             <DateTimePicker
-              :label="'Дата выполнения'"
+              :label="'Дата проверки'"
               v-model="model.checkDatetime"
             />
             <br />
@@ -70,6 +77,7 @@ export default class FilterDialog extends Vue {
     endDatetime?: Date;
     checkDatetime?: Date;
     completed?: boolean;
+    overdued?: boolean;
   };
 
   model: {
@@ -77,6 +85,7 @@ export default class FilterDialog extends Vue {
     endDatetime?: Date;
     checkDatetime?: Date;
     completed?: boolean;
+    overdued?: boolean;
   } = {};
 
   get active() {
@@ -101,6 +110,23 @@ export default class FilterDialog extends Vue {
         break;
       default:
         this.model.completed = undefined;
+    }
+  }
+
+  get overdued() {
+    return this.model.overdued == undefined ? 0 : this.model.overdued ? 2 : 1;
+  }
+
+  set overdued(value: number) {
+    switch (value) {
+      case 1:
+        this.model.overdued = false;
+        break;
+      case 2:
+        this.model.overdued = true;
+        break;
+      default:
+        this.model.overdued = undefined;
     }
   }
 

@@ -124,13 +124,13 @@ export default class OrdersStore extends VuexModule {
 
   @Action
   async getOrdersWithDate(payload: {
-    pageIndex: number, byName: SortOption, completed?: boolean,
+    pageIndex: number, byName: SortOption, completed?: boolean, overdued?: boolean,
     searchKey?: string, startDatetime?: Date, endDatetime?: Date,
     checkDatetime?: Date
   }) {
     let response = await $ctx.$uow.orders.getAllWithDate(
-      payload.pageIndex, this.itemsOnPage, payload.byName, payload.completed, payload.searchKey,
-      payload.startDatetime, payload.endDatetime, payload.checkDatetime
+      payload.pageIndex, this.itemsOnPage, payload.byName, payload.completed, payload.overdued,
+      payload.searchKey, payload.startDatetime, payload.endDatetime, payload.checkDatetime
     )
 
     if (response.error) {
@@ -163,7 +163,8 @@ export default class OrdersStore extends VuexModule {
 
   @Action
   async getOrderHistory(payload: {
-    id: number, pageIndex: number}) {
+    id: number, pageIndex: number
+  }) {
     let response = await $ctx.$uow.orders.getHistory(
       payload.id, payload.pageIndex, this.itemsOnPage)
 

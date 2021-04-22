@@ -12,9 +12,8 @@ export class OrdersRepo extends BaseRepo {
   }
 
   async getAllWithDate(
-    pageIndex: number, itemsOnPage: number, byName: SortOption, completed?: boolean,
-    searchKey?: string, startDatetime?: Date, endDatetime?: Date,
-    checkDatetime?: Date
+    pageIndex: number, itemsOnPage: number, byName: SortOption, completed?: boolean, overdued?: boolean,
+    searchKey?: string, startDatetime?: Date, endDatetime?: Date, checkDatetime?: Date
   ) {
     return await this._get<ResponseDTO<CollectionDTO<OrderGetDTO>>>(this.baseURL, undefined, {
       params: {
@@ -22,6 +21,7 @@ export class OrdersRepo extends BaseRepo {
         itemsOnPage: itemsOnPage,
         byName: byName,
         completed: completed,
+        overdued: overdued,
         searchKey: searchKey,
         startDatetime: startDatetime,
         endDatetime: endDatetime,

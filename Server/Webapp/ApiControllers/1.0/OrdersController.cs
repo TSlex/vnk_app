@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AppAPI._1._0;
 using AppAPI._1._0.Common;
@@ -10,9 +8,6 @@ using BLL.App.Exceptions;
 using BLL.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DAL.App.EF;
-using DAL.App.Entities;
 
 namespace Webapp.ApiControllers._1._0
 {
@@ -24,25 +19,23 @@ namespace Webapp.ApiControllers._1._0
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User, Administrator, Root")]
     public class OrdersController : ControllerBase
     {
-        private readonly AppDbContext _context;
         private readonly IAppBLL _bll;
 
-        public OrdersController(AppDbContext context, IAppBLL bll)
+        public OrdersController(IAppBLL bll)
         {
-            _context = context;
             _bll = bll;
         }
-        
+
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<OrderGetDTO>>))]
         public async Task<ActionResult> GetAllWithDate(int pageIndex, int itemsOnPage,
-            SortOption byName, bool? completed, string? searchKey, DateTime? startDateTime,
+            SortOption byName, bool? completed, bool? overdued, string? searchKey, DateTime? startDateTime,
             DateTime? endDateTime, DateTime? checkDatetime)
         {
             return Ok(new ResponseDTO<CollectionDTO<OrderGetDTO>>
             {
                 Data = await _bll.Orders.GetAllAsync(pageIndex, itemsOnPage,
-                    byName, true, completed, searchKey, startDateTime,
+                    byName, true, completed, overdued, searchKey, startDateTime,
                     endDateTime, checkDatetime)
             });
         }
@@ -55,7 +48,7 @@ namespace Webapp.ApiControllers._1._0
             return Ok(new ResponseDTO<CollectionDTO<OrderGetDTO>>
             {
                 Data = await _bll.Orders.GetAllAsync(pageIndex, itemsOnPage,
-                    byName, false, completed, searchKey, null,
+                    byName, false, completed, null, searchKey, null,
                     null, null)
             });
         }
