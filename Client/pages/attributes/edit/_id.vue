@@ -86,7 +86,7 @@ export default class AttributeTypesCreate extends Vue {
   }
 
   get availableTypes() {
-    return attributeTypesStore.attributeTypes;
+    return attributesStore.attributeTypes;
   }
 
   get error() {

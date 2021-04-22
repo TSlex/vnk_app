@@ -60,35 +60,49 @@
                     v-if="order.name"
                   >
                     <span class="text-body-2">Атрибут:</span>
-                    <v-chip small @click.stop="onNavigateToAttribute(attribute.attributeId)">{{ attribute.name }}</v-chip>
+                    <v-chip
+                      small
+                      @click.stop="onNavigateToAttribute(attribute.attributeId)"
+                      >{{ attribute.name }}</v-chip
+                    >
                   </div>
                   <div
                     class="d-flex justify-space-between mb-2"
                     v-if="order.name"
                   >
                     <span class="text-body-2">Тип атрибута:</span>
-                    <v-chip small @click.stop="onNavigateToType(attribute.typeId)">{{ attribute.type }}</v-chip>
+                    <v-chip
+                      small
+                      @click.stop="onNavigateToType(attribute.typeId)"
+                      >{{ attribute.type }}</v-chip
+                    >
                   </div>
                   <div
                     class="d-flex justify-space-between mb-2"
                     v-if="order.name"
                   >
                     <span class="text-body-2">Формат:</span>
-                    <v-chip small>{{ attribute.dataType | formatDataType}}</v-chip>
+                    <v-chip small>{{
+                      attribute.dataType | formatDataType
+                    }}</v-chip>
                   </div>
                   <div
                     class="d-flex justify-space-between mb-2"
                     v-if="order.name"
                   >
                     <span class="text-body-2">Значения определены:</span>
-                    <v-chip small>{{ attribute.usesDefinedValues | formatBoolean}}</v-chip>
+                    <v-chip small>{{
+                      attribute.usesDefinedValues | formatBoolean
+                    }}</v-chip>
                   </div>
                   <div
                     class="d-flex justify-space-between mb-2"
                     v-if="order.name"
                   >
                     <span class="text-body-2">Ед. измерения определены:</span>
-                    <v-chip small>{{ attribute.usesDefinedUnits | formatBoolean}}</v-chip>
+                    <v-chip small>{{
+                      attribute.usesDefinedUnits | formatBoolean
+                    }}</v-chip>
                   </div>
                 </v-container>
               </v-expansion-panel-content>
@@ -103,17 +117,16 @@
           <v-divider></v-divider>
         </template>
         <v-container class="d-flex justify-center">
-          <v-btn outlined text large @click="onEdit(order.id)" class="mr-2"
+          <v-btn outlined text large @click="onEdit" class="mr-2"
             >Изменить</v-btn
           >
-          <v-btn outlined text large @click="onDelete(order.id)" class="mr-2"
+          <v-btn outlined text large @click="onDelete" class="mr-2"
             >Удалить</v-btn
           >
-          <v-btn outlined text large @click="onHistory(order.id)"
-            >История</v-btn
-          >
+          <v-btn outlined text large @click="onHistory">История</v-btn>
         </v-container>
       </v-sheet>
+        <OrderDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
     </v-col>
   </v-row>
 </template>
@@ -123,11 +136,18 @@ import { Component, Vue } from "nuxt-property-decorator";
 import { DataType } from "~/models/Enums/DataType";
 import { OrderAttributeGetDTO } from "~/models/OrderDTO";
 import { ordersStore } from "~/store";
+import OrderDeleteDialog from "~/components/orders/OrderDeleteDialog.vue";
 
-@Component({})
+@Component({
+  components: {
+    OrderDeleteDialog,
+  },
+})
 export default class OrderDetails extends Vue {
   id!: number;
   loaded = false;
+
+  deleteDialog = false;
 
   get order() {
     return ordersStore.selectedOrder;
@@ -149,14 +169,16 @@ export default class OrderDetails extends Vue {
     return { id: params.id };
   }
 
-  onEdit(orderId: number) {
-    this.$router.push(`orders/edit/${orderId}`);
+  onEdit() {
+    this.$router.push(`edit/${this.order!.id}`);
   }
 
-  onDelete(orderId: number) {}
+  onDelete() {
+    this.deleteDialog = true;
+  }
 
-  onHistory(orderId: number) {
-    this.$router.push(`orders/history/${orderId}`);
+  onHistory() {
+    this.$router.push(`history/${this.order!.id}`);
   }
 
   onNavigateToType(typeId: number) {
@@ -191,7 +213,7 @@ export default class OrderDetails extends Vue {
     padding: 0 !important;
   }
 
-  &.rounded-lg{
+  &.rounded-lg {
     overflow: hidden;
   }
 }

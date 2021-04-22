@@ -130,7 +130,7 @@ export default class TemplateCreate extends Vue {
   valueDialog = false;
 
   get error() {
-    return attributeTypesStore.error;
+    return templatesStore.error;
   }
 
   get attributesCount() {
