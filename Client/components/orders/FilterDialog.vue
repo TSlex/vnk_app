@@ -6,7 +6,7 @@
         <v-card-text>
           <v-container>
             <span class="text-body-1">Фильтровать по выполнению</span>
-            <v-slider
+            <v-slider v-if="hasDeadline"
               :tick-labels="['Все', 'Будущие', 'Прошедшие']"
               :max="2"
               step="1"

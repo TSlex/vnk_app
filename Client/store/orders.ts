@@ -38,6 +38,13 @@ export default class OrdersStore extends VuexModule {
     return Math.ceil(this.ordersNoDateCount / this.itemsOnPage)
   }
 
+  get ordersByDate() {
+    return _.groupBy(
+      _.orderBy(this.ordersDate, ["executionDateTime"], ["asc"]),
+      (order) => $ctx.$moment(order.executionDateTime).startOf("day").format("YYYY-MM-DD")
+    );
+  }
+
   @Mutation
   ORDER_CREATED(order: OrderGetDTO) {
     if (order.executionDateTime != null) {
@@ -120,6 +127,24 @@ export default class OrdersStore extends VuexModule {
   @Mutation
   CLEAR_ERROR() {
     this.error = null
+  }
+
+  @Action
+  async getCalendarOrders(payload: {searchKey?: string, startDatetime?: Date, endDatetime?: Date}) {
+
+    let response = await $ctx.$uow.orders.getAllWithDate(
+      0, 3000, SortOption.False, undefined, undefined,
+      payload.searchKey, payload.startDatetime, payload.endDatetime
+    )
+
+    if (response.error) {
+      this.context.commit("ACTION_FAILED", response.error)
+      return false
+    } else {
+      this.context.commit("CLEAR_ERROR")
+      this.context.commit("ORDERS_WITH_DATE_FETCHED", response.data)
+      return true
+    }
   }
 
   @Action

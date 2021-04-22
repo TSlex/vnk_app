@@ -1,7 +1,7 @@
 <template>
   <v-row justify="center" class="text-center">
     <v-col cols="6" class="mt-4">
-      <template v-if="fetched">
+      <template v-if="isMounted">
         <v-container>
           <v-btn to="/orders" class="mr-2" active-class="v-btn--hide-active"
             >Заказы с датой</v-btn
@@ -39,11 +39,11 @@
           ></v-text-field>
         </v-toolbar>
         <v-data-table
+          :loading="!fetched"
           @update:options="setOrdering"
           :items="orders"
           :headers="headers"
           :items-per-page="itemsOnPage"
-          sort-by="name"
           hide-default-footer
           @click:row="openDetails"
           class="rounded-b-lg rounded-t-0"
@@ -91,6 +91,8 @@ import ExportDialog from "~/components/orders/ExportDialog.vue";
 })
 export default class ordersIndex extends Vue {
   fetched = false;
+  isMounted = false;
+
   createDialog = false;
   currentPage = 1;
   searchKey = "";
@@ -129,8 +131,8 @@ export default class ordersIndex extends Vue {
     return ordersStore.itemsOnPage;
   }
 
-  openDetails(item: OrderGetDTO) {
-    this.$router.push(`orders/${item.id}`);
+  openDetails(order: OrderGetDTO) {
+    this.$router.push(`orders/${order.id}`);
   }
 
   setOrdering(options: any) {
@@ -146,9 +148,11 @@ export default class ordersIndex extends Vue {
 
   mounted() {
     this.fetchorders();
+    this.isMounted = true;
   }
 
   fetchorders() {
+    this.fetched = false;
     ordersStore
       .getOrdersWithDate({
         pageIndex: this.currentPageIndex,

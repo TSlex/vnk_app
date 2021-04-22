@@ -2,28 +2,44 @@
   <v-sheet color="transparent">
     <v-sheet rounded="lg" class="pt-1">
       <v-toolbar flat>
-        <v-btn outlined text large>Добавить заказ</v-btn>
+        <v-btn outlined text large to="orders/create" class="mr-2"
+          >Добавить заказ</v-btn
+        >
+        <v-btn outlined text large to="orders/create">Отчет</v-btn>
         <v-spacer></v-spacer>
         <v-text-field
+          v-model="searchKey"
           rounded
           outlined
           single-line
           hide-details
           dense
           flat
-          placeholder="Поиск"
+          placeholder="Поиск по названию"
           prepend-icon="mdi-magnify"
           clear-icon="mdi-close"
           clearable
         ></v-text-field>
         <v-spacer></v-spacer>
-        <v-toolbar-title v-if="loaded">{{
+        <v-toolbar-title v-if="isMounted">{{
           $refs.calendar.title
         }}</v-toolbar-title>
-        <v-btn fab text color="grey darken-2" @click="prevMonth()">
+        <v-btn
+          fab
+          text
+          color="grey darken-2"
+          @click="onPrevMonth()"
+          :loading="!fetched"
+        >
           <v-icon> mdi-chevron-left </v-icon>
         </v-btn>
-        <v-btn fab text color="grey darken-2" @click="nextMonth()">
+        <v-btn
+          fab
+          text
+          color="grey darken-2"
+          @click="onNextMonth()"
+          :loading="!fetched"
+        >
           <v-icon> mdi-chevron-right </v-icon>
         </v-btn>
       </v-toolbar>
@@ -31,12 +47,12 @@
     <v-sheet height="700" class="pa-2" rounded="b-lg">
       <v-calendar
         ref="calendar"
-        v-model="start"
         locale="ru"
         :weekdays="weekdays"
         :show-month-on-first="false"
         :short-weekdays="false"
         :hide-header="true"
+        v-model="date"
       >
         <!-- Date -->
         <template v-slot:day-label="{ date }">
@@ -49,13 +65,27 @@
         <template v-slot:day="{ date }">
           <div class="pa-2 text-center">
             <v-chip
+              @click.stop="onOrderSellect(order)"
               v-for="order in getDayOrders(date)"
-              :key="Math.random(order)"
+              :key="order.id"
               class="mb-1 d-flex justify-center"
               style="width: 100%"
               small
+              :color="
+                order.completed
+                  ? `success`
+                  : order.overdued
+                  ? `error`
+                  : `primary`
+              "
             >
-              <span>{{ getOrderFeaturesInline(order) }}</span>
+              <span>
+                {{
+                  formatFeaturedAttributesInline(
+                    getOrderFeaturedAttributes(order)
+                  )
+                }}
+              </span>
             </v-chip>
           </div>
         </template>
@@ -65,7 +95,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "nuxt-property-decorator";
+import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
+import { OrderAttributeGetDTO, OrderGetDTO } from "~/models/OrderDTO";
+import { ordersStore } from "~/store";
 
 @Component
 export default class Calendar extends Vue {
@@ -73,31 +105,112 @@ export default class Calendar extends Vue {
     calendar: any;
   };
 
-  start = new Date().toISOString();
-  loaded = false;
+  date = null;
+
+  fetched = false;
+  isMounted = false;
+
+  searchKey = "";
 
   @Prop() weekdays!: any[];
-  @Prop() orders!: any[];
+
+  startMonthDate = new Date();
+  endMonthDate = new Date();
+
+  get orders() {
+    return ordersStore.ordersByDate;
+  }
+
+  onOrderSellect(order: OrderGetDTO) {
+    ordersStore.getOrder({ id: order.id, checkDatetime: null });
+  }
 
   getDayOrders(date: string) {
-    return this.orders.filter((order) => order.date == date);
+    return this.orders[date];
   }
 
-  getOrderFeaturesInline(order: any) {
-    return order.featured.map((feature: any) => feature.value).join(", ");
+  getOrderFeaturedAttributes(order: OrderGetDTO) {
+    return order.attributes.filter((attribute) => attribute.featured);
   }
 
-  prevMonth() {
+  formatFeaturedAttributesInline(attributes: OrderAttributeGetDTO[]) {
+    return attributes
+      .map((attribute) => {
+        let line = `${attribute.name.toLocaleLowerCase()}: ${attribute.value.toLocaleLowerCase()}`;
+
+        if (attribute.usesDefinedUnits) {
+          line += ` ${attribute.unit.toLocaleLowerCase()}`;
+        }
+
+        return line;
+      })
+      .join(", ");
+  }
+
+  async onPrevMonth() {
+    if (!this.fetched) {
+      return;
+    }
+
+    this.startMonthDate = this.$moment(this.startMonthDate)
+      .subtract(1, "month")
+      .toDate();
+    this.endMonthDate = this.$moment(this.endMonthDate)
+      .subtract(1, "month")
+      .toDate();
+
+    await this.fetchorders();
     this.$refs.calendar.prev();
   }
 
-  nextMonth() {
+  async onNextMonth() {
+    if (!this.fetched) {
+      return;
+    }
+
+    this.startMonthDate = this.$moment(this.startMonthDate)
+      .add(1, "month")
+      .toDate();
+    this.endMonthDate = this.$moment(this.endMonthDate)
+      .add(1, "month")
+      .toDate();
+
+    await this.fetchorders();
+
     this.$refs.calendar.next();
   }
 
   mounted() {
     this.$refs.calendar.checkChange();
-    this.loaded = true;
+
+    this.startMonthDate = this.$moment(new Date())
+      .startOf("month")
+      .subtract(1, "months")
+      .toDate();
+    this.endMonthDate = this.$moment(new Date())
+      .endOf("month")
+      .add(1, "months")
+      .toDate();
+
+    this.fetchorders();
+
+    this.isMounted = true;
+  }
+
+  async fetchorders() {
+    this.fetched = false;
+    var orders = await ordersStore.getCalendarOrders({
+      searchKey: this.searchKey,
+      startDatetime: this.startMonthDate,
+      endDatetime: this.endMonthDate,
+    });
+    this.fetched = true;
+    return orders;
+  }
+
+  @Watch("searchKey")
+  updateWatcher() {
+    this.fetchorders();
   }
 }
 </script>

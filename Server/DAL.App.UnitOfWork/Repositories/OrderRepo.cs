@@ -29,7 +29,7 @@ namespace DAL.App.UnitOfWork.Repositories
             query = query.WhereSuidConditions(hasExecutionDate, completed, overdued, searchKey, startDateTime,
                 endDateTime, checkDateTime);
 
-            query = query.OrderBy(at => at.Id);
+            query = query.OrderBy(at => at.ExecutionDateTime).ThenBy(at => at.Id);
 
             query = byName switch
             {

@@ -317,7 +317,7 @@ namespace BLL.App.Services
                 Unit = oa.Unit?.Value ?? "",
                 UnitId = oa.UnitId,
                 ValueId = oa.ValueId,
-                UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedValues,
+                UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedUnits,
                 UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
             };
         }
