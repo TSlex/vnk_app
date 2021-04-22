@@ -21,7 +21,7 @@ namespace BLL.App.Services
             SortOption byName, bool hasExecutionDate, bool? completed, bool? overdued, string? searchKey,
             DateTime? startDateTime, DateTime? endDateTime, DateTime? checkDatetime)
         {
-            checkDatetime ??= DateTime.UtcNow;
+            checkDatetime ??= DateTime.Now;
 
             var items = await UnitOfWork.Orders.GetAllAsync(pageIndex, itemsOnPage,
                 (DAL.App.DTO.Enums.SortOption) byName, hasExecutionDate, completed, overdued, searchKey, startDateTime,

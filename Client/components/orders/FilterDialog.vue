@@ -5,7 +5,14 @@
         <v-card-title>Настроить фильтрацию</v-card-title>
         <v-card-text>
           <v-container>
-            <v-input label="Фильтровать по выполнению"> </v-input>
+            <span class="text-body-1">Фильтровать по выполнению</span>
+            <v-slider
+              :tick-labels="['Все', 'Будущие', 'Прошедшие']"
+              :max="2"
+              step="1"
+              tick-size="4"
+              v-model.number="overdued"
+            ></v-slider>
             <v-slider
               :tick-labels="['Все', 'Не выполненные', 'Выполненные']"
               :max="2"
@@ -13,31 +20,22 @@
               tick-size="4"
               v-model.number="completed"
             ></v-slider>
-            <v-slider
-              :tick-labels="['Все', 'Не просроченные', 'Просроченные']"
-              :max="2"
-              step="1"
-              tick-size="4"
-              v-model.number="overdued"
-            ></v-slider>
             <br />
-            <v-input label="Фильтровать по дате"> </v-input>
+            <span class="text-body-1">Фильтровать по дате</span>
             <DateTimePicker
               :label="'Начальная дата'"
               v-model="model.startDatetime"
             />
-            <br />
             <DateTimePicker
               :label="'Конечная дата'"
               v-model="model.endDatetime"
             />
             <br />
-            <v-input label="Указать дату проверки"> </v-input>
+            <span class="text-body-1">Указать дату проверки</span>
             <DateTimePicker
               :label="'Дата проверки'"
               v-model="model.checkDatetime"
             />
-            <br />
           </v-container>
         </v-card-text>
         <v-card-actions>

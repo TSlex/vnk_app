@@ -123,7 +123,7 @@ namespace DAL.App.UnitOfWork.Repositories
 
             if (overdued != null)
             {
-                checkDateTime ??= DateTime.UtcNow;
+                checkDateTime ??= DateTime.Now;
 
                 query = overdued.Value
                     ? query.Where(o => o.ExecutionDateTime.HasValue && o.ExecutionDateTime < checkDateTime)
