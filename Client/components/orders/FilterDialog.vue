@@ -11,26 +11,40 @@
               :max="2"
               step="1"
               tick-size="4"
+              v-model.number="completed"
             ></v-slider>
-            <br>
+            <br />
             <v-input label="Фильтровать по дате"> </v-input>
-            <DateTimePicker :label="'Начальная дата'"/>
-            <br>
-            <DateTimePicker :label="'Конечная дата'"/>
-            <br>
+            <DateTimePicker
+              :label="'Начальная дата'"
+              v-model="model.startDatetime"
+            />
+            <br />
+            <DateTimePicker
+              :label="'Конечная дата'"
+              v-model="model.endDatetime"
+            />
+            <br />
             <v-input label="Указать дату выполнения"> </v-input>
-            <DateTimePicker :label="'Дата выполнения'"/>
-            <br>
+            <DateTimePicker
+              :label="'Дата выполнения'"
+              v-model="model.checkDatetime"
+            />
+            <br />
           </v-container>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click.stop="onClear()"
+            >Очистить</v-btn
+          >
           <v-btn color="blue darken-1" text @click.stop="onClose()"
             >Отмена</v-btn
           >
           <v-btn color="blue darken-1" text type="submit"
             >Применить фильтр</v-btn
           >
+          <v-spacer></v-spacer>
         </v-card-actions>
       </v-card>
     </v-form>
@@ -39,12 +53,12 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "nuxt-property-decorator";
-import DateTimePicker from "~/components/common/DateTimePicker.vue"
+import DateTimePicker from "~/components/common/DateTimePicker.vue";
 
 @Component({
   components: {
-    DateTimePicker
-  }
+    DateTimePicker,
+  },
 })
 export default class FilterDialog extends Vue {
   @Prop()
@@ -73,16 +87,43 @@ export default class FilterDialog extends Vue {
     this.$emit("input", value);
   }
 
+  get completed() {
+    return this.model.completed == undefined ? 0 : this.model.completed ? 2 : 1;
+  }
+
+  set completed(value: number) {
+    switch (value) {
+      case 1:
+        this.model.completed = false;
+        break;
+      case 2:
+        this.model.completed = true;
+        break;
+      default:
+        this.model.completed = undefined;
+    }
+  }
+
   onClose() {
     this.active = false;
   }
 
-  mounted() {
-    this.model = { ...this.filter };
+  onClear() {
+    this.model = {
+      startDatetime: undefined,
+      endDatetime: undefined,
+      completed: undefined,
+      checkDatetime: undefined,
+    };
   }
 
   onSubmit() {
-    this.filter = { ...this.model };
+    this.$emit("update:filter", { ...this.model });
+    this.onClose();
+  }
+
+  mounted() {
+    this.model = { ...this.filter };
   }
 }
 </script>
