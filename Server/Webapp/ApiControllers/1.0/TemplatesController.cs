@@ -46,10 +46,10 @@ namespace Webapp.ApiControllers._1._0
                     Featured = ta.Featured,
                     Name = ta.Attribute!.Name,
                     Type = ta.Attribute!.AttributeType!.Name,
-                    TypeId = ta.Attribute!.Id,
+                    TypeId = ta.Attribute!.AttributeType.Id,
                     AttributeId = ta.AttributeId,
                     DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
-                    UsesDefinedUnits = ta.Attribute!.AttributeType.UsesDefinedValues,
+                    UsesDefinedUnits = ta.Attribute!.AttributeType.UsesDefinedUnits,
                     UsesDefinedValues = ta.Attribute!.AttributeType.UsesDefinedValues
                 }).ToList()
             });

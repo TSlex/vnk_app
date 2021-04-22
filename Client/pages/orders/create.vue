@@ -126,7 +126,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
-import { attributeTypesStore } from "~/store";
+import { attributeTypesStore, ordersStore } from "~/store";
 import { notEmpty, required } from "~/utils/form-validation";
 import { OrderPostDTO } from "~/models/OrderDTO";
 import AttributeSellect from "~/components/common/AttributeSellect.vue";
@@ -183,7 +183,7 @@ export default class OrderCreate extends Vue {
   }
 
   get error() {
-    return attributeTypesStore.error;
+    return ordersStore.error;
   }
 
   get attributesCount() {
@@ -191,12 +191,12 @@ export default class OrderCreate extends Vue {
   }
 
   onTemplateApply(template: TemplateGetDTO) {
-    this.attributes = []
+    this.attributes = [];
 
     template.attributes.forEach((attribute) => {
       this.attributes.push({
         attribute: {
-          id: attribute.id,
+          id: attribute.attributeId,
           name: attribute.name,
           type: attribute.type,
           typeId: attribute.typeId,
@@ -290,15 +290,15 @@ export default class OrderCreate extends Vue {
           unitId: attribute.value.unitId,
         };
       });
-      console.log(this.model);
+      // console.log(this.model);
 
-      // ordersStore.createOrder(this.model).then((suceeded) => {
-      //   if (suceeded) {
-      //     this.onCancel();
-      //   } else {
-      //     this.showError = true;
-      //   }
-      // });
+      ordersStore.createOrder(this.model).then((suceeded) => {
+        if (suceeded) {
+          this.onCancel();
+        } else {
+          this.showError = true;
+        }
+      });
     }
   }
 }

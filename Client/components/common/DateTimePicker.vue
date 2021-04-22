@@ -157,5 +157,11 @@ export default class DateTimePicker extends Vue {
 
     (this.$refs.picker as any).save(null);
   }
+
+  mounted(){
+    if (this.hasDate && this.hasTime){
+      this.timeValue = "00:00"
+    }
+  }
 }
 </script>

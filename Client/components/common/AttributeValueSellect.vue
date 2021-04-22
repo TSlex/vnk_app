@@ -104,6 +104,8 @@ export default class AttributeValueSellect extends Vue {
             }
           }
 
+          console.log(this.attributeType)
+
           this.$emit("input", { valueId, unitId, customValue });
 
           this.fetched = true;
