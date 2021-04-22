@@ -29,7 +29,7 @@ Vue.filter('formatDataType', function (value: any) {
 })
 
 Vue.filter('formatBoolean', function (value: any) {
-  return value === "true" ? "Да" : "Нет";
+  return String(value) === "true" ? "Да" : "Нет";
 })
 
 export default filtersPlugin

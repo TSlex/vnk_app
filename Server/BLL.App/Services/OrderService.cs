@@ -313,7 +313,7 @@ namespace BLL.App.Services
                 Featured = oa.Featured,
                 Name = oa.Attribute!.Name,
                 Type = oa.Attribute!.AttributeType!.Name,
-                TypeId = oa.Attribute!.Id,
+                TypeId = oa.Attribute!.AttributeType.Id,
                 AttributeId = oa.AttributeId,
                 DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
                 Value = oa.Value?.Value ?? oa.CustomValue ?? "",

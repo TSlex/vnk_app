@@ -1,0 +1,198 @@
+<template>
+  <v-row justify="center" class="text-center" v-if="loaded">
+    <v-col cols="4" class="mt-4">
+      <v-sheet rounded="lg" class="py-2">
+        <v-container>
+          <div class="d-flex justify-space-between mb-2" v-if="order.name">
+            <span class="text-body-1">Название:</span>
+            <span class="text-body-1">{{ order.name }}</span>
+          </div>
+          <div class="d-flex justify-space-between mb-2">
+            <span class="text-body-1">Дата заказа:</span>
+            <span class="text-body-1">{{
+              order.executionDateTime | formatDateTime
+            }}</span>
+          </div>
+          <div class="d-flex justify-space-between mb-2">
+            <span class="text-body-1">Состояние:</span>
+            <v-chip small v-if="order.completed" color="success">
+              Выполнен
+            </v-chip>
+            <v-chip small v-else-if="order.overdued" color="error">
+              Просрочен
+            </v-chip>
+            <v-chip small v-else color="primary"> Запланирован </v-chip>
+          </div>
+        </v-container>
+        <v-divider></v-divider>
+        <v-container>
+          <v-expansion-panels accordion multiple hover flat>
+            <v-expansion-panel
+              v-for="attribute in order.attributes"
+              :key="attribute.id"
+            >
+              <v-expansion-panel-header hide-actions class="pa-0 rounded-lg">
+                <div class="d-flex justify-space-between">
+                  <span class="text-body-1">{{ attribute.name }}:</span>
+                  <span class="text-body-1">
+                    <template v-if="isBooleanType(attribute)">{{
+                      attribute.value | formatBoolean
+                    }}</template>
+                    <template v-else-if="isDateType(attribute)">{{
+                      attribute.value | formatDate
+                    }}</template>
+                    <template v-else-if="isDateTimeType(attribute)">{{
+                      attribute.value | formatDateTime
+                    }}</template>
+                    <template v-else>{{ attribute.value }}</template>
+                    <template v-if="attribute.usesDefinedUnits">{{
+                      attribute.unit
+                    }}</template>
+                  </span>
+                </div>
+              </v-expansion-panel-header>
+              <v-expansion-panel-content
+                class="expansion-panel-content_no_wrap mt-1 rounded-lg"
+              >
+                <v-container class="grey lighten-3">
+                  <div
+                    class="d-flex justify-space-between mb-2"
+                    v-if="order.name"
+                  >
+                    <span class="text-body-2">Атрибут:</span>
+                    <v-chip small @click.stop="onNavigateToAttribute(attribute.attributeId)">{{ attribute.name }}</v-chip>
+                  </div>
+                  <div
+                    class="d-flex justify-space-between mb-2"
+                    v-if="order.name"
+                  >
+                    <span class="text-body-2">Тип атрибута:</span>
+                    <v-chip small @click.stop="onNavigateToType(attribute.typeId)">{{ attribute.type }}</v-chip>
+                  </div>
+                  <div
+                    class="d-flex justify-space-between mb-2"
+                    v-if="order.name"
+                  >
+                    <span class="text-body-2">Формат:</span>
+                    <v-chip small>{{ attribute.dataType | formatDataType}}</v-chip>
+                  </div>
+                  <div
+                    class="d-flex justify-space-between mb-2"
+                    v-if="order.name"
+                  >
+                    <span class="text-body-2">Значения определены:</span>
+                    <v-chip small>{{ attribute.usesDefinedValues | formatBoolean}}</v-chip>
+                  </div>
+                  <div
+                    class="d-flex justify-space-between mb-2"
+                    v-if="order.name"
+                  >
+                    <span class="text-body-2">Ед. измерения определены:</span>
+                    <v-chip small>{{ attribute.usesDefinedUnits | formatBoolean}}</v-chip>
+                  </div>
+                </v-container>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+        </v-container>
+        <v-divider class="mt-n2"></v-divider>
+        <template v-if="order.notation">
+          <v-container class="d-flex justify-center my-3">
+            <span>{{ order.notation }}</span>
+          </v-container>
+          <v-divider></v-divider>
+        </template>
+        <v-container class="d-flex justify-center">
+          <v-btn outlined text large @click="onEdit(order.id)" class="mr-2"
+            >Изменить</v-btn
+          >
+          <v-btn outlined text large @click="onDelete(order.id)" class="mr-2"
+            >Удалить</v-btn
+          >
+          <v-btn outlined text large @click="onHistory(order.id)"
+            >История</v-btn
+          >
+        </v-container>
+      </v-sheet>
+    </v-col>
+  </v-row>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from "nuxt-property-decorator";
+import { DataType } from "~/models/Enums/DataType";
+import { OrderAttributeGetDTO } from "~/models/OrderDTO";
+import { ordersStore } from "~/store";
+
+@Component({})
+export default class OrderDetails extends Vue {
+  id!: number;
+  loaded = false;
+
+  get order() {
+    return ordersStore.selectedOrder;
+  }
+
+  isBooleanType(attribute: OrderAttributeGetDTO) {
+    return attribute.dataType === DataType.Boolean;
+  }
+
+  isDateType(attribute: OrderAttributeGetDTO) {
+    return attribute.dataType === DataType.Date;
+  }
+
+  isDateTimeType(attribute: OrderAttributeGetDTO) {
+    return attribute.dataType === DataType.DateTime;
+  }
+
+  async asyncData({ params }: any) {
+    return { id: params.id };
+  }
+
+  onEdit(orderId: number) {
+    this.$router.push(`orders/edit/${orderId}`);
+  }
+
+  onDelete(orderId: number) {}
+
+  onHistory(orderId: number) {
+    this.$router.push(`orders/history/${orderId}`);
+  }
+
+  onNavigateToType(typeId: number) {
+    this.$router.push(`/types/${typeId}`);
+  }
+
+  onNavigateToAttribute(attributeId: number) {
+    this.$router.push(`/attributes/${attributeId}`);
+  }
+
+  mounted() {
+    if (!this.id) {
+      this.$router.back();
+    }
+
+    ordersStore
+      .getOrder({ id: this.id, checkDatetime: null })
+      .then((suceeded) => {
+        if (!suceeded) {
+          this.$router.back();
+        } else {
+          this.loaded = true;
+        }
+      });
+  }
+}
+</script>
+
+<style lang="scss">
+.expansion-panel-content_no_wrap {
+  .v-expansion-panel-content__wrap {
+    padding: 0 !important;
+  }
+
+  &.rounded-lg{
+    overflow: hidden;
+  }
+}
+</style>
