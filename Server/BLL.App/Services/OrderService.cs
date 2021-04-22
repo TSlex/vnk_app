@@ -126,9 +126,9 @@ namespace BLL.App.Services
 
             await UnitOfWork.Orders.UpdateAsync(order);
 
-            int orderAttributesCount = await UnitOfWork.OrderAttributes.CountByOrderId(id);
+            var orderAttributesCount = await UnitOfWork.OrderAttributes.CountByOrderId(id);
 
-            foreach (var attributePatchDTO in orderPatchDTO.Attributes)
+            foreach (var attributePatchDTO in orderPatchDTO.Attributes.OrderBy(dto => dto.PatchOption))
             {
                 OrderAttribute attribute;
 
@@ -169,6 +169,9 @@ namespace BLL.App.Services
                         };
 
                         await UnitOfWork.OrderAttributes.AddAsync(attribute);
+
+                        orderAttributesCount++;
+                        
                         break;
 
                     case PatchOption.Deleted:

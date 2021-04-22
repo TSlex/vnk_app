@@ -43,11 +43,11 @@ namespace DAL.App.EF
             }
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.EnableSensitiveDataLogging();
-            base.OnConfiguring(optionsBuilder);
-        }
+        // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        // {
+        //     optionsBuilder.EnableSensitiveDataLogging();
+        //     base.OnConfiguring(optionsBuilder);
+        // }
 
         private void SaveChangesMetadataUpdate()
         {

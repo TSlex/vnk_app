@@ -4,7 +4,7 @@
       <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
         <v-card>
           <v-card-title>
-            <span class="headline">Создать заказ</span>
+            <span class="headline">Изменить заказ</span>
           </v-card-title>
           <v-card-text class="pb-0">
             <v-container>
