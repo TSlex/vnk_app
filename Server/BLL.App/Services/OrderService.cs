@@ -143,14 +143,14 @@ namespace BLL.App.Services
 
                         await ValidateAndFormatAttribute(attributePatchDTO);
 
-                        attribute = await UnitOfWork.OrderAttributes.FirstOrDefaultAsync(attributePatchDTO.Id.Value)!;
+                        attribute = await UnitOfWork.OrderAttributes.FirstOrDefaultNoTrackAsync(attributePatchDTO.Id.Value)!;
 
                         attribute.Featured = attributePatchDTO.Featured;
                         attribute.AttributeId = attributePatchDTO.AttributeId;
                         attribute.CustomValue = attributePatchDTO.CustomValue;
                         attribute.ValueId = attributePatchDTO.ValueId;
                         attribute.UnitId = attributePatchDTO.UnitId;
-
+                        
                         await UnitOfWork.OrderAttributes.UpdateAsync(attribute);
                         break;
 

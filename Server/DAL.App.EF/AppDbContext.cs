@@ -43,6 +43,12 @@ namespace DAL.App.EF
             }
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableSensitiveDataLogging();
+            base.OnConfiguring(optionsBuilder);
+        }
+
         private void SaveChangesMetadataUpdate()
         {
             ChangeTracker.DetectChanges();
@@ -60,7 +66,9 @@ namespace DAL.App.EF
                     softUpdateEntity.DeletedAt = now;
                     softUpdateEntity.DeletedBy = _userProvider.CurrentName;
                     continue;
-                };
+                }
+
+                ;
 
                 entityWithMetaData.CreatedAt = now;
                 entityWithMetaData.CreatedBy = _userProvider.CurrentName;

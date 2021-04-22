@@ -14,6 +14,7 @@ namespace DAL.Contracts
         Task<bool> AnyIncludeDeletedAsync(long id);
         
         Task<TDTO> FirstOrDefaultAsync(long id);
+        Task<TDTO> FirstOrDefaultNoTrackAsync(long id);
         
         Task UpdateAsync(TDTO dto);
         

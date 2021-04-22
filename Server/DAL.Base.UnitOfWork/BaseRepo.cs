@@ -55,14 +55,27 @@ namespace DAL.Base.UnitOfWork
 
             return MapToDTO(await query.FirstOrDefaultAsync());
         }
+        
+        public virtual async Task<TDTO> FirstOrDefaultNoTrackAsync(long id)
+        {
+            var query = GetActualDataByIdAsQueryable(id).AsNoTracking();
+
+            return MapToDTO(await query.FirstOrDefaultAsync());
+        }
 
         public virtual async Task UpdateAsync(TDTO dto)
         {
             TEntity trackedEntity = await DbSet.FindAsync(dto.Id);
             TEntity entityToTrack = MapToEntity(dto);
 
-            DbContext.Entry(trackedEntity).State = EntityState.Detached;
-
+            foreach (var entity in DbSet.Local)
+            {
+                if (entity.Id.Equals(dto.Id))
+                {
+                    DbContext.Entry(entity).State = EntityState.Detached;
+                }
+            }
+            
             if (trackedEntity is IDomainEntitySoftUpdate softUpdate)
             {
                 softUpdate.MasterId = trackedEntity.Id;

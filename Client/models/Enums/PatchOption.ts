@@ -1,4 +1,4 @@
-enum PatchOption {
+export enum PatchOption {
   Unchanged = 0,
   Created,
   Updated,

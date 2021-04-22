@@ -1,3 +1,5 @@
+import { PatchOption } from "./Enums/PatchOption";
+
 export interface OrderGetDTO {
   id: number;
   name: string;
@@ -55,7 +57,7 @@ export interface OrderPatchDTO {
 }
 
 export interface OrderAttributePatchDTO {
-  id: number;
+  id: number | null;
   patchOption: PatchOption;
   featured: boolean;
   attributeId: number;

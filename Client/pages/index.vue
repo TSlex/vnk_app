@@ -1,5 +1,5 @@
 <template>
-  <v-row dense class="py-4 px-6 fill-height">
+  <v-row dense class="py-4 px-6 fill-height page">
     <v-col>
       <Calendar :weekdays="weekdays" />
     </v-col>

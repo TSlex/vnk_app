@@ -134,7 +134,7 @@ export default class TemplatesEdit extends Vue {
 
   rules = {
     name: [required()],
-    attributes: [notEmpty()],
+    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В шаблоне должен быть как минимум один аттрибут"],
   };
 
   id!: number;
@@ -189,8 +189,10 @@ export default class TemplatesEdit extends Vue {
   }
 
   onFeatureAttribute(index: number) {
-    this.attributes[index].featured = !this.attributes[index].featured;
-    if (this.attributes[index].id != null) {
+    var attribute = this.attributes[index]
+
+    attribute.featured = !this.attributes[index].featured;
+    if (attribute.id != null) {
       this.attributes[index].changed = true;
     }
   }
