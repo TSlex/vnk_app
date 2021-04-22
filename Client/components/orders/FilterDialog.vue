@@ -20,22 +20,24 @@
               tick-size="4"
               v-model.number="completed"
             ></v-slider>
-            <br />
-            <span class="text-body-1">Фильтровать по дате</span>
-            <DateTimePicker
-              :label="'Начальная дата'"
-              v-model="model.startDatetime"
-            />
-            <DateTimePicker
-              :label="'Конечная дата'"
-              v-model="model.endDatetime"
-            />
-            <br />
-            <span class="text-body-1">Указать дату проверки</span>
-            <DateTimePicker
-              :label="'Дата проверки'"
-              v-model="model.checkDatetime"
-            />
+            <template v-if="hasDeadline">
+              <br />
+              <span class="text-body-1">Фильтровать по дате</span>
+              <DateTimePicker
+                :label="'Начальная дата'"
+                v-model="model.startDatetime"
+              />
+              <DateTimePicker
+                :label="'Конечная дата'"
+                v-model="model.endDatetime"
+              />
+              <br />
+              <span class="text-body-1">Указать дату проверки</span>
+              <DateTimePicker
+                :label="'Дата проверки'"
+                v-model="model.checkDatetime"
+              />
+            </template>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -68,6 +70,9 @@ import DateTimePicker from "~/components/common/DateTimePicker.vue";
 export default class FilterDialog extends Vue {
   @Prop()
   value!: boolean;
+
+  @Prop({ default: true })
+  hasDeadline!: boolean;
 
   @Prop()
   filter!: {

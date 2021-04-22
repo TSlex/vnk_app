@@ -31,12 +31,13 @@ import { templatesStore } from "~/store";
 @Component({})
 export default class TemplateSellect extends Vue {
   template: TemplateGetDTO | null = null;
+  templates: TemplateGetDTO[] = [];
 
   fetched = false;
 
-  get templates() {
-    return templatesStore.templates;
-  }
+  // get templates() {
+  //   return templatesStore.templates;
+  // }
 
   onTemplateApply() {
     if (this.template != null) {
@@ -45,17 +46,25 @@ export default class TemplateSellect extends Vue {
   }
 
   mounted() {
-    templatesStore
-      .getTemplates({
-        pageIndex: 0,
-        byName: SortOption.False,
-        searchKey: null,
-      })
-      .then((succeded) => {
-        if (succeded) {
+    this.$uow.templates
+      .getAll(0, 100, SortOption.False, null)
+      .then((response) => {
+        if (!response.error) {
+          this.templates = response.data.items;
           this.fetched = true;
         }
       });
+    // templatesStore
+    //   .getTemplates({
+    //     pageIndex: 0,
+    //     byName: SortOption.False,
+    //     searchKey: null,
+    //   })
+    //   .then((succeded) => {
+    //     if (succeded) {
+    //       this.fetched = true;
+    //     }
+    //   });
   }
 }
 </script>

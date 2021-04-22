@@ -7,7 +7,6 @@
       rounded="lg"
       min-width="290px"
       absolute
-      attach
       content-class="modal-center"
       z-index="999"
     >

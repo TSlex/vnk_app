@@ -101,7 +101,7 @@ export default class OrdersStore extends VuexModule {
   }
 
   @Mutation
-  ORDERS_WITHOT_DATE_FETCHED(collection: CollectionDTO<OrderGetDTO>) {
+  ORDERS_WITHOUT_DATE_FETCHED(collection: CollectionDTO<OrderGetDTO>) {
     this.ordersNoDate = collection.items
     this.ordersNoDateCount = collection.totalCount
   }

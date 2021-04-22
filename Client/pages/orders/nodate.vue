@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center" class="text-center">
-    <v-col cols="6" class="mt-4">
+    <v-col cols="5" class="mt-4">
       <template v-if="fetched">
         <v-container>
           <v-btn to="/orders" class="mr-2" active-class="v-btn--hide-active"
@@ -53,7 +53,6 @@
           </template>
           <template v-slot:[`item.status`]="{ item }">
             <v-chip v-if="item.completed" color="success"> Выполнен </v-chip>
-            <v-chip v-else-if="item.overdued" color="error"> Просрочен </v-chip>
             <v-chip v-else color="primary"> Запланирован </v-chip>
           </template>
         </v-data-table>
@@ -68,6 +67,7 @@
         v-model="filterDialog"
         :filter.sync="filterModel"
         v-if="filterDialog"
+        :hasDeadline="false"
       />
       <ExportDialog v-model="exportDialog" v-if="exportDialog" />
     </v-col>
@@ -109,7 +109,6 @@ export default class ordersIndex extends Vue {
 
   headers = [
     { text: "Название", value: "name", align: "left" },
-    { text: "Дата", value: "date", align: "center", sortable: false },
     { text: "Статус", value: "status", align: "right", sortable: false },
   ];
 
@@ -118,11 +117,11 @@ export default class ordersIndex extends Vue {
   }
 
   get orders() {
-    return ordersStore.ordersDate;
+    return ordersStore.ordersNoDate;
   }
 
   get pagesCount() {
-    return ordersStore.datePagesCount;
+    return ordersStore.noDatePagesCount;
   }
 
   get itemsOnPage() {
@@ -150,15 +149,11 @@ export default class ordersIndex extends Vue {
 
   fetchorders() {
     ordersStore
-      .getOrdersWithDate({
+      .getOrdersWithoutDate({
         pageIndex: this.currentPageIndex,
         byName: this.byName,
         completed: this.filterModel.completed,
-        overdued: this.filterModel.overdued,
         searchKey: this.searchKey ?? "",
-        startDatetime: this.filterModel.startDatetime,
-        endDatetime: this.filterModel.endDatetime,
-        checkDatetime: this.filterModel.checkDatetime,
       })
       .then((_: any) => {
         this.fetched = true;
