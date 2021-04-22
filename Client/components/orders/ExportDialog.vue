@@ -46,7 +46,7 @@
             <v-container>
               <div v-for="(orders, i) in ordersByDate" :key="i">
                 <h1 class="text-h4">Заказы за {{ i | formatDate }}</h1>
-                <hr>
+                <hr />
                 <v-card v-for="order in orders" :key="order.id">
                   {{ order.id }}
                 </v-card>
@@ -109,8 +109,9 @@ export default class ExportDialog extends Vue {
     this.$uow.orders
       .getAllWithDate(
         0,
-        1000,
+        2000,
         SortOption.False,
+        undefined,
         undefined,
         undefined,
         (this.startDatetime as any) as Date,

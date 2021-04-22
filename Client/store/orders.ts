@@ -3,7 +3,7 @@ import { $ctx } from "@/utils/vue-context"
 import { config } from 'vuex-module-decorators'
 import { CollectionDTO } from '~/models/Common/CollectionDTO'
 import { SortOption } from '~/models/Enums/SortOption'
-import { OrderGetDTO, OrderPostDTO, OrderPatchDTO, OrderHistoryDTO } from '~/models/OrderDTO'
+import { OrderGetDTO, OrderPostDTO, OrderPatchDTO, OrderHistoryDTO, OrderCompletionPatchDTO } from '~/models/OrderDTO'
 
 config.rawError = true
 
@@ -74,6 +74,24 @@ export default class OrdersStore extends VuexModule {
   }
 
   @Mutation
+  ORDER_COMPLETION_UPDATED(order: OrderCompletionPatchDTO) {
+    if (_.includes(_.map(this.ordersDate, (order) => order.id), order.id)) {
+      this.ordersDate.forEach((element: OrderGetDTO, index: number) => {
+        if (element.id === order.id) {
+          this.ordersDate[index].completed = order.completed
+        }
+      });
+    }
+    else {
+      this.ordersNoDate.forEach((element: OrderGetDTO, index: number) => {
+        if (element.id === order.id) {
+          this.ordersNoDate[index].completed = order.completed
+        }
+      });
+    }
+  }
+
+  @Mutation
   ORDER_DELETED(order: OrderGetDTO) {
     if (order.executionDateTime != null) {
       this.ordersDate.forEach((element: OrderGetDTO, index: number) => {
@@ -130,7 +148,7 @@ export default class OrdersStore extends VuexModule {
   }
 
   @Action
-  async getCalendarOrders(payload: {searchKey?: string, startDatetime?: Date, endDatetime?: Date}) {
+  async getCalendarOrders(payload: { searchKey?: string, startDatetime?: Date, endDatetime?: Date }) {
 
     let response = await $ctx.$uow.orders.getAllWithDate(
       0, 3000, SortOption.False, undefined, undefined,
@@ -243,7 +261,24 @@ export default class OrdersStore extends VuexModule {
 
       this.context.commit("CLEAR_ERROR")
       this.context.commit("ORDER_UPDATED", model)
-      this.context.dispatch("getOrder", model.id)
+      this.context.dispatch("getOrder", {id: model.id, checkDatetime: null})
+      return true
+    }
+  }
+
+  @Action
+  async updateOrderCompletion(model: OrderCompletionPatchDTO) {
+
+    let response = await $ctx.$uow.orders.updateCompletion(model.id, model)
+
+    if (response.error) {
+      this.context.commit("ACTION_FAILED", response.error)
+      return false
+    } else {
+
+      this.context.commit("CLEAR_ERROR")
+      this.context.commit("ORDER_COMPLETION_UPDATED", model)
+      this.context.dispatch("getOrder", {id: model.id, checkDatetime: null})
       return true
     }
   }
