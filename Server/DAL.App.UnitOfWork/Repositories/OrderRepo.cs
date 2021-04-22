@@ -66,7 +66,7 @@ namespace DAL.App.UnitOfWork.Repositories
         {
             var query = DbSet.Where(o => o.Id == id || o.MasterId == id);
 
-            query = query.OrderBy(at => at.Id);
+            query = query.OrderByDescending(at => at.ChangedAt);
 
             var orders = await query.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync();
 

@@ -32,6 +32,7 @@ import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
 import CustomValueField from "~/components/common/CustomValueField.vue";
 import { AttributeTypeDetailsGetDTO } from "~/models/AttributeTypeDTO";
+import OrdersStore from "~/store/orders";
 
 @Component({
   components: {
@@ -81,6 +82,14 @@ export default class AttributeValueSellect extends Vue {
     this.fetchAttributeType();
   }
 
+  validateValue(id: number | null) {
+    return id != null && _.includes(_.map(this.attributeType.values, (value) => value.id), id);
+  }
+
+  validateUnit(id: number | null) {
+    return id != null && _.includes(_.map(this.attributeType.units, (unit) => unit.id), id);
+  }
+
   @Watch("typeId")
   fetchAttributeType(): void {
     this.fetched = false;
@@ -94,12 +103,18 @@ export default class AttributeValueSellect extends Vue {
           let customValue = this.value.customValue;
 
           if (this.attributeType != null) {
-            if (this.attributeType.usesDefinedValues) {
+            if (
+              this.attributeType.usesDefinedValues &&
+              !this.validateValue(valueId)
+            ) {
               valueId = this.attributeType.defaultValueId;
-            } else {
+            } else if (customValue.length == 0) {
               customValue = this.attributeType.defaultCustomValue;
             }
-            if (this.attributeType.usesDefinedUnits) {
+            if (
+              this.attributeType.usesDefinedUnits &&
+              !this.validateUnit(unitId)
+            ) {
               unitId = this.attributeType.defaultUnitId;
             }
           }

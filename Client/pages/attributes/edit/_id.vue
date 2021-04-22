@@ -73,7 +73,10 @@ export default class AttributeTypesCreate extends Vue {
 
   rules = {
     name: [required()],
-    attribute: [required()],
+    attribute: [
+      (value?: { id: number; name: string }) =>
+        (value != null && value.id > 0) || `Данное поле обязательно`,
+    ],
   };
 
   searchKey = "";
@@ -86,7 +89,7 @@ export default class AttributeTypesCreate extends Vue {
   }
 
   get availableTypes() {
-    return attributesStore.attributeTypes;
+    return attributeTypesStore.attributeTypes;;
   }
 
   get error() {
@@ -136,7 +139,7 @@ export default class AttributeTypesCreate extends Vue {
 
   @Watch("currentType")
   onTypeChanged(val: any){
-    this.model.attributeTypeId = val.id
+    this.model.attributeTypeId = val?.id ?? 0
   }
 
   @Watch("searchKey")

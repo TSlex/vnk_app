@@ -134,7 +134,7 @@ export default class TemplatesEdit extends Vue {
 
   rules = {
     name: [required()],
-    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В шаблоне должен быть как минимум один аттрибут"],
+    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В шаблоне должен быть как минимум один атрибут"],
   };
 
   id!: number;

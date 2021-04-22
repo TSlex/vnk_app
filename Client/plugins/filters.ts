@@ -23,6 +23,13 @@ Vue.filter('formatDateTime', function (value: any) {
   }
 })
 
+Vue.filter('formatDateTimeUTC', function (value: any) {
+  if (typeof value !== "string") return value;
+  if (value) {
+    return context.$moment.utc(String(value)).local().format('MMMM Do YYYY, HH:mm')
+  }
+})
+
 Vue.filter('formatDataType', function (value: any) {
   if (typeof value !== "string" && isNaN(Number(value))) return value;
   return localize(value as DataType)

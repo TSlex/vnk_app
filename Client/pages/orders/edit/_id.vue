@@ -182,7 +182,7 @@ export default class OrderEdit extends Vue {
 
   rules = {
     name: [required()],
-    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В заказе должен быть как минимум один аттрибут"],
+    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В заказе должен быть как минимум один атрибут"],
   };
 
   value = { value: "", index: 0, changeMode: false };
@@ -359,8 +359,8 @@ export default class OrderEdit extends Vue {
                 type: attribute.type,
                 typeId: attribute.typeId,
                 dataType: attribute.dataType,
-                usesDefinedValues: false,
-                usesDefinedUnits: false,
+                usesDefinedValues: attribute.usesDefinedValues,
+                usesDefinedUnits: attribute.usesDefinedUnits,
               },
               value: {
                 customValue: attribute.usesDefinedValues ? "" : attribute.value,

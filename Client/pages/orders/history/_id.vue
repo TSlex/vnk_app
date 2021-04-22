@@ -1,55 +1,29 @@
 <template>
   <v-row justify="center" class="text-center">
-    <v-col cols="6" class="mt-4">
-      <template v-if="loaded">
-        <v-container>
-          <v-btn to="/orders" class="mr-2" active-class="v-btn--hide-active"
-            >Заказы с датой</v-btn
-          >
-          <v-btn to="/orders/nodate" active-class="v-btn--hide-active"
-            >Заказы без даты</v-btn
-          >
-        </v-container>
+    <v-col cols="8" class="mt-4">
+      <template v-if="isMounted">
         <v-toolbar flat class="rounded-t-lg">
-          <v-btn outlined text large to="orders/create">Добавить</v-btn>
-          <v-btn
-            outlined
-            text
-            large
-            class="ml-2"
-            @click.stop="exportDialog = true"
-            >Экспорт</v-btn
-          >
-          <v-spacer></v-spacer>
-          <v-btn large icon @click.stop="filterDialog = true"
-            ><v-icon>mdi-filter</v-icon></v-btn
-          >
-          <v-text-field
-            rounded
-            outlined
-            single-line
-            hide-details
-            dense
-            flat
-            placeholder="Поиск по названию"
-            prepend-icon="mdi-magnify"
-            clear-icon="mdi-close"
-            clearable
-            v-model="searchKey"
-          ></v-text-field>
+          <v-toolbar-title> История заказа "{{ order.name }}" </v-toolbar-title>
         </v-toolbar>
         <v-data-table
           :loading="!fetched"
-          @update:options="setOrdering"
           :items="orders"
           :headers="headers"
           :items-per-page="itemsOnPage"
           hide-default-footer
-          @click:row="openDetails"
           class="rounded-b-lg rounded-t-0"
         >
           <template v-slot:[`item.date`]="{ item }">
             {{ item.executionDateTime | formatDateTime }}
+          </template>
+          <template v-slot:[`item.createdAt`]="{ item }">
+            {{ item.createdAt | formatDateTimeUTC }}
+          </template>
+          <template v-slot:[`item.changedAt`]="{ item }">
+            {{ item.changedAt | formatDateTimeUTC }}
+          </template>
+          <template v-slot:[`item.changedBy`]="{ item }">
+            {{ item.changedBy }}
           </template>
           <template v-slot:[`item.status`]="{ item }">
             <v-chip v-if="item.completed" color="success"> Выполнен </v-chip>
@@ -64,43 +38,93 @@
           class="mt-2"
         ></v-pagination>
       </template>
-      <FilterDialog
-        v-model="filterDialog"
-        :filter.sync="filterModel"
-        v-if="filterDialog"
-      />
-      <ExportDialog v-model="exportDialog" v-if="exportDialog" />
     </v-col>
   </v-row>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "nuxt-property-decorator";
+import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { ordersStore } from "~/store";
 
 @Component({})
 export default class OrderHistory extends Vue {
   id!: number;
-  loaded = false;
+  fetched = false;
+  isMounted = false;
+  currentPage = 1;
+
+  headers = [
+    { text: "Идентификатор", value: "id", align: "left", sortable: false },
+    {
+      text: "Дата исполнения",
+      value: "date",
+      align: "center",
+      sortable: false,
+    },
+    { text: "Создан", value: "createdAt", align: "center", sortable: false },
+    { text: "Изменен", value: "changedAt", align: "center", sortable: false },
+    { text: "Инициатор", value: "changedBy", align: "center", sortable: false },
+    { text: "Статус", value: "status", align: "right", sortable: false },
+  ];
+
+  get currentPageIndex() {
+    return (this.currentPage ?? 1) - 1;
+  }
+
+  get order() {
+    return ordersStore.selectedOrder;
+  }
+
+  get orders() {
+    return ordersStore.histryRecords;
+  }
+
+  get pagesCount() {
+    return ordersStore.historyPagesCount;
+  }
+
+  get itemsOnPage() {
+    return ordersStore.itemsOnPage;
+  }
 
   async asyncData({ params }: any) {
     return { id: params.id };
   }
 
-  mounted() {
-    if (!this.id) {
-      this.$router.back();
-    }
-
+  @Watch("currentPage")
+  fetchHistory() {
+    this.fetched = false;
     ordersStore
-      .getOrderHistory({ id: this.id, pageIndex: 0 })
+      .getOrderHistory({ id: this.id, pageIndex: this.currentPageIndex })
       .then((suceeded) => {
         if (!suceeded) {
           this.$router.back();
         } else {
-          this.loaded = true;
+
+          this.fetched = true;
         }
       });
+  }
+
+  async mounted() {
+    if (!this.id) {
+      this.$router.back();
+      return;
+    }
+
+    let order = await ordersStore.getOrder({
+      id: this.id,
+      checkDatetime: null,
+    });
+
+    if (!order) {
+      this.$router.back();
+      return;
+    }
+
+    this.fetchHistory();
+
+    this.isMounted = true;
   }
 }
 </script>
