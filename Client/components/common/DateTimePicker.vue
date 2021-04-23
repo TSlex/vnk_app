@@ -35,6 +35,7 @@
                   :first-day-of-week="1"
                   v-model="dateValue"
                   landscape
+                  :allowed-dates="allowedDates"
                 ></v-date-picker>
               </v-card>
             </v-tab-item>
@@ -73,6 +74,9 @@ import { Component, Prop, Vue } from "nuxt-property-decorator";
 export default class DateTimePicker extends Vue {
   @Prop({})
   rules: any;
+
+  @Prop({ default: () => [0, 1, 2, 3, 4, 5, 6] })
+  allowedDays!: number[];
 
   @Prop({ default: true })
   hasDate!: boolean;
@@ -122,6 +126,10 @@ export default class DateTimePicker extends Vue {
     return this.timeValue != null && /\d{2}:\d{2}/.test(this.timeValue);
   }
 
+  allowedDates(val: any) {
+    return _.includes(this.allowedDays, this.$moment(val).day());
+  }
+
   onSubmit() {
     let timeValid = !(this.hasTime && !this.timeIsCorrect);
     let dateValid = !(this.hasDate && !this.dateIsCorrect);
@@ -159,9 +167,9 @@ export default class DateTimePicker extends Vue {
     (this.$refs.picker as any).save(null);
   }
 
-  mounted(){
-    if (this.hasDate && this.hasTime){
-      this.timeValue = "00:00"
+  mounted() {
+    if (this.hasDate && this.hasTime) {
+      this.timeValue = "00:00";
     }
   }
 }

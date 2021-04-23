@@ -22,6 +22,7 @@
               <DateTimePicker
                 :label="'Дата исполнения'"
                 v-model="model.executionDateTime"
+                :allowedDays="[1, 2, 3, 4, 5]"
               />
               <!-- Attributes section -->
               <v-toolbar flat class="toolbar-no-padding">
