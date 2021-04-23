@@ -18,10 +18,12 @@
           </div>
           <div
             class="d-flex justify-space-between mt-2"
-            v-if="!attributeType.usesDefinedValues && attributeType.defaultCustomValue"
+            v-if="
+              !attributeType.usesDefinedValues &&
+              attributeType.defaultCustomValue
+            "
           >
-            <span>Значение по умолчанию:</span
-            >
+            <span>Значение по умолчанию:</span>
             <span v-if="isDateFormat" class="text-body-1">{{
               attributeType.defaultCustomValue | formatDate
             }}</span>
@@ -39,12 +41,8 @@
         <template v-if="!attributeType.systemicType">
           <v-divider></v-divider>
           <v-container>
-            <v-btn outlined text class="mr-1" @click="onEdit"
-              ><v-icon left>mdi-pencil</v-icon>Изменить</v-btn
-            >
-            <v-btn outlined text @click="onDelete"
-              ><v-icon color="red" left> mdi-delete </v-icon>Удалить</v-btn
-            >
+            <v-btn outlined text class="mr-1" @click="onEdit">Изменить</v-btn>
+            <v-btn outlined text @click="onDelete">Удалить</v-btn>
           </v-container>
         </template>
       </v-sheet>

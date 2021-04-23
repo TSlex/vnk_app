@@ -47,15 +47,8 @@
         </div>
         <v-divider></v-divider>
         <v-container>
-          <v-btn outlined text @click="onHistory"
-            ><v-icon color="red" left> mdi-folder-clock </v-icon>История</v-btn
-          >
-          <v-btn outlined text class="mr-1" @click="onEdit"
-            ><v-icon left>mdi-pencil</v-icon>Изменить</v-btn
-          >
-          <v-btn outlined text @click="onDelete"
-            ><v-icon color="red" left> mdi-delete </v-icon>Удалить</v-btn
-          >
+          <v-btn outlined text class="mr-1" @click="onEdit">Изменить</v-btn>
+          <v-btn outlined text @click="onDelete">Удалить</v-btn>
         </v-container>
       </v-sheet>
     </v-col>

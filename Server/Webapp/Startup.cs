@@ -41,8 +41,11 @@ namespace Webapp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(
-                    Configuration.GetConnectionString("MySqlConnection")));
+                {
+                    options.UseMySql(Configuration.GetConnectionString("MySqlConnection"),
+                        o => { o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery); });
+                }
+            );
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -106,7 +109,7 @@ namespace Webapp
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 options.ReportApiVersions = true;
             });
-            
+
             services.AddVersionedApiExplorer(options =>
                 {
                     options.GroupNameFormat = "'v'VVV";
@@ -116,10 +119,7 @@ namespace Webapp
 
             //Swagger support
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerOptions>();
-            services.AddSwaggerGen(options =>
-                {
-                    options.ResolveConflictingActions(enumerable => enumerable.First());
-                }
+            services.AddSwaggerGen(options => { options.ResolveConflictingActions(enumerable => enumerable.First()); }
             );
         }
 

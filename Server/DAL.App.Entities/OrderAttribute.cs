@@ -1,10 +1,9 @@
 ﻿using System.Text.Json.Serialization;
-using DAL.Base;
 using DAL.Base.Entities;
 
 namespace DAL.App.Entities
 {
-    public class OrderAttribute : DomainEntityIdSoftDelete
+    public class OrderAttribute : DomainEntityIdSoftUpdate
     {
         //has to be displayed in calendar view
         public bool Featured { get; set; }

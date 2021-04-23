@@ -2,7 +2,7 @@
 
 namespace DAL.App.DTO
 {
-    public class OrderAttribute : DomainEntityIdSoftDelete
+    public class OrderAttribute : DomainEntityIdSoftUpdate
     {
         public bool Featured { get; set; }
         

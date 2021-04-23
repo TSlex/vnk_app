@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using DAL.Base;
 using DAL.Base.Entities;
 
 namespace DAL.App.Entities
 {
-    public class Attribute : DomainEntityIdSoftDelete
+    public class Attribute : DomainEntityIdSoftUpdate
     {
         public string Name { get; set; } = default!;
         

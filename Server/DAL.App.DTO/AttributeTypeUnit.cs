@@ -1,9 +1,8 @@
-﻿using System.Text.Json.Serialization;
-using DAL.Base.Entities;
+﻿using DAL.Base.Entities;
 
 namespace DAL.App.DTO
 {
-    public class AttributeTypeUnit: DomainEntityIdMetadata
+    public class AttributeTypeUnit: DomainEntityIdSoftDelete
     {
         public string Value { get; set; } = default!;
         
