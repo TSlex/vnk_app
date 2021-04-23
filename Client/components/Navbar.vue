@@ -8,7 +8,7 @@
     <NavButton to="/types">Типы атрибутов</NavButton>
     <NavButton to="/templates">Шаблоны</NavButton>
     <NavButton to="/users">Пользователи</NavButton>
-    <NavButton to="/settings">Настройки</NavButton>
+    <!-- <NavButton to="/settings">Настройки</NavButton> -->
     <v-spacer></v-spacer>
     <NavAuth />
   </v-app-bar>

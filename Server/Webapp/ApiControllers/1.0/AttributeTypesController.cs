@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,7 +5,6 @@ using AppAPI._1._0;
 using AppAPI._1._0.Common;
 using AppAPI._1._0.Enums;
 using AppAPI._1._0.Responses;
-using DAL.App;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -37,16 +35,18 @@ namespace Webapp.ApiControllers._1._0
         public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage,
             bool reversed, string? searchKey)
         {
-            var typesQuery = _context.AttributeTypes.Select(at => new AttributeTypeGetDTO
-            {
-                Id = at.Id,
-                Name = at.Name,
-                DataType = (AttributeDataType) at.DataType,
-                SystemicType = at.SystemicType,
-                UsedCount = at.Attributes!.Count,
-                UsesDefinedUnits = at.UsesDefinedUnits,
-                UsesDefinedValues = at.UsesDefinedValues
-            });
+            var typesQuery = _context.AttributeTypes
+                .Where(at => at.DeletedAt == null)
+                .Select(at => new AttributeTypeGetDTO
+                {
+                    Id = at.Id,
+                    Name = at.Name,
+                    DataType = (AttributeDataType) at.DataType,
+                    SystemicType = at.SystemicType,
+                    UsedCount = at.Attributes!.Count(a => a.DeletedAt == null),
+                    UsesDefinedUnits = at.UsesDefinedUnits,
+                    UsesDefinedValues = at.UsesDefinedValues
+                });
 
             if (!string.IsNullOrEmpty(searchKey))
             {
@@ -58,7 +58,7 @@ namespace Webapp.ApiControllers._1._0
 
             var items = new CollectionDTO<AttributeTypeGetDTO>
             {
-                TotalCount = await _context.AttributeTypes.CountAsync(),
+                TotalCount = await _context.AttributeTypes.CountAsync(at => at.DeletedAt == null),
                 Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
             };
 
@@ -74,19 +74,23 @@ namespace Webapp.ApiControllers._1._0
         public async Task<ActionResult> GetById(long id, int valuesCount, int unitsCount)
         {
             var item = await _context.AttributeTypes
-                .Where(at => at.Id == id)
+                .Where(at => at.Id == id && at.DeletedAt == null)
                 .Select(at => new AttributeTypeGetDetailsDTO
                 {
                     Id = at.Id,
                     Name = at.Name,
-                    Units = at.TypeUnits!.Select(u => new AttributeTypeUnitDetailsDTO
+                    Units = at.TypeUnits!
+                        .Where(u => u.DeletedAt == null)
+                        .Select(u => new AttributeTypeUnitDetailsDTO
                         {
                             Id = u.Id,
                             Value = u.Value
                         }).OrderBy(u => u.Value)
                         .Take(unitsCount)
                         .ToList(),
-                    Values = at.TypeValues!.Select(v => new AttributeTypeValueDetailsDTO
+                    Values = at.TypeValues!
+                        .Where(v => v.DeletedAt == null)
+                        .Select(v => new AttributeTypeValueDetailsDTO
                         {
                             Id = v.Id,
                             Value = v.Value
@@ -95,16 +99,15 @@ namespace Webapp.ApiControllers._1._0
                         .ToList(),
                     DataType = (AttributeDataType) at.DataType,
                     SystemicType = at.SystemicType,
-                    UnitsCount = at.TypeUnits!.Count,
-                    UsedCount = at.Attributes!.Count,
-                    ValuesCount = at.TypeValues!.Count,
+                    UnitsCount = at.TypeUnits!.Count(u => u.DeletedAt == null),
+                    UsedCount = at.Attributes!.Count(a => a.DeletedAt == null),
+                    ValuesCount = at.TypeValues!.Count(v => v.DeletedAt == null),
                     DefaultCustomValue = at.DefaultCustomValue ?? "???",
                     DefaultUnitId = at.DefaultUnitId,
                     DefaultValueId = at.DefaultValueId,
                     UsesDefinedUnits = at.UsesDefinedUnits,
                     UsesDefinedValues = at.UsesDefinedValues
                 }).FirstOrDefaultAsync();
-
             if (item == null)
             {
                 return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
@@ -189,7 +192,8 @@ namespace Webapp.ApiControllers._1._0
 
             if (hasValues || hasUnits)
             {
-                attributeType = await _context.AttributeTypes.FirstAsync(type => type.Id == attributeType.Id);
+                attributeType =
+                    await _context.AttributeTypes.FirstAsync(t => t.Id == attributeType.Id && t.DeletedAt == null);
             }
 
             if (hasValues)
@@ -240,13 +244,15 @@ namespace Webapp.ApiControllers._1._0
             }
 
             if (attributeType.UsesDefinedValues &&
-                await _context.TypeValues.FirstOrDefaultAsync(value => value.Id == dto.DefaultValueId) == null)
+                await _context.TypeValues.FirstOrDefaultAsync(v => v.Id == dto.DefaultValueId && v.DeletedAt == null) ==
+                null)
             {
                 return BadRequest(new ErrorResponseDTO("Неверный идентификатор значения по умолчанию"));
             }
 
             if (attributeType.UsesDefinedUnits &&
-                await _context.TypeUnits.FirstOrDefaultAsync(unit => unit.Id == dto.DefaultUnitId) == null)
+                await _context.TypeUnits.FirstOrDefaultAsync(u => u.Id == dto.DefaultUnitId && u.DeletedAt == null) ==
+                null)
             {
                 return BadRequest(new ErrorResponseDTO("Неверный идентификатор единицы измерения по умолчанию"));
             }
@@ -265,19 +271,30 @@ namespace Webapp.ApiControllers._1._0
             return NoContent();
         }
 
-        //TODO: Make delete possible
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Delete(long id)
         {
             var attributeType = await _context.AttributeTypes.FindAsync(id);
+
             if (attributeType == null)
             {
-                return NotFound();
+                return NotFound(new ErrorResponseDTO("Атрибут не найден"));
             }
 
             if (attributeType.SystemicType)
             {
-                return NotFound(new ErrorResponseDTO("Нельзя удалить системный атрибут"));
+                return BadRequest(new ErrorResponseDTO("Нельзя удалить системный тип"));
+            }
+
+            var attributes = await _context.Attributes.Where(a => a.AttributeTypeId == id && a.DeletedAt == null)
+                .AnyAsync();
+
+            if (attributes)
+            {
+                return BadRequest(new ErrorResponseDTO("Нельзя удалить используемый тип"));
             }
 
             _context.AttributeTypes.Remove(attributeType);
@@ -291,14 +308,15 @@ namespace Webapp.ApiControllers._1._0
         #region TypeValues
 
         [HttpGet("values")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<AttributeTypeValueGetDTO>>))]
+        [ProducesResponseType(StatusCodes.Status200OK,
+            Type = typeof(ResponseDTO<IEnumerable<AttributeTypeValueGetDTO>>))]
         public async Task<ActionResult> GetAllValues(long? attributeTypeId)
         {
             var query = _context.TypeValues.AsQueryable();
 
             if (attributeTypeId != null)
             {
-                query = _context.TypeValues.Where(u => u.AttributeTypeId == attributeTypeId);
+                query = _context.TypeValues.Where(v => v.AttributeTypeId == attributeTypeId && v.DeletedAt == null);
             }
 
             var values = await query.Select(u => new AttributeTypeValueGetDTO
@@ -312,9 +330,10 @@ namespace Webapp.ApiControllers._1._0
                 Data = values
             });
         }
-        
+
         [HttpGet("{attributeTypeId}/values")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<AttributeTypeValueGetDTO>>))]
+        [ProducesResponseType(StatusCodes.Status200OK,
+            Type = typeof(ResponseDTO<IEnumerable<AttributeTypeValueGetDTO>>))]
         public async Task<ActionResult> GetAllValuesByTypeId(long attributeTypeId)
         {
             return await GetAllValues(attributeTypeId);
@@ -351,8 +370,9 @@ namespace Webapp.ApiControllers._1._0
             {
                 return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
             }
-            
-            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == attributeTypeId);
+
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t =>
+                t.Id == attributeTypeId && t.DeletedAt == null);
 
             if (type == null)
             {
@@ -368,7 +388,7 @@ namespace Webapp.ApiControllers._1._0
             await _context.TypeValues.AddAsync(value);
 
             await _context.SaveChangesAsync();
-            
+
             return CreatedAtAction(nameof(GetValueById), await GetValueById(value.Id));
         }
 
@@ -384,7 +404,7 @@ namespace Webapp.ApiControllers._1._0
             }
 
             var value = await _context.TypeValues.FirstOrDefaultAsync(typeValue =>
-                typeValue.Id == typeValuePatchDTO.Id);
+                typeValue.Id == typeValuePatchDTO.Id && typeValue.DeletedAt == null);
 
             if (value == null)
             {
@@ -405,7 +425,8 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> DeleteValue(long id)
         {
-            var value = await _context.TypeValues.FirstOrDefaultAsync(typeValue => typeValue.Id == id);
+            var value = await _context.TypeValues.FirstOrDefaultAsync(
+                typeValue => typeValue.Id == id && typeValue.DeletedAt == null);
 
             if (value == null)
             {
@@ -413,11 +434,14 @@ namespace Webapp.ApiControllers._1._0
             }
 
             var type = await _context.AttributeTypes.FirstAsync(t => t.Id == value.AttributeTypeId);
-            
+
             if (type.DefaultValueId == id)
             {
                 var newDefaultValue = await _context.TypeValues
-                    .Where(v => v.AttributeTypeId == type.Id && v.Id != id)
+                    .Where(v =>
+                        v.AttributeTypeId == type.Id &&
+                        v.Id != id &&
+                        v.DeletedAt == null)
                     .FirstOrDefaultAsync();
 
                 if (newDefaultValue == null)
@@ -430,7 +454,7 @@ namespace Webapp.ApiControllers._1._0
             }
 
             var attributes = await _context.OrderAttributes
-                .Where(attribute => attribute.ValueId == id)
+                .Where(oa => oa.ValueId == id && oa.DeletedAt == null)
                 .ToListAsync();
 
             foreach (var attribute in attributes)
@@ -446,18 +470,19 @@ namespace Webapp.ApiControllers._1._0
         }
 
         #endregion
-        
+
         #region TypeUnits
 
         [HttpGet("units")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<AttributeTypeUnitGetDTO>>))]
+        [ProducesResponseType(StatusCodes.Status200OK,
+            Type = typeof(ResponseDTO<IEnumerable<AttributeTypeUnitGetDTO>>))]
         public async Task<ActionResult> GetAllUnits(long? attributeTypeId)
         {
             var query = _context.TypeUnits.AsQueryable();
 
             if (attributeTypeId != null)
             {
-                query = _context.TypeUnits.Where(u => u.AttributeTypeId == attributeTypeId);
+                query = _context.TypeUnits.Where(u => u.AttributeTypeId == attributeTypeId && u.DeletedAt == null);
             }
 
             var units = await query.Select(u => new AttributeTypeUnitGetDTO
@@ -471,9 +496,10 @@ namespace Webapp.ApiControllers._1._0
                 Data = units
             });
         }
-        
+
         [HttpGet("{attributeTypeId}/units")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<IEnumerable<AttributeTypeUnitGetDTO>>))]
+        [ProducesResponseType(StatusCodes.Status200OK,
+            Type = typeof(ResponseDTO<IEnumerable<AttributeTypeUnitGetDTO>>))]
         public async Task<ActionResult> GetAllUnitsByTypeId(long attributeTypeId)
         {
             return await GetAllUnits(attributeTypeId);
@@ -510,8 +536,9 @@ namespace Webapp.ApiControllers._1._0
             {
                 return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
             }
-            
-            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t => t.Id == attributeTypeId);
+
+            var type = await _context.AttributeTypes.FirstOrDefaultAsync(t =>
+                t.Id == attributeTypeId && t.DeletedAt == null);
 
             if (type == null)
             {
@@ -542,8 +569,8 @@ namespace Webapp.ApiControllers._1._0
                 return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
             }
 
-            var unit = await _context.TypeUnits.FirstOrDefaultAsync(typeUnit =>
-                typeUnit.Id == typeUnitPatchDTO.Id);
+            var unit = await _context.TypeUnits.FirstOrDefaultAsync(u =>
+                u.Id == typeUnitPatchDTO.Id && u.DeletedAt == null);
 
             if (unit == null)
             {
@@ -564,19 +591,20 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> DeleteUnit(long id)
         {
-            var unit = await _context.TypeUnits.FirstOrDefaultAsync(typeUnit => typeUnit.Id == id);
+            var unit = await _context.TypeUnits.FirstOrDefaultAsync(u => u.Id == id && u.DeletedAt == null);
 
             if (unit == null)
             {
                 return NotFound(new ErrorResponseDTO("Единица измерения не найдена"));
             }
 
-            var type = await _context.AttributeTypes.FirstAsync(t => t.Id == unit.AttributeTypeId);
+            var type = await _context.AttributeTypes.FirstAsync(
+                t => t.Id == unit.AttributeTypeId && t.DeletedAt == null);
 
             if (type.DefaultUnitId == id)
             {
                 var newDefaultUnit = await _context.TypeUnits
-                    .Where(u => u.AttributeTypeId == type.Id && u.Id != id)
+                    .Where(u => u.AttributeTypeId == type.Id && u.Id != id && u.DeletedAt == null)
                     .FirstOrDefaultAsync();
 
                 if (newDefaultUnit == null)
@@ -589,7 +617,7 @@ namespace Webapp.ApiControllers._1._0
             }
 
             var attributes = await _context.OrderAttributes
-                .Where(attribute => attribute.UnitId == id)
+                .Where(oa => oa.UnitId == id && oa.DeletedAt == null)
                 .ToListAsync();
 
             foreach (var attribute in attributes)

@@ -93,7 +93,7 @@ export default class AttributeTypesCreate extends Vue {
   }
 
   get error() {
-    return attributeTypesStore.error;
+    return attributesStore.error;
   }
 
   onCancel() {

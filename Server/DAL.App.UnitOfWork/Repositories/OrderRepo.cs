@@ -70,23 +70,52 @@ namespace DAL.App.UnitOfWork.Repositories
 
             var orders = await query.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync();
 
-            var attributes = await DbContext.OrderAttributes
-                .Include(oa => oa.Attribute)
-                .ThenInclude(a => a!.AttributeType)
-                .ThenInclude(t => t!.TypeValues)
-                .Include(oa => oa.Attribute)
-                .ThenInclude(a => a!.AttributeType)
-                .ThenInclude(t => t!.TypeUnits)
+            var orderAttributes = await DbContext.OrderAttributes
+                // .Include(oa => oa.Attribute)
+                // .ThenInclude(a => a!.AttributeType)
+                // .ThenInclude(t => t!.TypeValues)
+                // .Include(oa => oa.Attribute)
+                // .ThenInclude(a => a!.AttributeType)
+                // .ThenInclude(t => t!.TypeUnits)
                 .Where(oa => oa.OrderId == id).ToListAsync();
+
+            var orderAttributesId = orderAttributes.Select(oa => oa.AttributeId);
+            var attributes = await DbContext.Attributes.Where(a => orderAttributesId.Contains(a.Id)).ToListAsync();
+
+            var attributeTypesId = attributes.Select(a => a.AttributeTypeId);
+            var types = await DbContext.AttributeTypes
+                .Where(t => attributeTypesId.Contains(t.Id))
+                .Include(t => t.TypeValues)
+                .Include(t => t.TypeUnits)
+                .ToListAsync();
+
 
             foreach (var order in orders)
             {
-                order.OrderAttributes = attributes
+                order.OrderAttributes = orderAttributes
                     .Where(oa =>
                         oa.ChangedAt <= order.ChangedAt &&
                         (!oa.DeletedAt.HasValue || oa.DeletedAt >= order.ChangedAt || oa.DeletedAt >= order.DeletedAt)
                     )
                     .ToList();
+
+                foreach (var orderAttribute in order.OrderAttributes)
+                {
+                    orderAttribute.Attribute = attributes
+                        .FirstOrDefault(a =>
+                            a.ChangedAt <= orderAttribute.ChangedAt &&
+                            (!a.DeletedAt.HasValue || a.DeletedAt >= orderAttribute.ChangedAt ||
+                             a.DeletedAt >= orderAttribute.DeletedAt));
+
+                    if (orderAttribute.Attribute != null)
+                    {
+                        orderAttribute.Attribute.AttributeType = types
+                            .FirstOrDefault(t =>
+                                t.ChangedAt <= orderAttribute.Attribute.ChangedAt &&
+                                (!t.DeletedAt.HasValue || t.DeletedAt >= orderAttribute.Attribute.ChangedAt ||
+                                 t.DeletedAt >= orderAttribute.Attribute.DeletedAt));
+                    }
+                }
             }
 
             return orders.Select(MapToDTO);
@@ -152,12 +181,14 @@ namespace DAL.App.UnitOfWork.Repositories
                     oa.DeletedAt == null))
                 .ThenInclude(oa => oa.Attribute)
                 .ThenInclude(a => a!.AttributeType)
-                .ThenInclude(t => t!.TypeValues)
+                .ThenInclude(t => t!.TypeValues!.Where(v =>
+                    v.DeletedAt == null))
                 .Include(o => o.OrderAttributes!.Where(oa =>
                     oa.DeletedAt == null))
                 .ThenInclude(oa => oa.Attribute)
                 .ThenInclude(a => a!.AttributeType)
-                .ThenInclude(t => t!.TypeUnits);
+                .ThenInclude(t => t!.TypeUnits!.Where(u =>
+                    u.DeletedAt == null));
         }
     }
 }
