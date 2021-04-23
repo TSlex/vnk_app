@@ -43,7 +43,7 @@
                 <div
                   class="d-flex justify-space-between pt-2 align-center"
                   v-for="(attribute, i) in attributes"
-                  :key="attribute.attribute.id + i"
+                  :key="attribute.attribute.id"
                 >
                   <template v-if="attribute.changeMode">
                     <AttributeSellect v-model="attribute.attribute" />

@@ -54,17 +54,6 @@ export default class TemplateSellect extends Vue {
           this.fetched = true;
         }
       });
-    // templatesStore
-    //   .getTemplates({
-    //     pageIndex: 0,
-    //     byName: SortOption.False,
-    //     searchKey: null,
-    //   })
-    //   .then((succeded) => {
-    //     if (succeded) {
-    //       this.fetched = true;
-    //     }
-    //   });
   }
 }
 </script>

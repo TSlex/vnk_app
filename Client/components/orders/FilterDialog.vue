@@ -26,16 +26,19 @@
               <DateTimePicker
                 :label="'Начальная дата'"
                 v-model="model.startDatetime"
+                :forceCentered="true"
               />
               <DateTimePicker
                 :label="'Конечная дата'"
                 v-model="model.endDatetime"
+                :forceCentered="true"
               />
               <br />
               <span class="text-body-1">Указать дату проверки</span>
               <DateTimePicker
                 :label="'Дата проверки'"
                 v-model="model.checkDatetime"
+                :forceCentered="true"
               />
             </template>
           </v-container>

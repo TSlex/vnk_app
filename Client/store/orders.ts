@@ -21,7 +21,7 @@ export default class OrdersStore extends VuexModule {
   ordersNoDateCount = 0;
   histryRecordsCount = 0;
 
-  itemsOnPage = 12;
+  itemsOnPage = 11;
 
   selectedOrder: OrderGetDTO | null = null
   error: string | null = null

@@ -12,7 +12,7 @@
         v-on="on"
         v-if="orders && orders.length > 3"
       >
-        {{ date }}
+        {{ formatDate(date) }}
         <v-icon small>mdi-chevron-down</v-icon>
       </div>
       <div
@@ -21,7 +21,7 @@
         v-bind="attrs"
         v-on="on"
       >
-        {{ date }}
+        {{ formatDate(date) }}
       </div>
     </template>
     <v-container class="white pa-4">
@@ -66,6 +66,10 @@ export default class CalendarMenu extends Vue {
 
   @Prop()
   orders!: OrderGetDTO[];
+
+  formatDate(date: Date){
+    return this.$moment(date).format("DD.MM.YYYY")
+  }
 
   getOrderFeaturedAttributes(order: OrderGetDTO) {
     return order.attributes.filter((attribute) => attribute.featured);

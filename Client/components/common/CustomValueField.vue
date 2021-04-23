@@ -27,7 +27,6 @@
   ></v-text-field>
   <div v-else-if="isDate">
     <DateTimePicker
-      :key="dataType"
       v-model="fieldValue"
       :label="label"
       :hasTime="false"
@@ -36,7 +35,6 @@
   </div>
   <div v-else-if="isTime">
     <DateTimePicker
-      :key="dataType"
       v-model="fieldValue"
       :label="label"
       :hasDate="false"
@@ -45,7 +43,6 @@
   </div>
   <div v-else-if="isDateTime">
     <DateTimePicker
-      :key="dataType"
       v-model="fieldValue"
       :label="label"
       :rules="rules.dateTime"
@@ -95,7 +92,11 @@ export default class CustomValueField extends Vue {
   }
 
   set fieldValue(value: any) {
-    this.$emit("input", String(value));
+    if (value == null) {
+      this.$emit("input", "");
+    } else {
+      this.$emit("input", String(value));
+    }
   }
 
   get switchLabel() {

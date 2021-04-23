@@ -11,8 +11,16 @@
               <v-radio label="Без даты" :value="1"></v-radio>
             </v-radio-group>
             <span>Промежуток экспорта</span>
-            <DateTimePicker :label="'Начальная дата'" v-model="startDatetime" />
-            <DateTimePicker :label="'Конечная дата'" v-model="endDatetime" />
+            <DateTimePicker
+              :label="'Начальная дата'"
+              v-model="startDatetime"
+              :forceCentered="true"
+            />
+            <DateTimePicker
+              :label="'Конечная дата'"
+              v-model="endDatetime"
+              :forceCentered="true"
+            />
           </v-container>
         </v-card-text>
         <v-card-actions>

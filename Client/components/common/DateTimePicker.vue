@@ -7,7 +7,7 @@
       rounded="lg"
       min-width="290px"
       absolute
-      content-class="modal-center"
+      :content-class="forceCentered ? 'modal-center' : ''"
       z-index="999"
     >
       <template v-slot:activator="{ on, attrs }">
@@ -92,6 +92,9 @@ export default class DateTimePicker extends Vue {
   @Prop()
   value!: string;
 
+  @Prop({default: false})
+  forceCentered!: boolean;
+
   timeValue: null | string = null;
   dateValue: null | string = null;
 
@@ -168,9 +171,7 @@ export default class DateTimePicker extends Vue {
   }
 
   mounted() {
-    if (this.hasDate && this.hasTime) {
-      this.timeValue = "00:00";
-    }
+      this.timeValue = "12:00";
   }
 }
 </script>

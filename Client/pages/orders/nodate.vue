@@ -18,7 +18,7 @@
             large
             class="ml-2"
             @click.stop="exportDialog = true"
-            >Экспорт</v-btn
+            >Отчет</v-btn
           >
           <v-spacer></v-spacer>
           <v-btn large icon @click.stop="filterDialog = true"
