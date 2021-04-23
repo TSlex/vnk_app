@@ -240,7 +240,7 @@ export default class TemplatesEdit extends Vue {
   }
 
   onSubmit() {
-    if ((this.$refs.form as any).validate()) {
+    if ((this.$refs.form as any).validate() && this.activeAutoComplete == null) {
       templatesStore
         .updateTemplate({
           model: this.model,

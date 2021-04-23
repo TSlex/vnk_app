@@ -47,8 +47,8 @@
                 >
                   <template v-if="attribute.changeMode">
                     <AttributeSellect v-model="attribute.attribute" />
-                    <div>
-                      <v-icon @click="onSubmitAttribute(i)">mdi-check</v-icon>
+                    <div class="ml-4">
+                      <v-btn text outlined @click="onSubmitAttribute(i)">OK</v-btn>
                     </div>
                   </template>
                   <template v-else>
@@ -151,7 +151,7 @@ export default class OrderCreate extends Vue {
 
   rules = {
     name: [required()],
-    attributes: [notEmpty()],
+    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В заказе должен быть как минимум один атрибут"],
   };
 
   value = { value: "", index: 0, changeMode: false };
@@ -264,7 +264,7 @@ export default class OrderCreate extends Vue {
   }
 
   onSubmit() {
-    if ((this.$refs.form as any).validate()) {
+    if ((this.$refs.form as any).validate() && this.activeAutoComplete == null) {
       this.model.attributes = _.map(this.attributes, (attribute) => {
         return {
           attributeId: attribute.attribute.id,

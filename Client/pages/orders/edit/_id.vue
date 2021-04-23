@@ -311,7 +311,7 @@ export default class OrderEdit extends Vue {
   }
 
   onSubmit() {
-    if ((this.$refs.form as any).validate()) {
+    if ((this.$refs.form as any).validate() && this.activeAutoComplete == null) {
       this.model.attributes = _.map(this.attributes, (attribute) => {
         return {
           id: attribute.id,

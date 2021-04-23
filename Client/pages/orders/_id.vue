@@ -7,7 +7,7 @@
             <span class="text-body-1"> <span></span>Номер заказа:</span>
             <span class="text-body-1">{{ order.name }}</span>
           </div>
-          <div class="d-flex justify-space-between mb-2">
+          <div class="d-flex justify-space-between mb-2" v-if="order.executionDateTime">
             <span class="text-body-1">Дата заказа:</span>
             <span class="text-body-1">{{
               order.executionDateTime | formatDateTime

@@ -132,7 +132,7 @@ export default class ordersIndex extends Vue {
   }
 
   openDetails(order: OrderGetDTO) {
-    this.$router.push(`orders/${order.id}`);
+    this.$router.push(`/orders/${order.id}`);
   }
 
   setOrdering(options: any) {

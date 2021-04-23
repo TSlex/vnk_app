@@ -118,7 +118,7 @@ export default class TemplateCreate extends Vue {
 
   rules = {
     name: [required()],
-    attributes: [notEmpty()],
+    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В шаблоне должен быть как минимум один атрибут"],
   };
 
   value = { value: "", index: 0, changeMode: false };
@@ -197,7 +197,7 @@ export default class TemplateCreate extends Vue {
   }
 
   onSubmit() {
-    if ((this.$refs.form as any).validate()) {
+    if ((this.$refs.form as any).validate() && this.activeAutoComplete == null) {
       this.model.attributes = _.map(this.attributes, (attribute) => {
         return {
           attributeId: attribute.model.id,
