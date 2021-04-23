@@ -15,7 +15,7 @@
           hide-details
           dense
           flat
-          placeholder="Поиск по названию"
+          placeholder="Поиск по номеру заказа"
           prepend-icon="mdi-magnify"
           clear-icon="mdi-close"
           clearable

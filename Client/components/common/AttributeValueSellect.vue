@@ -1,30 +1,34 @@
 <template>
-  <div v-if="fetched">
-    <CustomValueField
-      :dataType="attributeType.dataType"
-      v-model="customValue"
-      :label="`Значение`"
-      v-if="!attributeType.usesDefinedValues"
-    />
-    <v-select
-      v-else
-      v-model="valueId"
-      :items="attributeType.values"
-      item-text="value"
-      item-value="id"
-      label="Значение"
-      single-line
-    ></v-select>
-    <v-select
-      v-if="attributeType.usesDefinedUnits"
-      v-model="unitId"
-      :items="attributeType.units"
-      item-text="value"
-      item-value="id"
-      label="Ед. измерения"
-      single-line
-    ></v-select>
-  </div>
+  <v-row v-if="fetched">
+    <v-col>
+      <CustomValueField
+        :dataType="attributeType.dataType"
+        v-model="customValue"
+        :label="label"
+        v-if="!attributeType.usesDefinedValues"
+        class="ma-0"
+      />
+      <v-select
+        v-else
+        v-model="valueId"
+        :items="attributeType.values"
+        item-text="value"
+        item-value="id"
+        :label="label"
+        class="ma-0"
+      ></v-select>
+    </v-col>
+    <v-col v-if="attributeType.usesDefinedUnits">
+      <v-select
+        v-model="unitId"
+        :items="attributeType.units"
+        item-text="value"
+        item-value="id"
+        label="Ед. измерения"
+        class="ma-0"
+      ></v-select>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -48,6 +52,9 @@ export default class AttributeValueSellect extends Vue {
 
   @Prop({ default: null })
   typeId!: number | null;
+
+  @Prop({ default: "Значение" })
+  label!: string;
 
   fetched = false;
 
@@ -82,11 +89,23 @@ export default class AttributeValueSellect extends Vue {
   }
 
   validateValue(id: number | null) {
-    return id != null && _.includes(_.map(this.attributeType.values, (value) => value.id), id);
+    return (
+      id != null &&
+      _.includes(
+        _.map(this.attributeType.values, (value) => value.id),
+        id
+      )
+    );
   }
 
   validateUnit(id: number | null) {
-    return id != null && _.includes(_.map(this.attributeType.units, (unit) => unit.id), id);
+    return (
+      id != null &&
+      _.includes(
+        _.map(this.attributeType.units, (unit) => unit.id),
+        id
+      )
+    );
   }
 
   @Watch("typeId")
