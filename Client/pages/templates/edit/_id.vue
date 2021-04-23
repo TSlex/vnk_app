@@ -31,16 +31,18 @@
                 </div>
               </template>
               <div
-                class="d-flex justify-space-between pa-2 align-center"
+                class="d-flex justify-space-between align-center"
                 v-for="(attribute, i) in attributes"
                 :key="i"
               >
                 <template v-if="!attribute.deleted">
                   <template v-if="attribute.changeMode">
                     <AttributeSellect v-model="attribute.model" />
-                    <div>
-                      <v-icon @click="onSubmitAttribute(i)">mdi-check</v-icon>
-                    </div>
+                      <div class="ml-4">
+                        <v-btn text outlined @click="onSubmitAttribute(i)"
+                          >OK</v-btn
+                        >
+                      </div>
                   </template>
                   <template v-else>
                     <v-list-item class="grey lighten-5">

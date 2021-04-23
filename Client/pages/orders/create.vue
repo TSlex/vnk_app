@@ -48,7 +48,9 @@
                   <template v-if="attribute.changeMode">
                     <AttributeSellect v-model="attribute.attribute" />
                     <div class="ml-4">
-                      <v-btn text outlined @click="onSubmitAttribute(i)">OK</v-btn>
+                      <v-btn text outlined @click="onSubmitAttribute(i)"
+                        >OK</v-btn
+                      >
                     </div>
                   </template>
                   <template v-else>
@@ -85,11 +87,11 @@
               <template>
                 <div class="d-flex justify-center">
                   <v-switch
-                  :label="completedLabel"
-                  v-model="model.completed"
-                  inset
-                  color="success"
-                ></v-switch>
+                    :label="completedLabel"
+                    v-model="model.completed"
+                    inset
+                    color="success"
+                  ></v-switch>
                 </div>
               </template>
             </v-container>
@@ -151,7 +153,11 @@ export default class OrderCreate extends Vue {
 
   rules = {
     name: [required()],
-    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В заказе должен быть как минимум один атрибут"],
+    attributes: [
+      (value: any[]) =>
+        value.filter((item) => !item.deleted).length > 0 ||
+        "В заказе должен быть как минимум один атрибут",
+    ],
   };
 
   value = { value: "", index: 0, changeMode: false };
@@ -264,7 +270,10 @@ export default class OrderCreate extends Vue {
   }
 
   onSubmit() {
-    if ((this.$refs.form as any).validate() && this.activeAutoComplete == null) {
+    if (
+      (this.$refs.form as any).validate() &&
+      this.activeAutoComplete == null
+    ) {
       this.model.attributes = _.map(this.attributes, (attribute) => {
         return {
           attributeId: attribute.attribute.id,

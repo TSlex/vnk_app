@@ -1,6 +1,6 @@
 <template>
   <v-row justify="center" class="text-center" v-if="loaded">
-    <v-col cols="6" class="my-4">
+    <v-col cols="5" class="my-4">
       <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
         <v-card>
           <v-card-title>
@@ -40,53 +40,38 @@
                   </div>
                 </template>
                 <div
-                  class="d-flex justify-space-between pa-2 align-center"
+                  class="d-flex justify-space-between pt-2 align-center"
                   v-for="(attribute, i) in attributes"
                   :key="i"
                 >
                   <template v-if="!attribute.deleted">
                     <template v-if="attribute.changeMode">
                       <AttributeSellect v-model="attribute.attribute" />
-                      <div>
-                        <v-icon @click="onSubmitAttribute(i)">mdi-check</v-icon>
+                      <div class="ml-4">
+                        <v-btn text outlined @click="onSubmitAttribute(i)"
+                          >OK</v-btn
+                        >
                       </div>
                     </template>
                     <template v-else>
-                      <v-list-item class="grey lighten-5">
-                        <v-list-item-content>
-                          <v-list-item-title
-                            v-text="attribute.attribute.name"
-                          ></v-list-item-title>
-                          <v-divider class="mb-2 mt-1"></v-divider>
-                          <v-list-item-subtitle>
-                            <v-chip
-                              small
-                              v-text="attribute.attribute.type"
-                              class="mr-2"
-                            ></v-chip
-                            ><v-chip small outlined>{{
-                              attribute.attribute.dataType | formatDataType
-                            }}</v-chip>
-                          </v-list-item-subtitle>
-                        </v-list-item-content>
-                        <v-list-item-icon>
-                          <v-icon @click="onFeatureAttribute(i)"
-                            >mdi-star{{
-                              attribute.featured ? "" : "-outline"
-                            }}</v-icon
-                          >
-                          <v-icon @click="onEditAttribute(i)"
-                            >mdi-lead-pencil</v-icon
-                          >
-                          <v-icon @click="onDeleteAttribute(i)"
-                            >mdi-delete</v-icon
-                          >
-                        </v-list-item-icon>
-                        <AttributeValueSellect
-                          v-model="attribute.value"
-                          :typeId="attribute.attribute.typeId"
-                        />
-                      </v-list-item>
+                      <AttributeValueSellect
+                        v-model="attribute.value"
+                        :typeId="attribute.attribute.typeId"
+                        :label="attribute.attribute.name"
+                      />
+                      <span>
+                        <v-icon @click="onFeatureAttribute(i)"
+                          >mdi-star{{
+                            attribute.featured ? "" : "-outline"
+                          }}</v-icon
+                        >
+                        <v-icon @click="onEditAttribute(i)"
+                          >mdi-lead-pencil</v-icon
+                        >
+                        <v-icon @click="onDeleteAttribute(i)"
+                          >mdi-delete</v-icon
+                        >
+                      </span>
                     </template>
                   </template>
                   <template v-else>
@@ -110,12 +95,14 @@
               ></v-textarea>
               <!-- Completion switch -->
               <template>
-                <v-switch
-                  :label="completedLabel"
-                  v-model="model.completed"
-                  inset
-                  color="success"
-                ></v-switch>
+                <div class="d-flex justify-center">
+                  <v-switch
+                    :label="completedLabel"
+                    v-model="model.completed"
+                    inset
+                    color="success"
+                  ></v-switch>
+                </div>
               </template>
             </v-container>
           </v-card-text>
@@ -183,7 +170,11 @@ export default class OrderEdit extends Vue {
 
   rules = {
     name: [required()],
-    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В заказе должен быть как минимум один атрибут"],
+    attributes: [
+      (value: any[]) =>
+        value.filter((item) => !item.deleted).length > 0 ||
+        "В заказе должен быть как минимум один атрибут",
+    ],
   };
 
   value = { value: "", index: 0, changeMode: false };
@@ -311,7 +302,10 @@ export default class OrderEdit extends Vue {
   }
 
   onSubmit() {
-    if ((this.$refs.form as any).validate() && this.activeAutoComplete == null) {
+    if (
+      (this.$refs.form as any).validate() &&
+      this.activeAutoComplete == null
+    ) {
       this.model.attributes = _.map(this.attributes, (attribute) => {
         return {
           id: attribute.id,
