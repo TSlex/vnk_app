@@ -3,40 +3,35 @@
     <v-btn @click="onExport"></v-btn>
     <v-divider></v-divider>
     <div ref="pdfPage" id="pdfPage" v-if="fetched">
-      <v-container class="white">
-        <v-container v-for="(orders, i) in ordersByDate" :key="i">
-          {{ i | formatDate }}
-          <v-container v-for="order in orders" :key="order.id">
-            <div class="d-flex justify-space-between mb-2" v-if="order.name">
-              <span class="text-body-1">Название:</span>
-              <span class="text-body-1">{{ order.name }}</span>
+      <div v-for="(orders, i) in ordersByDate" :key="i">
+        <h3 class="day">Дата: {{ i | formatDate }}</h3>
+        <table v-for="order in orders" :key="order.id" class="day-order">
+          <tr v-if="order.name" class="order-row">
+            <td class="align-left">Номер заказа:</td>
+            <td class="align-right">{{ order.name }}</td>
+          </tr>
+          <tr v-if="order.executionDateTime" class="order-row">
+            <td class="align-left">Дата заказа:</td>
+            <td class="align-right">
+              {{ order.executionDateTime | formatDateTime }}
+            </td>
+          </tr>
+          <template v-if="order.executionDateTime">
+            <div class="order-row">
+              <td class="align-left">Состояние:</td>
+              <td class="align-right" v-if="order.completed">Выполнен</td>
+              <td class="align-right" v-else-if="order.overdued">Просрочен</td>
+              <td class="align-right" v-else>Запланирован</td>
             </div>
-            <div class="d-flex justify-space-between mb-2">
-              <span class="text-body-1">Дата заказа:</span>
-              <span class="text-body-1">{{
-                order.executionDateTime | formatDateTime
-              }}</span>
-            </div>
-            <div class="d-flex justify-space-between mb-2">
-              <span class="text-body-1">Состояние:</span>
-              <v-chip small v-if="order.completed" color="success">
-                Выполнен
-              </v-chip>
-              <v-chip small v-else-if="order.overdued" color="error">
-                Просрочен
-              </v-chip>
-              <v-chip small v-else color="primary"> Запланирован </v-chip>
-            </div>
-          </v-container>
-          <v-divider></v-divider>
-          <!-- <v-container>
-            <div
-              class="d-flex justify-space-between mb-2"
+          </template>
+          <template>
+            <tr
               v-for="attribute in order.attributes"
               :key="attribute.id"
+              class="order-row"
             >
-              <span class="text-body-1">{{ attribute.name }}:</span>
-              <span class="text-body-1">
+              <td class="align-left">{{ attribute.name }}:</td>
+              <td class="align-right">
                 <template v-if="isBooleanType(attribute)">{{
                   attribute.value | formatBoolean
                 }}</template>
@@ -50,25 +45,23 @@
                 <template v-if="attribute.usesDefinedUnits">{{
                   attribute.unit
                 }}</template>
-              </span>
-            </div>
-          </v-container> -->
-          <!-- <v-divider class="mt-n2"></v-divider>
+              </td>
+            </tr>
+          </template>
           <template v-if="order.notation">
-            <v-container class="d-flex justify-center my-3">
-              <span>{{ order.notation }}</span>
-            </v-container>
-            <v-divider></v-divider>
-          </template> -->
-        </v-container>
-      </v-container>
+            <tr>
+              <td class="align-center">{{ order.notation }}</td>
+            </tr>
+          </template>
+        </table>
+        <br>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import jsPDF from "~/utils/jspdf-russian";
-// import { jsPDF } from "jspdf";
+import { generatePdf } from "~/utils/jspdf-russian";
 import { Component, Vue } from "nuxt-property-decorator";
 import { DataType } from "~/models/Enums/DataType";
 import { SortOption } from "~/models/Enums/SortOption";
@@ -120,18 +113,13 @@ export default class blah extends Vue {
   }
 
   onExport() {
-    var doc = jsPDF;
-
-    // const doc = new jsPDF();
-    // const doc = new jsPDF("landscape", "px", "A4");
-    // // doc.addFont("/fonts/Nunito-Regular.ttf", "Nunito", "normal");
-    // doc.setFont("Nunito-Regular")
-    // doc.setFontSize(10);
-    // doc.text("Привет", 10, 10)
-    // // doc.html("pdfPage")
-    // console.log(this.$refs.pdfPage as any);
-    doc.html(this.$refs.pdfPage as any).then(() => {
-      doc.save("a4.pdf");
+    generatePdf(this.$refs.pdfPage).then((pdf) => {
+      var string = pdf.output("datauristring");
+      var embed = "<embed width='100%' height='100%' src='" + string + "'/>";
+      var x = window.open()!;
+      x.document.open();
+      x.document.write(embed);
+      x.document.close();
     });
   }
 }
@@ -139,11 +127,58 @@ export default class blah extends Vue {
 
 <style lang="scss" scoped>
 @font-face {
-    font-family: 'Nunito Regular';
-    src: url("/fonts/Nunito-Regular.ttf") format(truetype);
+  font-family: "Nunito Regular";
+  src: url("/fonts/Nunito-Regular.ttf") format(truetype);
 }
 
-#pdfPage{
-  font-family: 'Nunito Regular';
+#pdfPage {
+  font-family: "Nunito Regular";
+  width: 840px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  padding: 20px;
+  background: white;
+
+  .day {
+    margin-bottom: 10px;
+    border-bottom: 1px solid gray;
+  }
+
+  .day-order {
+    margin: 5px auto;
+    margin-bottom: 10px;
+    // padding: 5px;
+    border: 1px solid grey;
+    width: 80%;
+
+    .order-row {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
+
+table,
+tr {
+  border: 1px solid gray;
+  border-collapse: collapse !important;
+}
+
+td {
+  border-collapse: collapse !important;
+  &.align-left {
+    text-align: left;
+    width: 40%;
+  }
+
+  &.align-right {
+    text-align: right;
+    width: 100%;
+  }
+
+  &.align-center {
+    text-align: center;
+  }
 }
 </style>
