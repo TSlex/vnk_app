@@ -51,6 +51,7 @@
           <v-btn outlined text @click="onDelete">Удалить</v-btn>
         </v-container>
       </v-sheet>
+      <AttributeDeleteDialog v-model="deleteDialog" v-if="deleteDialog"/>
     </v-col>
   </v-row>
 </template>
@@ -59,11 +60,17 @@
 import { Component, Vue } from "nuxt-property-decorator";
 import { DataType } from "~/models/Enums/DataType";
 import { attributesStore } from "~/store";
+import AttributeDeleteDialog from "~/components/attributes/AttributeDeleteDialog.vue";
 
-@Component({})
+@Component({
+  components: {
+    AttributeDeleteDialog
+  }
+})
 export default class extends Vue {
   id!: number;
   loaded = false;
+  deleteDialog = false
 
   get attribute() {
     return attributesStore.selectedAttribute;
@@ -89,9 +96,9 @@ export default class extends Vue {
     this.$router.push(`/attributes/edit/${this.id}`);
   }
 
-  onDelete() {}
-
-  onHistory() {}
+  onDelete() {
+    this.deleteDialog = true
+  }
 
   async asyncData({ params }: any) {
     return { id: params.id };

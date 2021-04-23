@@ -169,20 +169,20 @@ export default class AttributeTypesStore extends VuexModule {
     }
   }
 
-  // @Action
-  // async deleteAttributeType(id: number) {
-  //   let response = await $ctx.$uow.attributeTypes.deleteAttributeType(id)
+  @Action
+  async deleteAttributeType(id: number) {
+    let response = await $ctx.$uow.attributeTypes.delete(id)
 
-  //   if (response.error) {
-  //     this.context.commit("ACTION_FAILED", response.error)
-  //     return false
-  //   } else {
-  //     this.context.commit("CLEAR_ERROR")
-  //     this.context.commit("SELECTED_ATTRIBUTE_TYPE_CLEARED")
-  //     this.context.commit("ATTRIBUTE_TYPE_DELETED", id)
-  //     return true
-  //   }
-  // }
+    if (response.error) {
+      this.context.commit("ACTION_FAILED", response.error)
+      return false
+    } else {
+      this.context.commit("CLEAR_ERROR")
+      this.context.commit("SELECTED_ATTRIBUTE_TYPE_CLEARED")
+      this.context.commit("ATTRIBUTE_TYPE_DELETED", id)
+      return true
+    }
+  }
 }
 
 interface AttributeTypeValueCommitDTO {

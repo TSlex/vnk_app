@@ -2,7 +2,7 @@ import { EmptyResponseDTO } from '~/models/Responses/EmptyResponseDTO';
 import { CollectionDTO } from '~/models/Common/CollectionDTO';
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { ResponseDTO } from '~/models/Responses/ResponseDTO';
-import {BaseRepo} from './BaseRepo';
+import { BaseRepo } from './BaseRepo';
 import { AttributeTypeDetailsGetDTO, AttributeTypeGetDTO, AttributeTypePatchDTO, AttributeTypePostDTO } from '~/models/AttributeTypeDTO';
 
 export class AttributeTypesRepo extends BaseRepo {
@@ -39,7 +39,7 @@ export class AttributeTypesRepo extends BaseRepo {
     return await this._patch<EmptyResponseDTO>(`${this.baseURL}/${id}`, model);
   }
 
-  // async delete() {
-
-  // }
+  async delete(id: number) {
+    return await this._delete<EmptyResponseDTO>(`${this.baseURL}/${id}`);
+  }
 }

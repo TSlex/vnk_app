@@ -34,4 +34,8 @@ export class AttributesRepo extends BaseRepo {
   async update(id: number, model: AttributePatchDTO) {
     return await this._patch<EmptyResponseDTO>(`${this.baseURL}/${id}`, model);
   }
+
+  async delete(id: number) {
+    return await this._delete<EmptyResponseDTO>(`${this.baseURL}/${id}`);
+  }
 }

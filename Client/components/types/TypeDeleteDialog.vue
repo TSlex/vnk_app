@@ -69,7 +69,7 @@ export default class TypeDeleteDialog extends Vue {
     if ((this.$refs.form as any).validate()) {
       attributeTypesStore.deleteAttributeType(this.id).then((succeeded) => {
         if (succeeded) {
-          this.$router.push("/attributeTypes")
+          this.$router.push("/types")
         } else {
           this.showError = true;
         }

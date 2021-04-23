@@ -4,7 +4,7 @@
       <v-card>
         <v-card-title>
           <span class="headline"
-            >Вы уверены, что хотите удалить тип "{{ attribute.name }}"?</span
+            >Вы уверены, что хотите удалить атрибут "{{ attribute.name }}"?</span
           >
         </v-card-title>
           <v-container class="px-10">
@@ -33,7 +33,7 @@ import { Component, Prop, Vue } from "nuxt-property-decorator"
 import { attributesStore } from "~/store";
 
 @Component({})
-export default class TypeDeleteDialog extends Vue {
+export default class AttributeDeleteDialog extends Vue {
   @Prop()
   value!: boolean;
 

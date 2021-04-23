@@ -95,6 +95,7 @@
           </div>
         </div>
       </v-sheet>
+      <TypeDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
     </v-col>
   </v-row>
 </template>
@@ -103,11 +104,17 @@
 import { Component, Vue } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
 import { DataType } from "~/models/Enums/DataType";
+import TypeDeleteDialog from "~/components/types/TypeDeleteDialog.vue";
 
-@Component({})
+@Component({
+  components: {
+    TypeDeleteDialog,
+  },
+})
 export default class extends Vue {
   id!: number;
   loaded = false;
+  deleteDialog = false;
 
   get attributeType() {
     return attributeTypesStore.selectedAttributeType;
@@ -139,7 +146,9 @@ export default class extends Vue {
     this.$router.push(`/types/edit/${this.id}`);
   }
 
-  onDelete() {}
+  onDelete() {
+    this.deleteDialog = true;
+  }
 
   async asyncData({ params }: any) {
     return { id: params.id };

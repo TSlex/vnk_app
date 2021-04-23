@@ -212,7 +212,7 @@ namespace Webapp.ApiControllers._1._0
                 return NotFound(new ErrorResponseDTO("Атрибут не найден"));
             }
 
-            var attributes = await _context.Attributes.Where(a => a.AttributeTypeId == id && a.DeletedAt == null)
+            var attributes = await _context.OrderAttributes.Where(oa => oa.AttributeId == id && oa.DeletedAt == null)
                 .AnyAsync();
 
             if (attributes)

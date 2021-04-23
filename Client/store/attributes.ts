@@ -129,18 +129,18 @@ export default class AttributesStore extends VuexModule {
     }
   }
 
-  // @Action
-  // async deleteAttribute(id: number) {
-  //   let response = await $ctx.$uow.attributes.deleteAttribute(id)
+  @Action
+  async deleteAttribute(id: number) {
+    let response = await $ctx.$uow.attributes.delete(id)
 
-  //   if (response.error) {
-  //     this.context.commit("ACTION_FAILED", response.error)
-  //     return false
-  //   } else {
-  //     this.context.commit("CLEAR_ERROR")
-  //     this.context.commit("SELECTED_ATTRIBUTE_CLEARED")
-  //     this.context.commit("ATTRIBUTE_DELETED", id)
-  //     return true
-  //   }
-  // }
+    if (response.error) {
+      this.context.commit("ACTION_FAILED", response.error)
+      return false
+    } else {
+      this.context.commit("CLEAR_ERROR")
+      this.context.commit("SELECTED_ATTRIBUTE_CLEARED")
+      this.context.commit("ATTRIBUTE_DELETED", id)
+      return true
+    }
+  }
 }
