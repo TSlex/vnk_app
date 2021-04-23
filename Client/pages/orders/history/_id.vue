@@ -54,7 +54,7 @@ export default class OrderHistory extends Vue {
   currentPage = 1;
 
   headers = [
-    { text: "Идентификатор", value: "id", align: "left", sortable: false },
+    { text: "Номер заказа", value: "name", align: "left", sortable: false },
     {
       text: "Дата исполнения",
       value: "date",

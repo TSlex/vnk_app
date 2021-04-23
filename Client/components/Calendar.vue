@@ -57,7 +57,11 @@
         <!-- Date -->
         <template v-slot:day-label="{ date }">
           <template>
-            <div class="grey lighten-3 text-subtitle-2">{{ date }}</div>
+            <CalendarMenu
+              :date="date"
+              v-on:order-sellect="onOrderSellect"
+              :orders="getDayOrders(date)"
+            />
             <v-divider></v-divider>
           </template>
         </template>
@@ -66,7 +70,7 @@
           <div class="pa-2 text-center">
             <v-chip
               @click.stop="onOrderSellect(order)"
-              v-for="order in getDayOrders(date)"
+              v-for="order in getDayOrders(date, 3)"
               :key="order.id"
               class="mb-1 d-flex justify-center"
               style="width: 100%"
@@ -98,9 +102,16 @@
 import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
 import { OrderAttributeGetDTO, OrderGetDTO } from "~/models/OrderDTO";
 import { ordersStore } from "~/store";
+import CalendarMenu from "~/components/CalendarMenu.vue";
 
-@Component
+@Component({
+  components: {
+    CalendarMenu,
+  },
+})
 export default class Calendar extends Vue {
+  showMenu = false;
+
   $refs!: {
     calendar: any;
   };
@@ -125,8 +136,16 @@ export default class Calendar extends Vue {
     ordersStore.getOrder({ id: order.id, checkDatetime: null });
   }
 
-  getDayOrders(date: string) {
-    return this.orders[date];
+  getDayOrders(date: string, limit?: number) {
+    var orders = this.orders[date] ?? [];
+
+    orders = _.sortBy(orders, ['!overdued', 'completed'])
+
+    if (limit) {
+      var orders = orders.slice(0, limit);
+    }
+
+    return orders;
   }
 
   getOrderFeaturedAttributes(order: OrderGetDTO) {

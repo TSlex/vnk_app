@@ -108,7 +108,7 @@ export default class ordersIndex extends Vue {
   exportDialog = false;
 
   headers = [
-    { text: "Название", value: "name", align: "left" },
+    { text: "Номер заказа", value: "name", align: "left" },
     { text: "Статус", value: "status", align: "right", sortable: false },
   ];
 

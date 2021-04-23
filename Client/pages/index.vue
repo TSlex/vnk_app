@@ -9,7 +9,7 @@
         <template v-if="order">
           <v-container>
             <div class="d-flex justify-space-between mb-2" v-if="order.name">
-              <span class="text-body-1">Название:</span>
+              <span class="text-body-1">Номер заказа:</span>
               <span class="text-body-1">{{ order.name }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2">

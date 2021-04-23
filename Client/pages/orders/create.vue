@@ -14,7 +14,7 @@
               </v-alert>
               <!-- Name field -->
               <v-text-field
-                label="Название"
+                label="Номер заказа"
                 required
                 :rules="rules.name"
                 v-model="model.name"
