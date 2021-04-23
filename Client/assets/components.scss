@@ -9,3 +9,13 @@
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
 }
+
+.expansion-panel-content_no_wrap {
+  .v-expansion-panel-content__wrap {
+    padding: 0 !important;
+  }
+
+  &.rounded-lg {
+    overflow: hidden;
+  }
+}

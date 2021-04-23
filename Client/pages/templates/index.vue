@@ -32,50 +32,127 @@
           <template v-slot:body="{ items }">
             <v-container>
               <v-row dense>
-                <v-col cols="4" v-for="item in items" :key="item.id">
+                <v-col cols="4" v-for="template in items" :key="template.id">
                   <v-card shaped>
-                    <v-card-title class="d-block pa-2">
-                      <span class="text-h5">Шаблон "{{ item.name }}"</span>
-                    </v-card-title>
+                    <v-expansion-panels accordion multiple hover flat>
+                      <v-expansion-panel>
+                        <v-expansion-panel-header class="text-center">
+                          <span class="text-h5"
+                            >Шаблон "{{ template.name }}"</span
+                          >
+                        </v-expansion-panel-header>
+                        <v-expansion-panel-content
+                          class="expansion-panel-content_no_wrap"
+                        >
+                          <v-divider></v-divider>
+                          <!-- attributes -->
+                          <v-expansion-panels
+                            accordion
+                            multiple
+                            hover
+                            flat
+                            class="pa-2"
+                          >
+                            <v-expansion-panel
+                              v-for="attribute in template.attributes"
+                              :key="attribute.id"
+                            >
+                              <v-expansion-panel-header
+                                hide-actions
+                                class="pa-0 rounded-lg"
+                              >
+                                <div class="d-flex justify-space-between">
+                                  <span class="text-body-1">{{
+                                    attribute.name
+                                  }}</span>
+                                  <span class="text-body-1">
+                                    <v-icon v-if="attribute.featured"
+                                      >mdi-star</v-icon
+                                    >
+                                    <v-icon v-else>mdi-star-outline</v-icon>
+                                  </span>
+                                </div>
+                              </v-expansion-panel-header>
+                              <v-expansion-panel-content
+                                class="expansion-panel-content_no_wrap mt-1 rounded-lg"
+                              >
+                                <v-container class="grey lighten-3">
+                                  <div
+                                    class="d-flex justify-space-between mb-2"
+                                  >
+                                    <span class="text-body-2">Атрибут:</span>
+                                    <v-chip
+                                      small
+                                      @click.stop="
+                                        onNavigateToAttribute(
+                                          attribute.attributeId
+                                        )
+                                      "
+                                      >{{ attribute.name }}</v-chip
+                                    >
+                                  </div>
+                                  <div
+                                    class="d-flex justify-space-between mb-2"
+                                  >
+                                    <span class="text-body-2"
+                                      >Тип атрибута:</span
+                                    >
+                                    <v-chip
+                                      small
+                                      @click.stop="
+                                        onNavigateToType(attribute.typeId)
+                                      "
+                                      >{{ attribute.type }}</v-chip
+                                    >
+                                  </div>
+                                  <div
+                                    class="d-flex justify-space-between mb-2"
+                                  >
+                                    <span class="text-body-2">Формат:</span>
+                                    <v-chip small>{{
+                                      attribute.dataType | formatDataType
+                                    }}</v-chip>
+                                  </div>
+                                  <div
+                                    class="d-flex justify-space-between mb-2"
+                                  >
+                                    <span class="text-body-2"
+                                      >Значения определены:</span
+                                    >
+                                    <v-chip small>{{
+                                      attribute.usesDefinedValues
+                                        | formatBoolean
+                                    }}</v-chip>
+                                  </div>
+                                  <div
+                                    class="d-flex justify-space-between mb-2"
+                                  >
+                                    <span class="text-body-2"
+                                      >Ед. измерения определены:</span
+                                    >
+                                    <v-chip small>{{
+                                      attribute.usesDefinedUnits | formatBoolean
+                                    }}</v-chip>
+                                  </div>
+                                </v-container>
+                              </v-expansion-panel-content>
+                            </v-expansion-panel>
+                          </v-expansion-panels>
+                        </v-expansion-panel-content>
+                      </v-expansion-panel>
+                    </v-expansion-panels>
+
                     <v-divider></v-divider>
-                    <v-list rounded>
-                      <v-list-item
-                        class="grey lighten-5"
-                        v-for="attribute in item.attributes"
-                        :key="attribute.id"
-                        @click.prevent="
-                          onNavigateToAttribute(attribute.attributeId)
-                        "
-                      >
-                        <v-list-item-content>
-                          <v-list-item-title
-                            v-text="attribute.name"
-                          ></v-list-item-title>
-                          <v-divider class="mb-2 mt-1"></v-divider>
-                          <v-list-item-subtitle>
-                            <v-chip
-                              small
-                              v-text="attribute.type"
-                              class="mr-2"
-                              @click.stop="onNavigateToType(attribute.typeId)"
-                            ></v-chip
-                            ><v-chip small outlined>{{
-                              attribute.dataType | formatDataType
-                            }}</v-chip>
-                          </v-list-item-subtitle>
-                        </v-list-item-content>
-                        <v-list-item-icon>
-                          <v-icon v-if="attribute.featured">mdi-star</v-icon>
-                          <v-icon v-else>mdi-star-outline</v-icon>
-                        </v-list-item-icon>
-                      </v-list-item>
-                    </v-list>
-                    <v-divider></v-divider>
+                    <!-- actions -->
                     <v-container>
-                      <v-btn outlined text class="mr-1" @click="onEdit(item.id)"
+                      <v-btn
+                        outlined
+                        text
+                        class="mr-1"
+                        @click="onEdit(template.id)"
                         ><v-icon left>mdi-pencil</v-icon>Изменить</v-btn
                       >
-                      <v-btn outlined text @click="onDelete(item.id)"
+                      <v-btn outlined text @click="onDelete(template.id)"
                         ><v-icon left> mdi-delete </v-icon>Удалить</v-btn
                       >
                     </v-container>
@@ -92,7 +169,10 @@
           class="mt-2"
         ></v-pagination>
       </template>
-      <TemplateDeleteDialog v-model="deleteDialog" v-if="deleteDialog && template"/>
+      <TemplateDeleteDialog
+        v-model="deleteDialog"
+        v-if="deleteDialog && template"
+      />
     </v-col>
   </v-row>
 </template>
@@ -142,15 +222,15 @@ export default class templatesIndex extends Vue {
   }
 
   onEdit(id: number) {
-    this.$router.push(`templates/edit/${id}`)
+    this.$router.push(`templates/edit/${id}`);
   }
 
   onDelete(id: number) {
     templatesStore.getTemplate(id).then((succeeded) => {
-      if (succeeded){
-        this.deleteDialog = true
+      if (succeeded) {
+        this.deleteDialog = true;
       }
-    })
+    });
   }
 
   onNavigateToAttribute(attributeId: number) {

@@ -4,7 +4,7 @@
       <v-sheet rounded="lg" class="py-2">
         <v-container>
           <div class="d-flex justify-space-between mb-2" v-if="order.name">
-            <span class="text-body-1">Номер заказа:</span>
+            <span class="text-body-1"> <span></span>Номер заказа:</span>
             <span class="text-body-1">{{ order.name }}</span>
           </div>
           <div class="d-flex justify-space-between mb-2">
@@ -33,7 +33,11 @@
             >
               <v-expansion-panel-header hide-actions class="pa-0 rounded-lg">
                 <div class="d-flex justify-space-between">
-                  <span class="text-body-1">{{ attribute.name }}:</span>
+                  <span class="d-flex align-center">
+                    <v-icon class="text-body-1" v-if="attribute.featured">mdi-star</v-icon>
+                    <v-icon class="text-body-1" v-else>mdi-star-outline</v-icon>
+                    <span class="ml-1 text-body-1">{{ attribute.name }}:</span>
+                  </span>
                   <span class="text-body-1">
                     <template v-if="isBooleanType(attribute)">{{
                       attribute.value | formatBoolean
@@ -96,7 +100,7 @@
                     }}</v-chip>
                   </div>
                   <div
-                    class="d-flex justify-space-between mb-2"
+                    class="d-flex justify-space-between"
                     v-if="order.name"
                   >
                     <span class="text-body-2">Ед. измерения определены:</span>
@@ -126,7 +130,7 @@
           <v-btn outlined text large @click="onHistory">История</v-btn>
         </v-container>
       </v-sheet>
-        <OrderDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
+      <OrderDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
     </v-col>
   </v-row>
 </template>
@@ -206,15 +210,3 @@ export default class OrderDetails extends Vue {
   }
 }
 </script>
-
-<style lang="scss">
-.expansion-panel-content_no_wrap {
-  .v-expansion-panel-content__wrap {
-    padding: 0 !important;
-  }
-
-  &.rounded-lg {
-    overflow: hidden;
-  }
-}
-</style>

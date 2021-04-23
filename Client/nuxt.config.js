@@ -32,6 +32,7 @@ export default {
     "~/plugins/axios-error-handler.ts",
     "~/plugins/vuelidate.ts",
     "~/plugins/filters.ts",
+    "~/plugins/global-components.ts",
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
