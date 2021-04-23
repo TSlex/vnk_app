@@ -6,13 +6,13 @@
         <v-card-text>
           <v-container>
             <span>Тип заказа</span>
-            <v-radio-group v-model.number="ordersType" row>
+            <v-radio-group v-model.number="ordersType" row class="mt-0">
               <v-radio label="С датой" :value="0"></v-radio>
               <v-radio label="Без даты" :value="1"></v-radio>
             </v-radio-group>
             <span>Промежуток экспорта</span>
-            <DateTimePicker :label="'Начальная дата'" />
-            <DateTimePicker :label="'Конечная дата'" />
+            <DateTimePicker :label="'Начальная дата'" v-model="startDatetime" />
+            <DateTimePicker :label="'Конечная дата'" v-model="endDatetime" />
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -21,42 +21,14 @@
             >Отмена</v-btn
           >
           <v-btn color="blue darken-1" text type="submit">Экспортировать</v-btn>
+          <v-spacer></v-spacer>
         </v-card-actions>
       </v-card>
     </v-form>
-    <template>
-      <div>
-        <vue-html2pdf
-          :show-layout="false"
-          :float-layout="true"
-          :enable-download="true"
-          :preview-modal="false"
-          :paginate-elements-by-height="1400"
-          :manual-pagination="false"
-          :filename="filename"
-          :pdf-quality="2"
-          pdf-format="a4"
-          pdf-orientation="portrait"
-          pdf-content-width="800px"
-          ref="pdf"
-        >
-          <section slot="pdf-content">
-            <!-- PDF Content Here -->
-            123
-            <v-container>
-              <div v-for="(orders, i) in ordersByDate" :key="i">
-                <h1 class="text-h4">Заказы за {{ i | formatDate }}</h1>
-                <hr />
-                <v-card v-for="order in orders" :key="order.id">
-                  {{ order.id }}
-                </v-card>
-              </div>
-            </v-container>
-          </section>
-        </vue-html2pdf>
-      </div>
-    </template></v-dialog
-  >
+    <div ref="pdfPage" id="pdfPage">
+      <v-container class="white"> ContentHere </v-container>
+    </div>
+  </v-dialog>
 </template>
 
 <script lang="ts">
@@ -66,6 +38,8 @@ import { SortOption } from "~/models/Enums/SortOption";
 
 import { OrderGetDTO } from "~/models/OrderDTO";
 
+import { jsPDF } from "jspdf";
+
 @Component({
   components: {
     DateTimePicker,
@@ -74,6 +48,9 @@ import { OrderGetDTO } from "~/models/OrderDTO";
 export default class ExportDialog extends Vue {
   @Prop()
   value!: boolean;
+
+  @Prop({ default: true })
+  hasDate!: boolean;
 
   ordersType = 0;
 
@@ -123,7 +100,14 @@ export default class ExportDialog extends Vue {
   }
 
   onSubmit() {
-    (this.$refs.pdf as any).generatePdf();
+    // const doc = new jsPDF();
+    const doc = new jsPDF("landscape", "px", "A4");
+    // doc.html("pdfPage")
+    console.log(this.$refs.pdfPage as any);
+    doc.html(this.$refs.pdfPage as any).then(() => {
+      doc.save("a4.pdf");
+    });
+
     // this.$uow.orders
     //   .getAllWithDate(
     //     0,

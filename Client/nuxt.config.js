@@ -32,7 +32,6 @@ export default {
     "~/plugins/axios-error-handler.ts",
     "~/plugins/vuelidate.ts",
     "~/plugins/filters.ts",
-    '~/plugins/vue-html2pdf'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

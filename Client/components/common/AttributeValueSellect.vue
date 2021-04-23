@@ -32,7 +32,6 @@ import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
 import { attributeTypesStore } from "~/store";
 import CustomValueField from "~/components/common/CustomValueField.vue";
 import { AttributeTypeDetailsGetDTO } from "~/models/AttributeTypeDTO";
-import OrdersStore from "~/store/orders";
 
 @Component({
   components: {
