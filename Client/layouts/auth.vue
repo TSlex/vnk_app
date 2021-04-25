@@ -10,18 +10,11 @@
 
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
-import { commonStore } from "~/store";
 
-@Component({})
-export default class AuthLayout extends Vue {
-  mounted() {
-    commonStore?.checkServer().then((online) => {
-      if (!online) {
-        this.$router.push("/offline");
-      }
-    });
-  }
-}
+@Component({
+  middleware: ["server"],
+})
+export default class AuthLayout extends Vue {}
 </script>
 
 

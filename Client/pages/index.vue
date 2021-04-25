@@ -59,7 +59,7 @@
             </v-container>
             <v-divider></v-divider>
           </template>
-          <v-container class="d-flex justify-space-between">
+          <v-container class="d-flex justify-space-between" v-if="isAdministrator">
             <v-btn outlined text large @click="onCheck(order)">Отметить</v-btn>
             <v-btn outlined text large @click="onDetails(order.id)"
               >Подробнее</v-btn
@@ -82,7 +82,7 @@
 
 <script lang="ts">
 import Calendar from "@/components/Calendar.vue";
-import { ordersStore } from "~/store";
+import { identityStore, ordersStore } from "~/store";
 
 import { Component, Prop, Vue } from "nuxt-property-decorator";
 import { OrderAttributeGetDTO, OrderGetDTO } from "~/models/OrderDTO";
@@ -98,6 +98,10 @@ export default class IndexPage extends Vue {
 
   get order() {
     return ordersStore.selectedOrder;
+  }
+
+  get isAdministrator() {
+    return identityStore.isAdministrator || identityStore.isRoot;
   }
 
   onCheck(order: OrderGetDTO) {

@@ -11,24 +11,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "nuxt-property-decorator"
-import { commonStore, identityStore } from "~/store"
+import { Component, Vue } from "nuxt-property-decorator";
 
 @Component({
-  middleware: [
-    "server", "auth"
-  ]
+  middleware: ["server", "auth"],
 })
-export default class DafultLayout extends Vue {
-  // mounted() {
-  //   commonStore?.checkServer().then((online) => {
-  //     if (online){
-  //       identityStore.initializeIdentity()
-  //     }
-  //     else{
-  //       this.$router.push("/offline")
-  //     }
-  //   })
-  // }
-}
+export default class DafultLayout extends Vue {}
 </script>

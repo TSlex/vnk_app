@@ -2,7 +2,7 @@
   <v-sheet color="transparent">
     <v-sheet rounded="lg" class="pt-1">
       <v-toolbar flat>
-        <v-btn outlined text large to="orders/create" class="mr-2"
+        <v-btn outlined text large to="orders/create" class="mr-2" v-if="isAdministrator"
           >Добавить заказ</v-btn
         >
         <v-btn outlined text large to="orders/create">Отчет</v-btn>
@@ -101,7 +101,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
 import { OrderAttributeGetDTO, OrderGetDTO } from "~/models/OrderDTO";
-import { ordersStore } from "~/store";
+import { identityStore, ordersStore } from "~/store";
 import CalendarMenu from "~/components/CalendarMenu.vue";
 
 @Component({
@@ -128,6 +128,10 @@ export default class Calendar extends Vue {
   startMonthDate = new Date();
   endMonthDate = new Date();
 
+  get isAdministrator() {
+    return identityStore.isAdministrator || identityStore.isRoot;
+  }
+
   get orders() {
     return ordersStore.ordersByDate;
   }
@@ -139,7 +143,7 @@ export default class Calendar extends Vue {
   getDayOrders(date: string, limit?: number) {
     var orders = this.orders[date] ?? [];
 
-    orders = _.sortBy(orders, ['!overdued', 'completed'])
+    orders = _.sortBy(orders, ["!overdued", "completed"]);
 
     if (limit) {
       var orders = orders.slice(0, limit);
