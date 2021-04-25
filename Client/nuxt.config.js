@@ -6,7 +6,7 @@ export default {
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     titleTemplate: '%s',
-    title: 'Учет',
+    title: 'Планировщик заказов',
     htmlAttrs: {
       lang: 'en'
     },
@@ -29,8 +29,6 @@ export default {
   plugins: [
     "~/plugins/uow.ts",
     "~/plugins/context-accessor.ts",
-    "~/plugins/axios-error-handler.ts",
-    "~/plugins/vuelidate.ts",
     "~/plugins/filters.ts",
     "~/plugins/global-components.ts",
   ],

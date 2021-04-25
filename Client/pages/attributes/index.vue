@@ -70,7 +70,7 @@ export default class AttributesIndex extends Vue {
   headers = [
     { text: "Название", value: "name", align: "left" },
     { text: "Тип атрибута", value: "type", align: "right" },
-    { text: "", value: "", sortable: false, align: "right" },
+    { text: "Особенности типа", value: "", sortable: false, align: "right" },
     { text: "Формат", value: "dataType", sortable: false, align: "right"},
   ];
 

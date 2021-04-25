@@ -56,7 +56,7 @@ export default class UsersIndex extends Vue {
       tabIndex: 0,
       condition: () => true
     },
-    { icon: "mdi-account-multiple", title: "Все пользователи", tabIndex: 1, condition: () => this.isAdminOrRoot},
+    { icon: "mdi-account-multiple", title: "Пользователи", tabIndex: 1, condition: () => this.isAdminOrRoot},
   ];
 
   get NavTabs(){

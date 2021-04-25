@@ -17,7 +17,7 @@ export default class IdentityStore extends VuexModule {
   loginError: string | null = null
   userData: UserGetDTO | null = null
 
-  get fullName(){
+  get fullName() {
     return `${this.userData?.firstName} ${this.userData?.lastName}`
   }
 
@@ -36,11 +36,11 @@ export default class IdentityStore extends VuexModule {
     return false;
   }
 
-  get isAdministrator(){
+  get isAdministrator() {
     return this.userData?.role === "Administrator"
   }
 
-  get isRoot(){
+  get isRoot() {
     return this.userData?.role === "Root"
   }
 
@@ -59,7 +59,7 @@ export default class IdentityStore extends VuexModule {
   }
 
   @Mutation
-  LOGOUT() {}
+  LOGOUT() { }
 
   @Mutation
   JWT_RESTORED() {
@@ -68,22 +68,22 @@ export default class IdentityStore extends VuexModule {
   }
 
   @Mutation
-  JWT_EXPIRED() {}
+  JWT_EXPIRED() { }
 
   @Mutation
-  CURRENT_USER_FETCHED(data: UserGetDTO){
+  CURRENT_USER_FETCHED(data: UserGetDTO) {
     this.userData = data;
   }
 
   @Mutation
-  REMOVE_JWT(){
+  REMOVE_JWT() {
     this.jwt = null
     localStorage.removeItem('jwt')
     $ctx.$axios.setToken(false)
   }
 
   @Action
-  initializeIdentity(): string | null {
+  async initializeIdentity(): Promise<string | null> {
     if (!this.jwt) {
       this.context.commit("JWT_RESTORED")
     }
@@ -98,7 +98,9 @@ export default class IdentityStore extends VuexModule {
       }
     }
 
-    this.context.dispatch("fetchData")
+    if (this.jwt) {
+      await this.context.dispatch("fetchData")
+    }
 
     return this.jwt;
   }
@@ -119,7 +121,7 @@ export default class IdentityStore extends VuexModule {
   }
 
   @Action
-  async fetchData(){
+  async fetchData() {
     let response = await $ctx.$uow.identity.getCurrentUser()
     this.context.commit("CURRENT_USER_FETCHED", response.data)
   }

@@ -14,17 +14,21 @@
 import { Component, Vue } from "nuxt-property-decorator"
 import { commonStore, identityStore } from "~/store"
 
-@Component({})
+@Component({
+  middleware: [
+    "server", "auth"
+  ]
+})
 export default class DafultLayout extends Vue {
-  mounted() {
-    commonStore?.checkServer().then((online) => {
-      if (online){
-        identityStore.initializeIdentity()
-      }
-      else{
-        this.$router.push("/offline")
-      }
-    })
-  }
+  // mounted() {
+  //   commonStore?.checkServer().then((online) => {
+  //     if (online){
+  //       identityStore.initializeIdentity()
+  //     }
+  //     else{
+  //       this.$router.push("/offline")
+  //     }
+  //   })
+  // }
 }
 </script>
