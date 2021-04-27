@@ -3,8 +3,7 @@ using DAL.Contracts;
 
 namespace DAL.App.Mapper
 {
-
-public class UniversalMapper : IUniversalMapper
+    public class UniversalMapper : IUniversalMapper
     {
         private readonly IMapper _mapper;
         private readonly MapperConfiguration _configuration;

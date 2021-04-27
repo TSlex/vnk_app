@@ -35,11 +35,6 @@ namespace WebApp
             
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
             {
-                Description =
-                    "JWT Authorization header using the Bearer scheme.\r\n<br>" +
-                    "Enter 'Bearer'[space] and then your token in the text box below.\r\n<br>" +
-                    "Example: <b>Bearer eyJhbGciOiJIUzUxMiIsIn...</b>\r\n<br>" +
-                    "You will get the bearer from the <i>account/login</i> or <i>account/register</i> endpoint.",
                 Name = "Authorization",
                 In = ParameterLocation.Header,
                 Type = SecuritySchemeType.ApiKey,
