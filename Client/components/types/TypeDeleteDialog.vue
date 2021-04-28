@@ -4,7 +4,7 @@
       <v-card>
         <v-card-title>
           <span class="headline"
-            >Вы уверены, что хотите удалить тип "{{ attributeType.name }}"?</span
+            >Вы уверены, что хотите удалить этот тип?</span
           >
         </v-card-title>
           <v-container class="px-10">

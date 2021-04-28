@@ -78,10 +78,10 @@ export default class CalendarMenu extends Vue {
   formatFeaturedAttributesInline(attributes: OrderAttributeGetDTO[]) {
     return attributes
       .map((attribute) => {
-        let line = `${attribute.name.toLocaleLowerCase()}: ${attribute.value.toLocaleLowerCase()}`;
+        let line = `${attribute.name?.toLocaleLowerCase()}: ${attribute.value?.toLocaleLowerCase()}`;
 
         if (attribute.usesDefinedUnits) {
-          line += ` ${attribute.unit.toLocaleLowerCase()}`;
+          line += ` ${attribute.unit?.toLocaleLowerCase()}`;
         }
 
         return line;
