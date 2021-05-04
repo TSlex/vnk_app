@@ -1,0 +1,71 @@
+.v-btn--hide-active:before {
+  opacity: 0.08 !important;
+}
+
+.v-btn--hide-active:not(:hover):before {
+  opacity: 0 !important;
+}
+
+.toolbar-no-padding .v-toolbar__content {
+  padding: 0;
+}
+
+.modal-center {
+  top: 50% !important;
+  left: 50% !important;
+  -webkit-transform: translate(-50%, -50%) !important;
+          transform: translate(-50%, -50%) !important;
+}
+
+.expansion-panel-content_no_wrap .v-expansion-panel-content__wrap {
+  padding: 0 !important;
+}
+
+.expansion-panel-content_no_wrap.rounded-lg {
+  overflow: hidden;
+}
+
+[v-cloak] {
+  display: block;
+  padding: 50px 0;
+}
+
+@-webkit-keyframes spinner {
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner {
+  to {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+  }
+}
+
+[v-cloak]:before {
+  content: '';
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  border-top-color: #333;
+  -webkit-animation: spinner .6s linear infinite;
+          animation: spinner .6s linear infinite;
+  text-indent: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+[v-cloak] > div {
+  display: none;
+}
+/*# sourceMappingURL=main.css.map */

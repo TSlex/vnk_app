@@ -1,0 +1,8 @@
+.v-btn--hide-active:before {
+  opacity: 0.08 !important;
+}
+
+.v-btn--hide-active:not(:hover):before {
+  opacity: 0 !important;
+}
+/*# sourceMappingURL=buttons.css.map */

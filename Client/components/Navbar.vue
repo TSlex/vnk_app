@@ -10,6 +10,9 @@
       <NavButton to="/templates">Шаблоны</NavButton>
       <NavButton to="/users">Пользователи</NavButton>
     </template>
+    <!-- <template v-else>
+      <NavButton to="/">Календарь</NavButton>
+    </template> -->
 
     <!-- <NavButton to="/settings">Настройки</NavButton> -->
 
