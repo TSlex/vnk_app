@@ -19,5 +19,7 @@ namespace BLL.App
         public IOrderService Orders => GetService<IOrderService>(() => new OrderService(UnitOfWork));
 
         public ITemplateService Templates => GetService<ITemplateService>(() => new TemplateService(UnitOfWork));
+
+        public IIdentityService Identity => GetService<IIdentityService>(() => new IdentityService());
     }
 }

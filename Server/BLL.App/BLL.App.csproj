@@ -12,4 +12,9 @@
       <ProjectReference Include="..\DAL.Contracts.UnitOfWork\DAL.Contracts.UnitOfWork.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.8.0" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
+    </ItemGroup>
+
 </Project>

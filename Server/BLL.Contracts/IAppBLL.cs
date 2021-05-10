@@ -8,5 +8,6 @@ namespace BLL.Contracts
         IAttributeTypeService AttributeTypes { get; }
         IOrderService Orders { get; }
         ITemplateService Templates { get; }
+        IIdentityService Identity { get; }
     }
 }
