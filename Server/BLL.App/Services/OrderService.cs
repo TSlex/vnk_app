@@ -190,7 +190,7 @@ namespace BLL.App.Services
                 }
             }
 
-            if (orderAttributesCount <= 1)
+            if (orderAttributesCount < 1)
             {
                 throw new ValidationException("В заказе должен быть как минимум один атрибут");
             }

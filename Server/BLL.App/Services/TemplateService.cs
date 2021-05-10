@@ -136,9 +136,9 @@ namespace BLL.Contracts.Services
                 }
             }
 
-            if (templateAttributesCount <= 1)
+            if (templateAttributesCount < 1)
             {
-                throw new ValidationException("В заказе должен быть как минимум один атрибут");
+                throw new ValidationException("В шаблоне должен быть как минимум один атрибут");
             }
 
             await UnitOfWork.SaveChangesAsync();

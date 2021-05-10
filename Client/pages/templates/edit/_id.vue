@@ -37,7 +37,7 @@
               >
                 <template v-if="!attribute.deleted">
                   <template v-if="attribute.changeMode">
-                    <AttributeSellect v-model="attribute.model" />
+                    <AttributeSellect v-model="attribute.attribute" />
                     <div class="ml-4">
                       <v-btn text outlined @click="onSubmitAttribute(i)"
                         >OK</v-btn
@@ -48,17 +48,17 @@
                     <v-list-item class="grey lighten-5">
                       <v-list-item-content>
                         <v-list-item-title
-                          v-text="attribute.model.name"
+                          v-text="attribute.attribute.name"
                         ></v-list-item-title>
                         <v-divider class="mb-2 mt-1"></v-divider>
                         <v-list-item-subtitle>
                           <v-chip
                             small
-                            v-text="attribute.model.type"
+                            v-text="attribute.attribute.type"
                             class="mr-2"
                           ></v-chip
                           ><v-chip small outlined>{{
-                            attribute.model.dataType | formatDataType
+                            attribute.attribute.dataType | formatDataType
                           }}</v-chip>
                         </v-list-item-subtitle>
                       </v-list-item-content>
