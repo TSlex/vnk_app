@@ -3,6 +3,7 @@ using DAL.App.Mapper;
 using DAL.App.UnitOfWork.Repositories;
 using DAL.Base.UnitOfWork;
 using DAL.Base.UnitOfWork.Repositories;
+using DAL.Base.UnitOfWork.Repositories.Identity;
 using DAL.Contracts;
 
 namespace DAL.App.UnitOfWork
@@ -36,5 +37,8 @@ namespace DAL.App.UnitOfWork
 
         public ITemplateAttributeRepo TemplateAttributes => GetRepository<ITemplateAttributeRepo>(
             () => new TemplateAttributeRepo(DbContext, Mapper));
+
+        public IAppRoleRepo AppRoles => GetRepository<IAppRoleRepo>(
+            () => new AppRoleRepo(DbContext, Mapper));
     }
 }

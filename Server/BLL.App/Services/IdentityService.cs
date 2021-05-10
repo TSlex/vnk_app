@@ -9,6 +9,8 @@ using BLL.App.Exceptions;
 using BLL.Contracts;
 using BLL.Contracts.Services;
 using DAL.App.Entities.Identity;
+using DAL.Contracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,15 +26,20 @@ namespace BLL.App.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<AppRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IUserProvider _userProvider;
+        private readonly IAppUnitOfWork _uow;
 
         public IdentityService(IConfiguration configuration, ILogger<IAppBLL> logger,
-            UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager)
+            UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager,
+            IUserProvider userProvider, IAppUnitOfWork uow)
         {
             _configuration = configuration;
             _logger = logger;
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
+            _userProvider = userProvider;
+            _uow = uow;
         }
 
         public async Task<string> LoginUserAsync(LoginDTO loginDTO)
@@ -85,9 +92,7 @@ namespace BLL.App.Services
                 if (roles.Count > 0)
                 {
                     roleName = roles[0];
-
-                    roleLocalized = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
-                        .LocalizedName;
+                    roleLocalized = (await _uow.AppRoles.GetByRoleNameAsync(roles[0])).LocalizedName;
                 }
 
                 result.Add(new UserGetDTO
@@ -121,9 +126,7 @@ namespace BLL.App.Services
             if (roles.Count > 0)
             {
                 roleName = roles[0];
-
-                roleLocalized = (await _context.Roles.FirstOrDefaultAsync(role => role.Name.Equals(roles[0])))
-                    .LocalizedName;
+                roleLocalized = (await _uow.AppRoles.GetByRoleNameAsync(roles[0])).LocalizedName;
             }
 
             return new UserGetDTO
@@ -142,7 +145,7 @@ namespace BLL.App.Services
             var appUser = await _userManager.FindByEmailAsync(userPostDTO.Email);
             if (appUser != null)
             {
-                _logger.LogInformation($"WebApi register. User {userPostDTO.Email} already registered!");
+                _logger.LogInformation($"Пользователь, {userPostDTO.Email}, уже существует!");
                 throw new ValidationException("Такой пользователь уже существует");
             }
 
@@ -191,7 +194,7 @@ namespace BLL.App.Services
             }
             else
             {
-                _logger.LogWarning("User role - \"User\" was not found!");
+                _logger.LogWarning("Роль - \"User\" не найдена!");
             }
         }
 
@@ -267,7 +270,7 @@ namespace BLL.App.Services
                 }
 
                 await _signInManager.RefreshSignInAsync(user);
-                _logger.LogInformation("User changed their password successfully.");
+                _logger.LogInformation($"Роль пользователя, {user.Email}, успешно изменен");
 
                 return;
             }
@@ -326,11 +329,13 @@ namespace BLL.App.Services
             {
                 throw new ValidationException("Ошибка при смене роли");
             }
+
+            _logger.LogInformation($"Роль пользователя, {user.Email}, успешно изменена на \"{role}\"");
         }
 
         public async Task DeleteAsync(long id)
         {
-            if (User.UserId() == id)
+            if (long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)) == id)
             {
                 throw new ValidationException("Вы не можете удалить себя");
             }
@@ -364,6 +369,8 @@ namespace BLL.App.Services
         }
 
         #region Helpers
+
+        private ClaimsPrincipal? User => _userProvider.CurrentUser;
 
         private static string GenerateJWT(IEnumerable<Claim> claims, string signingKey, string issuer, string audience,
             int expiresInDays)

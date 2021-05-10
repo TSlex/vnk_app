@@ -1,4 +1,5 @@
 ﻿using DAL.Base.UnitOfWork.Repositories;
+using DAL.Base.UnitOfWork.Repositories.Identity;
 
 namespace DAL.Contracts
 {
@@ -12,5 +13,6 @@ namespace DAL.Contracts
         IOrderAttributeRepo OrderAttributes { get; }
         ITemplateRepo Templates { get; }
         ITemplateAttributeRepo TemplateAttributes { get; }
+        IAppRoleRepo AppRoles { get; }
     }
 }

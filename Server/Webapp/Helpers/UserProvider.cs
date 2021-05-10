@@ -14,6 +14,8 @@ namespace WebApp.Helpers
             _httpContextAccessor = httpContextAccessor;
         }
 
+        public ClaimsPrincipal? CurrentUser => _httpContextAccessor.HttpContext?.User;
+
         public string CurrentName => _httpContextAccessor.HttpContext?.User.Identity?.Name ?? "";
 
         public string CurrentEmail => _httpContextAccessor.HttpContext?.User.Claims

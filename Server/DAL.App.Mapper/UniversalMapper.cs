@@ -22,6 +22,9 @@ namespace DAL.App.Mapper
                 CreateTwoWayMap<Entities.TemplateAttribute, DTO.TemplateAttribute>(config);
 
                 CreateTwoWayMap<Entities.Enums.AttributeDataType, DTO.Enums.AttributeDataType>(config);
+                
+                CreateTwoWayMap<Entities.Identity.AppUser, DTO.Identity.AppUser>(config);
+                CreateTwoWayMap<Entities.Identity.AppRole, DTO.Identity.AppRole>(config);
 
                 config.AllowNullDestinationValues = true;
             });
