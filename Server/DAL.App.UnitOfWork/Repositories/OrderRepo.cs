@@ -127,7 +127,7 @@ namespace DAL.App.UnitOfWork.Repositories
         }
     }
 
-    internal static class Extensions
+    internal static partial class Extensions
     {
         internal static IQueryable<Entities.Order> WhereSuidConditions(this IQueryable<Entities.Order> query,
             bool? hasExecutionDate, bool? completed, bool? overdued, string? searchKey, DateTime? startDateTime,

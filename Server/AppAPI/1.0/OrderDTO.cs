@@ -44,7 +44,7 @@ namespace AppAPI._1._0
 
         public string? Value { get; set; }
         public string? Unit { get; set; }
-        
+
         public long? ValueId { get; set; }
         public long? UnitId { get; set; }
 
@@ -63,15 +63,15 @@ namespace AppAPI._1._0
 
     public class OrderPostDTO
     {
-        [Required] public string Name { get; set; } = default!;
+        [Required] [MaxLength(100)] public string Name { get; set; } = default!;
 
         public bool Completed { get; set; }
 
-        public string? Notation { get; set; }
+        [MaxLength(1000)] public string? Notation { get; set; }
 
         public DateTime? ExecutionDateTime { get; set; }
 
-        public ICollection<OrderAttributePostDTO> Attributes { get; set; } = default!;
+        [MaxLength(30)] public ICollection<OrderAttributePostDTO> Attributes { get; set; } = default!;
     }
 
     public class OrderAttributePostDTO
@@ -80,7 +80,7 @@ namespace AppAPI._1._0
 
         [Required] public long AttributeId { get; set; } = default!;
 
-        public string? CustomValue { get; set; }
+        [MaxLength(200)] public string? CustomValue { get; set; }
         public long? ValueId { get; set; }
         public long? UnitId { get; set; }
     }
@@ -91,28 +91,28 @@ namespace AppAPI._1._0
 
     public class OrderPatchDTO : DomainEntityId
     {
-        [Required] public string Name { get; set; } = default!;
+        [Required] [MaxLength(100)] public string Name { get; set; } = default!;
 
         public bool Completed { get; set; }
 
-        public string? Notation { get; set; }
+        [MaxLength(1000)] public string? Notation { get; set; }
 
         public DateTime? ExecutionDateTime { get; set; }
-        
-        public ICollection<OrderAttributePatchDTO> Attributes { get; set; } = default!;
+
+        [MaxLength(30)] public ICollection<OrderAttributePatchDTO> Attributes { get; set; } = default!;
     }
 
     public class OrderAttributePatchDTO
     {
         public long? Id { get; set; }
-        
+
         public PatchOption PatchOption { get; set; }
-        
+
         public bool Featured { get; set; }
 
         [Required] public long AttributeId { get; set; } = default!;
 
-        public string? CustomValue { get; set; }
+        [MaxLength(200)] public string? CustomValue { get; set; }
         public long? ValueId { get; set; }
         public long? UnitId { get; set; }
     }
@@ -120,17 +120,6 @@ namespace AppAPI._1._0
     public class OrderCompletionPatchDTO : DomainEntityId
     {
         public bool Completed { get; set; }
-    }
-
-    public class OrderAttributeSeparatePatchDTO : DomainEntityId
-    {
-        public bool Featured { get; set; }
-
-        [Required] public long AttributeId { get; set; } = default!;
-
-        public string? CustomValue { get; set; }
-        public long? ValueId { get; set; }
-        public long? UnitId { get; set; }
     }
 
     #endregion

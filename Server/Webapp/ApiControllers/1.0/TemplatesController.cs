@@ -5,6 +5,8 @@ using AppAPI._1._0;
 using AppAPI._1._0.Common;
 using AppAPI._1._0.Enums;
 using AppAPI._1._0.Responses;
+using BLL.App.Exceptions;
+using BLL.Contracts;
 using DAL.App;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,10 +25,12 @@ namespace Webapp.ApiControllers._1._0
     public class TemplatesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IAppBLL _bll;
 
-        public TemplatesController(AppDbContext context)
+        public TemplatesController(AppDbContext context, IAppBLL bll)
         {
             _context = context;
+            _bll = bll;
         }
 
         #region Templates
@@ -36,50 +40,56 @@ namespace Webapp.ApiControllers._1._0
         public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage,
             SortOption byName, string? searchKey)
         {
-            var typesQuery = _context.Templates.Select(t => new TemplateGetDTO
-            {
-                Id = t.Id,
-                Name = t.Name,
-                Attributes = t.TemplateAttributes!.Select(ta => new TemplateAttributeGetDTO
-                {
-                    Id = ta.Id,
-                    Featured = ta.Featured,
-                    Name = ta.Attribute!.Name,
-                    Type = ta.Attribute!.AttributeType!.Name,
-                    TypeId = ta.Attribute!.AttributeType.Id,
-                    AttributeId = ta.AttributeId,
-                    DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
-                    UsesDefinedUnits = ta.Attribute!.AttributeType.UsesDefinedUnits,
-                    UsesDefinedValues = ta.Attribute!.AttributeType.UsesDefinedValues
-                }).ToList()
-            });
-
-            if (!string.IsNullOrEmpty(searchKey))
-            {
-                typesQuery = typesQuery.Where(
-                    a =>
-                        a.Name.ToLower().Contains(searchKey.ToLower())
-                );
-            }
-
-            typesQuery = typesQuery.OrderBy(at => at.Id);
-
-            typesQuery = byName switch
-            {
-                SortOption.True => typesQuery.OrderBy(at => at.Name),
-                SortOption.Reversed => typesQuery.OrderByDescending(at => at.Name),
-                _ => typesQuery
-            };
-
-            var items = new CollectionDTO<TemplateGetDTO>
-            {
-                TotalCount = await _context.Templates.CountAsync(),
-                Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
-            };
+            // var typesQuery = _context.Templates.Select(t => new TemplateGetDTO
+            // {
+            //     Id = t.Id,
+            //     Name = t.Name,
+            //     Attributes = t.TemplateAttributes!.Select(ta => new TemplateAttributeGetDTO
+            //     {
+            //         Id = ta.Id,
+            //         Featured = ta.Featured,
+            //         Name = ta.Attribute!.Name,
+            //         Type = ta.Attribute!.AttributeType!.Name,
+            //         TypeId = ta.Attribute!.AttributeType.Id,
+            //         AttributeId = ta.AttributeId,
+            //         DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
+            //         UsesDefinedUnits = ta.Attribute!.AttributeType.UsesDefinedUnits,
+            //         UsesDefinedValues = ta.Attribute!.AttributeType.UsesDefinedValues
+            //     }).ToList()
+            // });
+            //
+            // if (!string.IsNullOrEmpty(searchKey))
+            // {
+            //     typesQuery = typesQuery.Where(
+            //         a =>
+            //             a.Name.ToLower().Contains(searchKey.ToLower())
+            //     );
+            // }
+            //
+            // typesQuery = typesQuery.OrderBy(at => at.Id);
+            //
+            // typesQuery = byName switch
+            // {
+            //     SortOption.True => typesQuery.OrderBy(at => at.Name),
+            //     SortOption.Reversed => typesQuery.OrderByDescending(at => at.Name),
+            //     _ => typesQuery
+            // };
+            //
+            // var items = new CollectionDTO<TemplateGetDTO>
+            // {
+            //     TotalCount = await _context.Templates.CountAsync(),
+            //     Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
+            // };
+            //
+            // return Ok(new ResponseDTO<CollectionDTO<TemplateGetDTO>>
+            // {
+            //     Data = items
+            // });
 
             return Ok(new ResponseDTO<CollectionDTO<TemplateGetDTO>>
             {
-                Data = items
+                Data = await _bll.Templates.GetAllAsync(pageIndex, itemsOnPage,
+                    byName, searchKey)
             });
         }
 
@@ -88,98 +98,141 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetById(long id)
         {
-            var item = await _context.Templates
-                .Where(a => a.Id == id)
-                .Select(t => new TemplateGetDTO
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Attributes = t.TemplateAttributes!.Select(ta => new TemplateAttributeGetDTO
-                    {
-                        Id = ta.Id,
-                        Featured = ta.Featured,
-                        Name = ta.Attribute!.Name,
-                        Type = ta.Attribute!.AttributeType!.Name,
-                        TypeId = ta.Attribute!.Id,
-                        AttributeId = ta.AttributeId,
-                        DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
-                    }).ToList()
-                }).FirstOrDefaultAsync();
+            // var item = await _context.Templates
+            //     .Where(a => a.Id == id)
+            //     .Select(t => new TemplateGetDTO
+            //     {
+            //         Id = t.Id,
+            //         Name = t.Name,
+            //         Attributes = t.TemplateAttributes!.Select(ta => new TemplateAttributeGetDTO
+            //         {
+            //             Id = ta.Id,
+            //             Featured = ta.Featured,
+            //             Name = ta.Attribute!.Name,
+            //             Type = ta.Attribute!.AttributeType!.Name,
+            //             TypeId = ta.Attribute!.Id,
+            //             AttributeId = ta.AttributeId,
+            //             DataType = (AttributeDataType) ta.Attribute!.AttributeType!.DataType,
+            //         }).ToList()
+            //     }).FirstOrDefaultAsync();
+            //
+            // if (item == null)
+            // {
+            //     return NotFound(new ErrorResponseDTO("Aтрибут не найдет"));
+            // }
+            //
+            // return Ok(new ResponseDTO<TemplateGetDTO>
+            // {
+            //     Data = item
+            // });
 
-            if (item == null)
+            try
             {
-                return NotFound(new ErrorResponseDTO("Aтрибут не найдет"));
+                return Ok(new ResponseDTO<TemplateGetDTO>
+                {
+                    Data = await _bll.Templates.GetByIdAsync(id)
+                });
             }
 
-            return Ok(new ResponseDTO<TemplateGetDTO>
+            catch (NotFoundException exception)
             {
-                Data = item
-            });
+                return NotFound(new ErrorResponseDTO(exception.Message));
+            }
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<TemplateGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult> Create(TemplatePostDTO dto)
+        public async Task<ActionResult> Create(TemplatePostDTO templatePostDTO)
         {
-            if (dto.Attributes.Count == 0)
+            // if (dto.Attributes.Count == 0)
+            // {
+            //     return BadRequest(new ErrorResponseDTO("В шаблоне должен быть как минимум один атрибут"));
+            // }
+            //
+            // foreach (var templateAttributePostDTO in dto.Attributes)
+            // {
+            //     var attribute =
+            //         await _context.Attributes.FirstOrDefaultAsync(a => a.Id == templateAttributePostDTO.AttributeId);
+            //
+            //     if (attribute == null)
+            //     {
+            //         return NotFound(new ErrorResponseDTO("Как минимум один из атрибутов неверен"));
+            //     }
+            // }
+            //
+            // var template = new Template()
+            // {
+            //     Name = dto.Name,
+            //     TemplateAttributes = dto.Attributes!.Select(ta => new TemplateAttribute
+            //     {
+            //         Featured = ta.Featured,
+            //         AttributeId = ta.AttributeId
+            //     }).ToList()
+            // };
+            //
+            // await _context.Templates.AddAsync(template);
+            // await _context.SaveChangesAsync();
+            //
+            // return CreatedAtAction(nameof(GetById), await GetById(template.Id));
+
+            try
             {
-                return BadRequest(new ErrorResponseDTO("В шаблоне должен быть как минимум один атрибут"));
+                var orderId = await _bll.Templates.CreateAsync(templatePostDTO);
+
+                return CreatedAtAction(nameof(GetById), await GetById(orderId));
             }
-
-            foreach (var templateAttributePostDTO in dto.Attributes)
+            catch (NotFoundException notFoundException)
             {
-                var attribute =
-                    await _context.Attributes.FirstOrDefaultAsync(a => a.Id == templateAttributePostDTO.AttributeId);
-
-                if (attribute == null)
-                {
-                    return NotFound(new ErrorResponseDTO("Как минимум один из атрибутов неверен"));
-                }
+                return NotFound(new ErrorResponseDTO(notFoundException.Message));
             }
-
-            var template = new Template()
+            catch (ValidationException notFoundException)
             {
-                Name = dto.Name,
-                TemplateAttributes = dto.Attributes!.Select(ta => new TemplateAttribute
-                {
-                    Featured = ta.Featured,
-                    AttributeId = ta.AttributeId
-                }).ToList()
-            };
-
-            await _context.Templates.AddAsync(template);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), await GetById(template.Id));
+                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
+            }
         }
 
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
-        public async Task<IActionResult> Update(long id, TemplatePatchDTO dto)
+        public async Task<IActionResult> Update(long id, TemplatePatchDTO templatePatchDTO)
         {
-            if (id != dto.Id)
+            // if (id != dto.Id)
+            // {
+            //     return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            // }
+            //
+            // var template = await _context.Templates.FirstOrDefaultAsync(t => t.Id == id);
+            //
+            // if (template == null)
+            // {
+            //     return NotFound(new ErrorResponseDTO("Шаблон не найден"));
+            // }
+            //
+            // template.Name = dto.Name;
+            //
+            // _context.Templates.Update(template);
+            //
+            // await _context.SaveChangesAsync();
+            //
+            // return NoContent();
+            
+            try
             {
-                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+                await _bll.Templates.UpdateAsync(id, templatePatchDTO);
+
+                return NoContent();
             }
-
-            var template = await _context.Templates.FirstOrDefaultAsync(t => t.Id == id);
-
-            if (template == null)
+            catch (NotFoundException notFoundException)
             {
-                return NotFound(new ErrorResponseDTO("Шаблон не найден"));
+                return NotFound(new ErrorResponseDTO(notFoundException.Message));
             }
-
-            template.Name = dto.Name;
-
-            _context.Templates.Update(template);
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (ValidationException notFoundException)
+            {
+                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
+            }
         }
 
         [HttpDelete("{id}")]
@@ -188,24 +241,39 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Delete(long id)
         {
-            var template = await _context.Templates.FirstOrDefaultAsync(t => t.Id == id);
-
-            if (template == null)
+            // var template = await _context.Templates.FirstOrDefaultAsync(t => t.Id == id);
+            //
+            // if (template == null)
+            // {
+            //     return NotFound(new ErrorResponseDTO("Шаблон не найден"));
+            // }
+            //
+            // var templateAttributes = await _context.TemplateAttributes
+            //     .Where(ta => ta.TemplateId == id)
+            //     .ToListAsync();
+            //
+            // _context.TemplateAttributes.RemoveRange(templateAttributes);
+            //
+            // _context.Templates.Remove(template);
+            //
+            // await _context.SaveChangesAsync();
+            //
+            // return NoContent();
+            
+            try
             {
-                return NotFound(new ErrorResponseDTO("Шаблон не найден"));
+                await _bll.Templates.DeleteAsync(id);
+
+                return NoContent();
             }
-
-            var templateAttributes = await _context.TemplateAttributes
-                .Where(ta => ta.TemplateId == id)
-                .ToListAsync();
-
-            _context.TemplateAttributes.RemoveRange(templateAttributes);
-
-            _context.Templates.Remove(template);
-
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (NotFoundException notFoundException)
+            {
+                return NotFound(new ErrorResponseDTO(notFoundException.Message));
+            }
+            catch (ValidationException notFoundException)
+            {
+                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
+            }
         }
 
         #endregion

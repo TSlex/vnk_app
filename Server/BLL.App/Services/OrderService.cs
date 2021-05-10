@@ -108,11 +108,11 @@ namespace BLL.App.Services
                 }).ToList()
             };
 
-            var orderIdCallBack = await UnitOfWork.Orders.AddAsync(order);
+            var idCallBack = await UnitOfWork.Orders.AddAsync(order);
 
             await UnitOfWork.SaveChangesAsync();
 
-            return orderIdCallBack();
+            return idCallBack();
         }
 
         public async Task UpdateAsync(long id, OrderPatchDTO orderPatchDTO)
@@ -143,14 +143,15 @@ namespace BLL.App.Services
 
                         await ValidateAndFormatAttribute(attributePatchDTO);
 
-                        attribute = await UnitOfWork.OrderAttributes.FirstOrDefaultNoTrackAsync(attributePatchDTO.Id.Value)!;
+                        attribute =
+                            await UnitOfWork.OrderAttributes.FirstOrDefaultNoTrackAsync(attributePatchDTO.Id.Value)!;
 
                         attribute.Featured = attributePatchDTO.Featured;
                         attribute.AttributeId = attributePatchDTO.AttributeId;
                         attribute.CustomValue = attributePatchDTO.CustomValue;
                         attribute.ValueId = attributePatchDTO.ValueId;
                         attribute.UnitId = attributePatchDTO.UnitId;
-                        
+
                         await UnitOfWork.OrderAttributes.UpdateAsync(attribute);
                         break;
 
@@ -171,7 +172,7 @@ namespace BLL.App.Services
                         await UnitOfWork.OrderAttributes.AddAsync(attribute);
 
                         orderAttributesCount++;
-                        
+
                         break;
 
                     case PatchOption.Deleted:
@@ -188,7 +189,7 @@ namespace BLL.App.Services
                         break;
                 }
             }
-            
+
             if (orderAttributesCount <= 1)
             {
                 throw new ValidationException("В заказе должен быть как минимум один атрибут");
@@ -197,15 +198,54 @@ namespace BLL.App.Services
             await UnitOfWork.SaveChangesAsync();
         }
 
-        private async Task ValidateAndFormatAttribute(OrderAttributePatchDTO orderAttributePostDTO)
+        public async Task UpdateCompletionAsync(long id, OrderCompletionPatchDTO orderCompletionPatchDTO)
+        {
+            var order = await ValidateAndReturnOrderAsync(id, orderCompletionPatchDTO.Id);
+
+            order.Completed = orderCompletionPatchDTO.Completed;
+
+            await UnitOfWork.Orders.UpdateAsync(order);
+
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(long id)
+        {
+            var order = await ValidateAndReturnOrderAsync(id);
+
+            var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByOrderId(id);
+
+            await UnitOfWork.OrderAttributes.RemoveRangeAsync(orderAttributes);
+            await UnitOfWork.Orders.RemoveAsync(order);
+
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        public async Task RestoreAsync(long id)
+        {
+            var orderExists = await UnitOfWork.Orders.AnyIncludeDeletedAsync(id);
+
+            if (!orderExists)
+            {
+                throw new NotFoundException("Заказ не найден");
+            }
+
+            await UnitOfWork.Orders.RestoreAsync(id);
+
+            await UnitOfWork.SaveChangesAsync();
+        }
+
+        #region Helpers
+
+        private async Task ValidateAndFormatAttribute(OrderAttributePatchDTO orderAttributePatchDTO)
         {
             await ValidateAndFormatAttribute(new OrderAttributePostDTO
             {
-                Featured = orderAttributePostDTO.Featured,
-                AttributeId = orderAttributePostDTO.AttributeId,
-                CustomValue = orderAttributePostDTO.CustomValue,
-                UnitId = orderAttributePostDTO.UnitId,
-                ValueId = orderAttributePostDTO.ValueId
+                Featured = orderAttributePatchDTO.Featured,
+                AttributeId = orderAttributePatchDTO.AttributeId,
+                CustomValue = orderAttributePatchDTO.CustomValue,
+                UnitId = orderAttributePatchDTO.UnitId,
+                ValueId = orderAttributePatchDTO.ValueId
             });
         }
 
@@ -251,45 +291,6 @@ namespace BLL.App.Services
                 orderAttributePostDTO.UnitId = null;
             }
         }
-
-        public async Task UpdateCompletionAsync(long id, OrderCompletionPatchDTO orderCompletionPatchDTO)
-        {
-            var order = await ValidateAndReturnOrderAsync(id, orderCompletionPatchDTO.Id);
-
-            order.Completed = orderCompletionPatchDTO.Completed;
-
-            await UnitOfWork.Orders.UpdateAsync(order);
-
-            await UnitOfWork.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(long id)
-        {
-            var order = await ValidateAndReturnOrderAsync(id);
-
-            var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByOrderId(id);
-
-            await UnitOfWork.OrderAttributes.RemoveRangeAsync(orderAttributes);
-            await UnitOfWork.Orders.RemoveAsync(order);
-
-            await UnitOfWork.SaveChangesAsync();
-        }
-
-        public async Task RestoreAsync(long id)
-        {
-            var orderExists = await UnitOfWork.Orders.AnyIncludeDeletedAsync(id);
-
-            if (!orderExists)
-            {
-                throw new NotFoundException("Заказ не найден");
-            }
-
-            await UnitOfWork.Orders.RestoreAsync(id);
-
-            await UnitOfWork.SaveChangesAsync();
-        }
-
-        #region Helpers
 
         private static OrderGetDTO MapOrderToGetDTO(Order item, DateTime? checkDateTime)
         {

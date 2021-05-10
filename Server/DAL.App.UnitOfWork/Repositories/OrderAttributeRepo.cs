@@ -18,7 +18,7 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<IEnumerable<OrderAttribute>> GetAllByOrderId(long id)
         {
-            return (await DbSet.Where(ta => ta.OrderId == id).ToListAsync()).Select(MapToDTO);
+            return (await DbSet.Where(oa => oa.OrderId == id).ToListAsync()).Select(MapToDTO);
         }
 
         public async Task<bool> AnyAsync(long id, long orderId)

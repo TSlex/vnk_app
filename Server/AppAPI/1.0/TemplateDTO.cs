@@ -36,9 +36,9 @@ namespace AppAPI._1._0
 
     public class TemplatePostDTO
     {
-        [Required] public string Name { get; set; } = default!;
+        [Required][MaxLength(100)]  public string Name { get; set; } = default!;
 
-        public ICollection<TemplateAttributePostDTO> Attributes { get; set; } = default!;
+        [MaxLength(30)] public ICollection<TemplateAttributePostDTO> Attributes { get; set; } = default!;
     }
 
     public class TemplateAttributePostDTO
@@ -53,12 +53,19 @@ namespace AppAPI._1._0
 
     public class TemplatePatchDTO: DomainEntityId
     {
-        [Required] public string Name { get; set; } = default!;
+        [Required][MaxLength(100)]  public string Name { get; set; } = default!;
+        
+        [MaxLength(30)] public ICollection<TemplateAttributePatchDTO> Attributes { get; set; } = default!;
     }
 
-    public class TemplateAttributePatchDTO: DomainEntityId
+    public class TemplateAttributePatchDTO
     {
+        public long? Id { get; set; }
+        
+        public PatchOption PatchOption { get; set; }
+        
         public bool Featured { get; set; }
+        
         [Required] public long AttributeId { get; set; } = default!;
     }
 
