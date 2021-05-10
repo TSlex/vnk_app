@@ -10,21 +10,18 @@ const filtersPlugin: Plugin = (ctx: Context) => {
 }
 
 Vue.filter('formatDate', function (value: any) {
-  if (typeof value !== "string") return value;
   if (value) {
     return context.$moment(String(value)).format('MMMM Do YYYY')
   }
 })
 
 Vue.filter('formatDateTime', function (value: any) {
-  if (typeof value !== "string") return value;
   if (value) {
     return context.$moment(String(value)).format('MMMM Do YYYY, HH:mm')
   }
 })
 
 Vue.filter('formatDateTimeUTC', function (value: any) {
-  if (typeof value !== "string") return value;
   if (value) {
     return context.$moment.utc(String(value)).local().format('MMMM Do YYYY, HH:mm')
   }

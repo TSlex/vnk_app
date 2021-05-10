@@ -5,12 +5,28 @@
         <v-card-title> Экспорт в PDF </v-card-title>
         <v-card-text>
           <v-container>
-            <span>Тип заказа</span>
+            <span class="text-body-1">Тип заказов</span>
             <v-radio-group v-model.number="ordersType" row class="mt-0">
               <v-radio label="С датой" :value="0"></v-radio>
               <v-radio label="Без даты" :value="1"></v-radio>
             </v-radio-group>
-            <span>Промежуток экспорта</span>
+            <span class="text-body-1">Состояние</span>
+            <v-slider
+              :tick-labels="['Все', 'Будущие', 'Прошедшие']"
+              :max="2"
+              step="1"
+              tick-size="4"
+              v-model.number="overdued"
+            ></v-slider>
+            <v-slider
+              :tick-labels="['Все', 'Не выполненные', 'Выполненные']"
+              :max="2"
+              step="1"
+              tick-size="4"
+              v-model.number="completed"
+            ></v-slider>
+            <br />
+            <span class="text-body-1">Промежуток экспорта</span>
             <DateTimePicker
               :label="'Начальная дата'"
               v-model="startDatetime"
@@ -34,7 +50,7 @@
       </v-card>
     </v-form>
     <!-- pdf content -->
-    <div style="display:none">
+    <div style="display: none">
       <PdfPage
         :ordersByDate="ordersByDate"
         v-if="fetched"
@@ -70,8 +86,11 @@ export default class ExportDialog extends Vue {
 
   ordersType = 0;
 
-  startDatetime = "2021-04-01";
-  endDatetime = "2021-04-30";
+  _completed?: boolean;
+  _overdued?: boolean;
+
+  startDatetime: Date | null = this.$moment().toDate();
+  endDatetime: Date | null = this.$moment().add(1, "weeks").toDate();
 
   orders: OrderGetDTO[] = [];
 
@@ -92,6 +111,40 @@ export default class ExportDialog extends Vue {
 
   set active(value) {
     this.$emit("input", value);
+  }
+
+  get completed() {
+    return this._completed == undefined ? 0 : this._completed ? 2 : 1;
+  }
+
+  set completed(value: number) {
+    switch (value) {
+      case 1:
+        this._completed = false;
+        break;
+      case 2:
+        this._completed = true;
+        break;
+      default:
+        this._completed = undefined;
+    }
+  }
+
+  get overdued() {
+    return this._overdued == undefined ? 0 : this._overdued ? 2 : 1;
+  }
+
+  set overdued(value: number) {
+    switch (value) {
+      case 1:
+        this._overdued = false;
+        break;
+      case 2:
+        this._overdued = true;
+        break;
+      default:
+        this._overdued = undefined;
+    }
   }
 
   onClose() {
@@ -119,11 +172,11 @@ export default class ExportDialog extends Vue {
         0,
         2000,
         SortOption.False,
+        this._completed,
+        this._overdued,
         undefined,
-        undefined,
-        undefined,
-        (this.startDatetime as any) as Date,
-        (this.endDatetime as any) as Date
+        this.startDatetime as any,
+        this.endDatetime as any
       );
 
       this.orders = orders.data.items;
