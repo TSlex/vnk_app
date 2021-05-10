@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AppAPI._1._0.Identity;
 using BLL.App.Exceptions;
+using BLL.Contracts;
 using BLL.Contracts.Services;
 using DAL.App.Entities.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -19,12 +20,12 @@ namespace BLL.App.Services
     public class IdentityService : IIdentityService
     {
         private readonly IConfiguration _configuration;
-        private readonly ILogger<IdentityService> _logger;
+        private readonly ILogger<IAppBLL> _logger;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<AppRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
 
-        public IdentityService(IConfiguration configuration, ILogger<IdentityService> logger,
+        public IdentityService(IConfiguration configuration, ILogger<IAppBLL> logger,
             UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager)
         {
             _configuration = configuration;

@@ -4,9 +4,11 @@ using AppAPI._1._0.Identity;
 using AppAPI._1._0.Responses;
 using BLL.App.Exceptions;
 using BLL.Contracts;
+using DAL.App.Entities.Identity;
 using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Webapp.ApiControllers._1._0.Identity
@@ -20,6 +22,7 @@ namespace Webapp.ApiControllers._1._0.Identity
     public class IdentityController : ControllerBase
     {
         private readonly IAppBLL _bll;
+        private readonly SignInManager<AppUser> _signInManager;
 
         public IdentityController(IAppBLL bll)
         {

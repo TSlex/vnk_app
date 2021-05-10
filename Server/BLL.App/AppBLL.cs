@@ -1,14 +1,31 @@
 ﻿using BLL.App.Services;
 using BLL.Contracts;
 using BLL.Contracts.Services;
+using DAL.App.Entities.Identity;
 using DAL.Contracts;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace BLL.App
 {
     public class AppBLL : BaseBLL<IAppUnitOfWork>, IAppBLL
     {
-        public AppBLL(IAppUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<IAppBLL> _logger;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<AppRole> _roleManager;
+        private readonly SignInManager<AppUser> _signInManager;
+
+        public AppBLL(IAppUnitOfWork unitOfWork, IConfiguration configuration, ILogger<IAppBLL> logger,
+            UserManager<AppUser> userManager, RoleManager<AppRole> roleManager,
+            SignInManager<AppUser> signInManager) : base(unitOfWork)
         {
+            _configuration = configuration;
+            _logger = logger;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _signInManager = signInManager;
         }
 
         public IAttributeService Attributes => GetService<IAttributeService>(() => new AttributeService(UnitOfWork));
@@ -20,6 +37,7 @@ namespace BLL.App
 
         public ITemplateService Templates => GetService<ITemplateService>(() => new TemplateService(UnitOfWork));
 
-        public IIdentityService Identity => GetService<IIdentityService>(() => new IdentityService());
+        public IIdentityService Identity => GetService<IIdentityService>(() =>
+            new IdentityService(_configuration, _logger, _userManager, _roleManager, _signInManager));
     }
 }
