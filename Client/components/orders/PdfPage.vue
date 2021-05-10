@@ -1,7 +1,8 @@
 <template>
   <div ref="pdfContent" id="pdfPage">
     <div v-for="(orders, i) in ordersByDate" :key="i">
-      <h3 class="day">Дата: {{ i | formatDate }}</h3>
+      <h3 class="day" v-if="hasDate">Дата: {{ i | formatDate }}</h3>
+      <h3 class="day" v-else>{{ i }}</h3>
       <table v-for="order in orders" :key="order.id" class="day-order">
         <tr v-if="order.name" class="order-row">
           <td class="align-left">Номер заказа:</td>
@@ -13,14 +14,12 @@
             {{ order.executionDateTime | formatDateTime }}
           </td>
         </tr>
-        <template v-if="order.executionDateTime">
-          <div class="order-row">
-            <td class="align-left">Состояние:</td>
-            <td class="align-right" v-if="order.completed">Выполнен</td>
-            <td class="align-right" v-else-if="order.overdued">Просрочен</td>
-            <td class="align-right" v-else>Запланирован</td>
-          </div>
-        </template>
+        <div class="order-row">
+          <td class="align-left">Состояние:</td>
+          <td class="align-right" v-if="order.completed">Выполнен</td>
+          <td class="align-right" v-else-if="order.overdued">Просрочен</td>
+          <td class="align-right" v-else>Запланирован</td>
+        </div>
         <template>
           <tr
             v-for="attribute in order.attributes"
@@ -60,12 +59,25 @@
 import { Component, Prop, Vue } from "nuxt-property-decorator";
 import { DataType } from "~/models/Enums/DataType";
 import { OrderAttributeGetDTO, OrderGetDTO } from "~/models/OrderDTO";
-import { Dictionary } from "~/node_modules/@types/lodash";
 
 @Component({})
 export default class PDFPage extends Vue {
   @Prop({ default: () => [] })
-  ordersByDate!: Dictionary<OrderGetDTO>[];
+  orders!: OrderGetDTO[];
+
+  @Prop({ default: true })
+  hasDate!: boolean;
+
+  get ordersByDate() {
+    if (this.hasDate) {
+      return _.groupBy(
+        _.orderBy(this.orders, ["executionDateTime"], ["asc"]),
+        (order) => this.$moment(order.executionDateTime).startOf("day")
+      );
+    } else {
+      return { "Без даты": this.orders };
+    }
+  }
 
   isBooleanType(attribute: OrderAttributeGetDTO) {
     return attribute.dataType === DataType.Boolean;

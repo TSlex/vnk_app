@@ -12,6 +12,7 @@
             </v-radio-group>
             <span class="text-body-1">Состояние</span>
             <v-slider
+              v-if="typeOrdersWithDate"
               :tick-labels="['Все', 'Будущие', 'Прошедшие']"
               :max="2"
               step="1"
@@ -25,18 +26,20 @@
               tick-size="4"
               v-model.number="completed"
             ></v-slider>
-            <br />
-            <span class="text-body-1">Промежуток экспорта</span>
-            <DateTimePicker
-              :label="'Начальная дата'"
-              v-model="startDatetime"
-              :forceCentered="true"
-            />
-            <DateTimePicker
-              :label="'Конечная дата'"
-              v-model="endDatetime"
-              :forceCentered="true"
-            />
+            <template v-if="typeOrdersWithDate">
+              <br />
+              <span class="text-body-1">Промежуток экспорта</span>
+              <DateTimePicker
+                :label="'Начальная дата'"
+                v-model="startDatetime"
+                :forceCentered="true"
+              />
+              <DateTimePicker
+                :label="'Конечная дата'"
+                v-model="endDatetime"
+                :forceCentered="true"
+              />
+            </template>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -52,9 +55,10 @@
     <!-- pdf content -->
     <div style="display: none">
       <PdfPage
-        :ordersByDate="ordersByDate"
+        :orders="orders"
         v-if="fetched"
         v-on:rendered="generatePdf"
+        :hasDate="typeOrdersWithDate"
         ref="pdfPage"
       />
     </div>
@@ -94,11 +98,8 @@ export default class ExportDialog extends Vue {
 
   orders: OrderGetDTO[] = [];
 
-  get ordersByDate() {
-    return _.groupBy(
-      _.orderBy(this.orders, ["executionDateTime"], ["asc"]),
-      (order) => this.$moment(order.executionDateTime).startOf("day")
-    );
+  get typeOrdersWithDate() {
+    return this.ordersType == 0;
   }
 
   get filename() {
@@ -168,18 +169,30 @@ export default class ExportDialog extends Vue {
   async onSubmit() {
     this.fetched = false;
     if ((this.$refs.form as any).validate()) {
-      let orders = await this.$uow.orders.getAllWithDate(
-        0,
-        2000,
-        SortOption.False,
-        this._completed,
-        this._overdued,
-        undefined,
-        this.startDatetime as any,
-        this.endDatetime as any
-      );
+      if (this.ordersType == 0) {
+        let orders = await this.$uow.orders.getAllWithDate(
+          0,
+          2000,
+          SortOption.False,
+          this._completed,
+          this._overdued,
+          undefined,
+          this.startDatetime as any,
+          this.endDatetime as any
+        );
 
-      this.orders = orders.data.items;
+        this.orders = orders.data.items;
+      } else {
+        let orders = await this.$uow.orders.getAllWithoutDate(
+          0,
+          2000,
+          SortOption.False,
+          this._completed
+        );
+
+        this.orders = orders.data.items;
+      }
+
       this.fetched = true;
     }
   }
