@@ -2,59 +2,64 @@
   <div>
     <v-btn @click="onExport"></v-btn>
     <v-divider></v-divider>
-    <div ref="pdfPage" id="pdfPage" v-if="fetched">
-      <div v-for="(orders, i) in ordersByDate" :key="i">
-        <h3 class="day">Дата: {{ i | formatDate }}</h3>
-        <table v-for="order in orders" :key="order.id" class="day-order">
-          <tr v-if="order.name" class="order-row">
-            <td class="align-left">Номер заказа:</td>
-            <td class="align-right">{{ order.name }}</td>
-          </tr>
-          <tr v-if="order.executionDateTime" class="order-row">
-            <td class="align-left">Дата заказа:</td>
-            <td class="align-right">
-              {{ order.executionDateTime | formatDateTime }}
-            </td>
-          </tr>
-          <template v-if="order.executionDateTime">
-            <div class="order-row">
-              <td class="align-left">Состояние:</td>
-              <td class="align-right" v-if="order.completed">Выполнен</td>
-              <td class="align-right" v-else-if="order.overdued">Просрочен</td>
-              <td class="align-right" v-else>Запланирован</td>
-            </div>
-          </template>
-          <template>
-            <tr
-              v-for="attribute in order.attributes"
-              :key="attribute.id"
-              class="order-row"
-            >
-              <td class="align-left">{{ attribute.name }}:</td>
+    <!-- pdf content -->
+    <div style="display:none">
+      <div ref="pdfPage" id="pdfPage" v-if="fetched">
+        <div v-for="(orders, i) in ordersByDate" :key="i">
+          <h3 class="day">Дата: {{ i | formatDate }}</h3>
+          <table v-for="order in orders" :key="order.id" class="day-order">
+            <tr v-if="order.name" class="order-row">
+              <td class="align-left">Номер заказа:</td>
+              <td class="align-right">{{ order.name }}</td>
+            </tr>
+            <tr v-if="order.executionDateTime" class="order-row">
+              <td class="align-left">Дата заказа:</td>
               <td class="align-right">
-                <template v-if="isBooleanType(attribute)">{{
-                  attribute.value | formatBoolean
-                }}</template>
-                <template v-else-if="isDateType(attribute)">{{
-                  attribute.value | formatDate
-                }}</template>
-                <template v-else-if="isDateTimeType(attribute)">{{
-                  attribute.value | formatDateTime
-                }}</template>
-                <template v-else>{{ attribute.value }}</template>
-                <template v-if="attribute.usesDefinedUnits">{{
-                  attribute.unit
-                }}</template>
+                {{ order.executionDateTime | formatDateTime }}
               </td>
             </tr>
-          </template>
-          <template v-if="order.notation">
-            <tr>
-              <td class="align-center">{{ order.notation }}</td>
-            </tr>
-          </template>
-        </table>
-        <br>
+            <template v-if="order.executionDateTime">
+              <div class="order-row">
+                <td class="align-left">Состояние:</td>
+                <td class="align-right" v-if="order.completed">Выполнен</td>
+                <td class="align-right" v-else-if="order.overdued">
+                  Просрочен
+                </td>
+                <td class="align-right" v-else>Запланирован</td>
+              </div>
+            </template>
+            <template>
+              <tr
+                v-for="attribute in order.attributes"
+                :key="attribute.id"
+                class="order-row"
+              >
+                <td class="align-left">{{ attribute.name }}:</td>
+                <td class="align-right">
+                  <template v-if="isBooleanType(attribute)">{{
+                    attribute.value | formatBoolean
+                  }}</template>
+                  <template v-else-if="isDateType(attribute)">{{
+                    attribute.value | formatDate
+                  }}</template>
+                  <template v-else-if="isDateTimeType(attribute)">{{
+                    attribute.value | formatDateTime
+                  }}</template>
+                  <template v-else>{{ attribute.value }}</template>
+                  <template v-if="attribute.usesDefinedUnits">{{
+                    attribute.unit
+                  }}</template>
+                </td>
+              </tr>
+            </template>
+            <template v-if="order.notation">
+              <tr>
+                <td class="align-center">{{ order.notation }}</td>
+              </tr>
+            </template>
+          </table>
+          <br />
+        </div>
       </div>
     </div>
   </div>

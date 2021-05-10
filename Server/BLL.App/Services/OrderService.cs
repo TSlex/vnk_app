@@ -181,17 +181,17 @@ namespace BLL.App.Services
                             throw new NotFoundException("Атрибут не найден");
                         }
 
-                        if (orderAttributesCount <= 1)
-                        {
-                            throw new ValidationException("В заказе должен быть как минимум один атрибут");
-                        }
-
                         await UnitOfWork.OrderAttributes.RemoveAsync(attributePatchDTO.Id.Value);
 
                         orderAttributesCount--;
 
                         break;
                 }
+            }
+            
+            if (orderAttributesCount <= 1)
+            {
+                throw new ValidationException("В заказе должен быть как минимум один атрибут");
             }
 
             await UnitOfWork.SaveChangesAsync();

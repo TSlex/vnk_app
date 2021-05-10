@@ -33,8 +33,14 @@
         </v-card-actions>
       </v-card>
     </v-form>
-    <div ref="pdfPage" id="pdfPage">
-      <v-container class="white"> ContentHere </v-container>
+    <!-- pdf content -->
+    <div style="display:none">
+      <PdfPage
+        :ordersByDate="ordersByDate"
+        v-if="fetched"
+        v-on:rendered="generatePdf"
+        ref="pdfPage"
+      />
     </div>
   </v-dialog>
 </template>
@@ -42,18 +48,20 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "nuxt-property-decorator";
 import DateTimePicker from "~/components/common/DateTimePicker.vue";
+import PdfPage from "~/components/orders/PdfPage.vue";
 import { SortOption } from "~/models/Enums/SortOption";
-
 import { OrderGetDTO } from "~/models/OrderDTO";
-
-import { jsPDF } from "jspdf";
+import { generatePdf } from "~/utils/jspdf-russian";
 
 @Component({
   components: {
     DateTimePicker,
+    PdfPage,
   },
 })
 export default class ExportDialog extends Vue {
+  fetched = false;
+
   @Prop()
   value!: boolean;
 
@@ -90,9 +98,24 @@ export default class ExportDialog extends Vue {
     this.active = false;
   }
 
-  mounted() {
-    this.$uow.orders
-      .getAllWithDate(
+  async generatePdf() {
+    // @ts-ignore
+    let pdf = await generatePdf(this.$refs.pdfPage.$refs.pdfContent);
+
+    var string = pdf.output("datauristring");
+    var embed = "<embed width='100%' height='100%' src='" + string + "'/>";
+
+    var x = window.open()!;
+
+    x.document.open();
+    x.document.write(embed);
+    x.document.close();
+  }
+
+  async onSubmit() {
+    this.fetched = false;
+    if ((this.$refs.form as any).validate()) {
+      let orders = await this.$uow.orders.getAllWithDate(
         0,
         2000,
         SortOption.False,
@@ -101,34 +124,11 @@ export default class ExportDialog extends Vue {
         undefined,
         (this.startDatetime as any) as Date,
         (this.endDatetime as any) as Date
-      )
-      .then((orders) => {
-        this.orders = orders.data.items;
-      });
-  }
+      );
 
-  onSubmit() {
-    // const doc = new jsPDF();
-    const doc = new jsPDF("landscape", "px", "A4");
-    // doc.html("pdfPage")
-    console.log(this.$refs.pdfPage as any);
-    doc.html(this.$refs.pdfPage as any).then(() => {
-      doc.save("a4.pdf");
-    });
-
-    // this.$uow.orders
-    //   .getAllWithDate(
-    //     0,
-    //     1000,
-    //     SortOption.False,
-    //     undefined,
-    //     undefined,
-    //     (this.startDatetime as any) as Date,
-    //     (this.endDatetime as any) as Date
-    //   )
-    //   .then((orders) => {
-    //     console.log(orders);
-    //   });
+      this.orders = orders.data.items;
+      this.fetched = true;
+    }
   }
 }
 </script>
