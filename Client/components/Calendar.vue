@@ -2,10 +2,23 @@
   <v-sheet color="transparent">
     <v-sheet rounded="lg" class="pt-1">
       <v-toolbar flat>
-        <v-btn outlined text large to="orders/create" class="mr-2" v-if="isAdministrator"
+        <v-btn
+          outlined
+          text
+          large
+          to="orders/create"
+          class="mr-2"
+          v-if="isAdministrator"
           >Добавить заказ</v-btn
         >
-        <v-btn outlined text large to="orders/create">Отчет</v-btn>
+        <v-btn
+          outlined
+          text
+          large
+          class="ml-2"
+          @click.stop="exportDialog = true"
+          >Отчет</v-btn
+        >
         <v-spacer></v-spacer>
         <v-text-field
           v-model="searchKey"
@@ -94,12 +107,14 @@
           </div>
         </template>
       </v-calendar>
+      <ExportDialog v-model="exportDialog" v-if="exportDialog" />
     </v-sheet>
   </v-sheet>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "nuxt-property-decorator";
+import ExportDialog from "@/components/orders/ExportDialog.vue";
 import { OrderAttributeGetDTO, OrderGetDTO } from "~/models/OrderDTO";
 import { identityStore, ordersStore } from "~/store";
 import CalendarMenu from "~/components/CalendarMenu.vue";
@@ -107,9 +122,11 @@ import CalendarMenu from "~/components/CalendarMenu.vue";
 @Component({
   components: {
     CalendarMenu,
+    ExportDialog,
   },
 })
 export default class Calendar extends Vue {
+  exportDialog = false;
   showMenu = false;
 
   $refs!: {
