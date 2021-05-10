@@ -115,35 +115,18 @@ export default class TemplatesStore extends VuexModule {
   }
 
   @Action
-  async updateTemplate(payload: {
-    model: TemplatePatchDTO,
-    attributes: TemplateAttributeCommitDTO[],
-  }) {
+  async updateTemplate(model: TemplatePatchDTO) {
 
-    let response = await $ctx.$uow.templates.update(payload.model.id, payload.model)
+    let response = await $ctx.$uow.templates.update(model.id, model)
 
     if (response.error) {
       this.context.commit("ACTION_FAILED", response.error)
       return false
     } else {
 
-      await Promise.all(payload.attributes.sort((a, b) => {
-        return a.id != null ? 1 : -1
-      }).map(async (attributes) => {
-        if (attributes.id == null) {
-          await $ctx.$uow.templateAttributes.add(payload.model.id, {attributeId:attributes.attributeId, featured:attributes.featured})
-        }
-        else if (attributes.deleted) {
-          await $ctx.$uow.templateAttributes.delete(attributes.id)
-        }
-        else if (attributes.changed) {
-          await $ctx.$uow.templateAttributes.update(attributes.id, { id: attributes.id, attributeId:attributes.attributeId, featured:attributes.featured })
-        }
-      }))
-
       this.context.commit("CLEAR_ERROR")
-      this.context.commit("TEMPLATE_UPDATED", payload.model)
-      this.context.dispatch("getTemplate", payload.model.id)
+      this.context.commit("TEMPLATE_UPDATED", model)
+      this.context.dispatch("getTemplate", model.id)
       return true
     }
   }
@@ -162,12 +145,4 @@ export default class TemplatesStore extends VuexModule {
       return true
     }
   }
-}
-
-interface TemplateAttributeCommitDTO {
-  id: number | null;
-  featured: boolean;
-  attributeId: number;
-  changed: boolean;
-  deleted: boolean;
 }

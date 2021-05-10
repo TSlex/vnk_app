@@ -1,4 +1,5 @@
 import { DataType } from '~/models/Enums/DataType';
+import { PatchOption } from './Enums/PatchOption';
 
 export interface TemplateGetDTO {
   name: string;
@@ -31,10 +32,12 @@ export interface TemplateAttributePostDTO {
 export interface TemplatePatchDTO {
   id: number;
   name: string;
+  attributes: TemplateAttributePatchDTO[];
 }
 
 export interface TemplateAttributePatchDTO {
-  id: number;
+  id: number | null;
   featured: boolean;
   attributeId: number;
+  patchOption: PatchOption;
 }

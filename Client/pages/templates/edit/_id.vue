@@ -38,11 +38,11 @@
                 <template v-if="!attribute.deleted">
                   <template v-if="attribute.changeMode">
                     <AttributeSellect v-model="attribute.model" />
-                      <div class="ml-4">
-                        <v-btn text outlined @click="onSubmitAttribute(i)"
-                          >OK</v-btn
-                        >
-                      </div>
+                    <div class="ml-4">
+                      <v-btn text outlined @click="onSubmitAttribute(i)"
+                        >OK</v-btn
+                      >
+                    </div>
                   </template>
                   <template v-else>
                     <v-list-item class="grey lighten-5">
@@ -111,6 +111,7 @@ import AttributeSellect from "~/components/common/AttributeSellect.vue";
 import { AttributeGetDTO } from "~/models/AttributeDTO";
 import { DataType } from "~/models/Enums/DataType";
 import { templatesStore } from "~/store";
+import { PatchOption } from "~/models/Enums/PatchOption";
 
 @Component({
   components: {
@@ -123,11 +124,12 @@ export default class TemplatesEdit extends Vue {
   model: TemplatePatchDTO = {
     id: 0,
     name: "",
+    attributes: [],
   };
 
   attributes: {
     id: number | null;
-    model: AttributeGetDTO;
+    attribute: AttributeGetDTO;
     featured: boolean;
     changeMode: boolean;
     changed: boolean;
@@ -136,7 +138,11 @@ export default class TemplatesEdit extends Vue {
 
   rules = {
     name: [required()],
-    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В шаблоне должен быть как минимум один атрибут"],
+    attributes: [
+      (value: any[]) =>
+        value.filter((item) => !item.deleted).length > 0 ||
+        "В шаблоне должен быть как минимум один атрибут",
+    ],
   };
 
   id!: number;
@@ -172,7 +178,7 @@ export default class TemplatesEdit extends Vue {
     }
     this.attributes.push({
       id: null,
-      model: {
+      attribute: {
         id: 0,
         name: "",
         type: "",
@@ -191,7 +197,7 @@ export default class TemplatesEdit extends Vue {
   }
 
   onFeatureAttribute(index: number) {
-    var attribute = this.attributes[index]
+    var attribute = this.attributes[index];
 
     attribute.featured = !this.attributes[index].featured;
     if (attribute.id != null) {
@@ -241,22 +247,35 @@ export default class TemplatesEdit extends Vue {
     this.$router.back();
   }
 
+  resolveAttribbutePatchOption(attribute: any) {
+    if (attribute.id < 1) {
+      return PatchOption.Created;
+    }
+    if (attribute.deleted) {
+      return PatchOption.Deleted;
+    }
+    if (attribute.changed) {
+      return PatchOption.Updated;
+    }
+    return PatchOption.Unchanged;
+  }
+
   onSubmit() {
-    if ((this.$refs.form as any).validate() && this.activeAutoComplete == null) {
+    if (
+      (this.$refs.form as any).validate() &&
+      this.activeAutoComplete == null
+    ) {
+      this.model.attributes = _.map(this.attributes, (attribute) => {
+        return {
+          id: attribute.id,
+          patchOption: this.resolveAttribbutePatchOption(attribute),
+          attributeId: attribute.attribute.id,
+          featured: attribute.featured,
+        };
+      });
+
       templatesStore
-        .updateTemplate({
-          model: this.model,
-          attributes: _.map(this.attributes, (attribute) => {
-            return {
-              id: attribute.id,
-              attributeId: attribute.model.id,
-              featured: attribute.featured,
-              changed: attribute.changed,
-              deleted: attribute.deleted,
-            };
-          }),
-        })
-        .then((suceeded) => {
+        .updateTemplate(this.model).then((suceeded) => {
           if (suceeded) {
             this.onCancel();
           } else {
@@ -284,7 +303,7 @@ export default class TemplatesEdit extends Vue {
         this.template?.attributes.forEach((attribute) => {
           this.attributes.push({
             id: attribute.id,
-            model: {
+            attribute: {
               id: attribute.attributeId,
               name: attribute.name,
               type: attribute.type,
