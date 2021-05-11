@@ -1,7 +1,8 @@
-﻿using BLL.Contracts.Services;
+﻿using BLL.Base.Exceptions;
+using BLL.Contracts.Services;
 using DAL.Contracts;
 
-namespace BLL.App
+namespace BLL.Base
 {
     public class BaseService<TUnitOfWork> : IBaseService
         where TUnitOfWork : IAppUnitOfWork
@@ -12,5 +13,8 @@ namespace BLL.App
         }
 
         protected TUnitOfWork UnitOfWork { get; set; }
+
+        protected void ValidationFailed(string message) => ExceptionExecutors.ValidationFailed(message);
+        protected void NotFound(string message) => ExceptionExecutors.NotFound(message);
     }
 }

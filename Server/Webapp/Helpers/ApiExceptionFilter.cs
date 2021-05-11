@@ -1,5 +1,5 @@
 ﻿using AppAPI._1._0.Responses;
-using BLL.App.Exceptions;
+using BLL.Base.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 

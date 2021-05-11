@@ -1,7 +1,8 @@
-﻿using BLL.App;
+﻿using BLL.Base;
+using BLL.Contracts.Services;
 using DAL.Contracts;
 
-namespace BLL.Contracts.Services
+namespace BLL.App.Services
 {
     public class AttributeTypeService : BaseService<IAppUnitOfWork>, IAttributeTypeService
     {

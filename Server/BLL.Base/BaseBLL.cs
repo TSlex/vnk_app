@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using BLL.Contracts;
 using DAL.Contracts;
 
-namespace BLL.App
+namespace BLL.Base
 {
     public class BaseBLL<TUnitOfWork>: IBaseBLL
         where TUnitOfWork : IBaseUnitOfWork

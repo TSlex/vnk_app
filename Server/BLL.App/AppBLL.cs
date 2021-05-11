@@ -1,4 +1,5 @@
 ﻿using BLL.App.Services;
+using BLL.Base;
 using BLL.Contracts;
 using BLL.Contracts.Services;
 using DAL.App.Entities.Identity;

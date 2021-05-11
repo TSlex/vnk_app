@@ -1,15 +1,15 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using AppAPI._1._0;
 using AppAPI._1._0.Common;
 using AppAPI._1._0.Enums;
-using BLL.App;
-using BLL.App.Exceptions;
+using BLL.Base;
+using BLL.Base.Exceptions;
+using BLL.Contracts.Services;
 using DAL.App.DTO;
 using DAL.Contracts;
 
-namespace BLL.Contracts.Services
+namespace BLL.App.Services
 {
     public class TemplateService : BaseService<IAppUnitOfWork>, ITemplateService
     {

@@ -5,12 +5,12 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AppAPI._1._0.Identity;
-using BLL.App.Exceptions;
+using BLL.Base;
+using BLL.Base.Exceptions;
 using BLL.Contracts;
 using BLL.Contracts.Services;
 using DAL.App.Entities.Identity;
 using DAL.Contracts;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BLL.App.Services
 {
-    public class IdentityService : IIdentityService
+    public class IdentityService : BaseService<IAppUnitOfWork>, IIdentityService
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<IAppBLL> _logger;
@@ -31,7 +31,7 @@ namespace BLL.App.Services
 
         public IdentityService(IConfiguration configuration, ILogger<IAppBLL> logger,
             UserManager<AppUser> userManager, RoleManager<AppRole> roleManager, SignInManager<AppUser> signInManager,
-            IUserProvider userProvider, IAppUnitOfWork uow)
+            IUserProvider userProvider, IAppUnitOfWork uow) : base(uow)
         {
             _configuration = configuration;
             _logger = logger;

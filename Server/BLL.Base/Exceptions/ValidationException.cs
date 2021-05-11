@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BLL.App.Exceptions
+namespace BLL.Base.Exceptions
 {
     public class ValidationException: Exception
     {
