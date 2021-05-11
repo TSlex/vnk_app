@@ -4,7 +4,6 @@ using AppAPI._1._0;
 using AppAPI._1._0.Common;
 using AppAPI._1._0.Enums;
 using AppAPI._1._0.Responses;
-using BLL.App.Exceptions;
 using BLL.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -58,18 +57,10 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetById(long id, DateTime? checkDatetime)
         {
-            try
+            return Ok(new ResponseDTO<OrderGetDTO>
             {
-                return Ok(new ResponseDTO<OrderGetDTO>
-                {
-                    Data = await _bll.Orders.GetByIdAsync(id, checkDatetime)
-                });
-            }
-
-            catch (NotFoundException exception)
-            {
-                return NotFound(new ErrorResponseDTO(exception.Message));
-            }
+                Data = await _bll.Orders.GetByIdAsync(id, checkDatetime)
+            });
         }
 
         [HttpGet("{id}/history")]
@@ -88,20 +79,8 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> Create(OrderPostDTO orderPostDTO)
         {
-            try
-            {
-                var orderId = await _bll.Orders.CreateAsync(orderPostDTO);
-
-                return CreatedAtAction(nameof(GetById), await GetById(orderId, DateTime.Now));
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
-            catch (ValidationException notFoundException)
-            {
-                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
-            }
+            var orderId = await _bll.Orders.CreateAsync(orderPostDTO);
+            return CreatedAtAction(nameof(GetById), await GetById(orderId, DateTime.Now));
         }
 
         [HttpPatch("{id}")]
@@ -110,20 +89,8 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Update(long id, OrderPatchDTO orderPatchDTO)
         {
-            try
-            {
-                await _bll.Orders.UpdateAsync(id, orderPatchDTO);
-
-                return NoContent();
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
-            catch (ValidationException notFoundException)
-            {
-                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
-            }
+            await _bll.Orders.UpdateAsync(id, orderPatchDTO);
+            return NoContent();
         }
 
         [HttpPatch("{id}/completion")]
@@ -132,20 +99,8 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> UpdateCompletion(long id, OrderCompletionPatchDTO orderCompletionPatchDTO)
         {
-            try
-            {
-                await _bll.Orders.UpdateCompletionAsync(id, orderCompletionPatchDTO);
-
-                return NoContent();
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
-            catch (ValidationException notFoundException)
-            {
-                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
-            }
+            await _bll.Orders.UpdateCompletionAsync(id, orderCompletionPatchDTO);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
@@ -154,20 +109,8 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Delete(long id)
         {
-            // try
-            // {
-                await _bll.Orders.DeleteAsync(id);
-
-                return NoContent();
-            // }
-            // catch (NotFoundException notFoundException)
-            // {
-            //     return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            // }
-            // catch (ValidationException notFoundException)
-            // {
-            //     return BadRequest(new ErrorResponseDTO(notFoundException.Message));
-            // }
+            await _bll.Orders.DeleteAsync(id);
+            return NoContent();
         }
 
         [HttpPatch("{id}/restore")]
@@ -175,16 +118,8 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Restore(long id)
         {
-            try
-            {
-                await _bll.Orders.RestoreAsync(id);
-
-                return NoContent();
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
+            await _bll.Orders.RestoreAsync(id);
+            return NoContent();
         }
     }
 }

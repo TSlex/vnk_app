@@ -2,13 +2,10 @@
 using System.Threading.Tasks;
 using AppAPI._1._0.Identity;
 using AppAPI._1._0.Responses;
-using BLL.App.Exceptions;
 using BLL.Contracts;
-using DAL.App.Entities.Identity;
 using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Webapp.ApiControllers._1._0.Identity
@@ -22,7 +19,6 @@ namespace Webapp.ApiControllers._1._0.Identity
     public class IdentityController : ControllerBase
     {
         private readonly IAppBLL _bll;
-        private readonly SignInManager<AppUser> _signInManager;
 
         public IdentityController(IAppBLL bll)
         {
@@ -35,16 +31,9 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> Login([FromBody] LoginDTO loginDTO)
         {
-            try
-            {
-                var jwt = await _bll.Identity.LoginUserAsync(loginDTO);
+            var jwt = await _bll.Identity.LoginUserAsync(loginDTO);
 
-                return Ok(new ResponseDTO<string> {Data = jwt});
-            }
-            catch (ValidationException notFoundException)
-            {
-                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
-            }
+            return Ok(new ResponseDTO<string> {Data = jwt});
         }
 
         [HttpGet("users")]
@@ -70,17 +59,10 @@ namespace Webapp.ApiControllers._1._0.Identity
             {
                 return Unauthorized();
             }
-
-            try
-            {
-                var user = await _bll.Identity.GetByIdAsync(User!.UserId());
-
-                return Ok(new ResponseDTO<UserGetDTO> {Data = user});
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
+            
+            var user = await _bll.Identity.GetByIdAsync(User!.UserId());
+            
+            return Ok(new ResponseDTO<UserGetDTO> {Data = user});
         }
 
         [HttpGet("users/{id}")]
@@ -89,16 +71,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetUserById(long id)
         {
-            try
-            {
-                var user = await _bll.Identity.GetByIdAsync(id);
-
-                return Ok(new ResponseDTO<UserGetDTO> {Data = user});
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
+            var user = await _bll.Identity.GetByIdAsync(id);
+            return Ok(new ResponseDTO<UserGetDTO> {Data = user});
         }
 
         [HttpPost("users")]
@@ -107,15 +81,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult<string>> AddUser([FromBody] UserPostDTO userPostDTO)
         {
-            try
-            {
-                await _bll.Identity.CreateAsync(userPostDTO);
-                return Ok();
-            }
-            catch (ValidationException validationException)
-            {
-                return BadRequest(new ErrorResponseDTO(validationException.Message));
-            }
+            await _bll.Identity.CreateAsync(userPostDTO);
+            return Ok();
         }
 
         [HttpPatch("users/{id}")]
@@ -124,19 +91,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> UpdateUser(long id, [FromBody] UserPatchDTO userPatchDTO)
         {
-            try
-            {
-                await _bll.Identity.UpdateAsync(id, userPatchDTO);
-                return Ok();
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
-            catch (ValidationException validationException)
-            {
-                return BadRequest(new ErrorResponseDTO(validationException.Message));
-            }
+            await _bll.Identity.UpdateAsync(id, userPatchDTO);
+            return Ok();
         }
 
         [HttpPatch("users/{id}/password")]
@@ -146,19 +102,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         public async Task<ActionResult> UpdateUserPassword(long id,
             [FromBody] UserPasswordPatchDTO userPasswordPatchDTO)
         {
-            try
-            {
-                await _bll.Identity.UpdatePasswordAsync(id, userPasswordPatchDTO);
-                return Ok();
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
-            catch (ValidationException validationException)
-            {
-                return BadRequest(new ErrorResponseDTO(validationException.Message));
-            }
+            await _bll.Identity.UpdatePasswordAsync(id, userPasswordPatchDTO);
+            return Ok();
         }
 
 
@@ -169,19 +114,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> UpdateUserRole(long id, [FromBody] UserRolePatchDTO userRolePatchDTO)
         {
-            try
-            {
-                await _bll.Identity.UpdateRoleAsync(id, userRolePatchDTO);
-                return Ok();
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
-            catch (ValidationException validationException)
-            {
-                return BadRequest(new ErrorResponseDTO(validationException.Message));
-            }
+            await _bll.Identity.UpdateRoleAsync(id, userRolePatchDTO);
+            return Ok();
         }
 
         [HttpDelete("users/{id}")]
@@ -191,19 +125,8 @@ namespace Webapp.ApiControllers._1._0.Identity
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> DeleteUser(long id)
         {
-            try
-            {
-                await _bll.Identity.DeleteAsync(id);
-                return Ok();
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
-            catch (ValidationException validationException)
-            {
-                return BadRequest(new ErrorResponseDTO(validationException.Message));
-            }
+            await _bll.Identity.DeleteAsync(id);
+            return Ok();
         }
     }
 }
