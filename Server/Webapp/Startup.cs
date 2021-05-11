@@ -24,6 +24,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using WebApp;
+using Webapp.ApiControllers.Helpers;
 using WebApp.Helpers;
 
 namespace Webapp
@@ -40,6 +41,11 @@ namespace Webapp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(new ApiExceptionFilter());
+            });
+            
             services.AddDbContext<AppDbContext>(options =>
                 {
                     options.UseMySql(Configuration.GetConnectionString("MySqlConnection"),
@@ -127,6 +133,8 @@ namespace Webapp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
             SetupDatabase(app, env, Configuration);
+            
+            // app.UseExceptionHandler("/api/error");
 
             if (env.IsDevelopment())
             {
@@ -135,7 +143,6 @@ namespace Webapp
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
                 app.UseHsts();
             }
 

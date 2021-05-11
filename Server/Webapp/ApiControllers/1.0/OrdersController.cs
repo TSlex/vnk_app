@@ -154,20 +154,20 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Delete(long id)
         {
-            try
-            {
+            // try
+            // {
                 await _bll.Orders.DeleteAsync(id);
 
                 return NoContent();
-            }
-            catch (NotFoundException notFoundException)
-            {
-                return NotFound(new ErrorResponseDTO(notFoundException.Message));
-            }
-            catch (ValidationException notFoundException)
-            {
-                return BadRequest(new ErrorResponseDTO(notFoundException.Message));
-            }
+            // }
+            // catch (NotFoundException notFoundException)
+            // {
+            //     return NotFound(new ErrorResponseDTO(notFoundException.Message));
+            // }
+            // catch (ValidationException notFoundException)
+            // {
+            //     return BadRequest(new ErrorResponseDTO(notFoundException.Message));
+            // }
         }
 
         [HttpPatch("{id}/restore")]
