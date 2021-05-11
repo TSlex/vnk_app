@@ -1,4 +1,5 @@
-﻿using BLL.App.Exceptions;
+﻿using AppAPI._1._0.Responses;
+using BLL.App.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -16,7 +17,7 @@ namespace Webapp.ApiControllers.Helpers
         {
             if (context.Exception is ValidationException validationException)
             {
-                context.Result = new ObjectResult(validationException.Message)
+                context.Result = new JsonResult(new ErrorResponseDTO(validationException.Message))
                 {
                     StatusCode = 400,
                 };
@@ -24,7 +25,7 @@ namespace Webapp.ApiControllers.Helpers
             }
             else if (context.Exception is NotFoundException notFoundException)
             {
-                context.Result = new ObjectResult(notFoundException.Message)
+                context.Result = new JsonResult(new ErrorResponseDTO(notFoundException.Message))
                 {
                     StatusCode = 404,
                 };

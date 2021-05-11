@@ -133,8 +133,6 @@ namespace Webapp
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
             SetupDatabase(app, env, Configuration);
-            
-            // app.UseExceptionHandler("/api/error");
 
             if (env.IsDevelopment())
             {
