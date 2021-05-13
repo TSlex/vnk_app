@@ -32,7 +32,7 @@ namespace BLL.App.Services
 
         public async Task<AttributeTypeDetailsGetDTO> GetByIdAsync(long id, int valuesCount, int unitsCount)
         {
-            if (!await UnitOfWork.Templates.AnyAsync(id))
+            if (!await UnitOfWork.AttributeTypes.AnyAsync(id))
             {
                 throw new NotFoundException("Тип не найдет");
             }
