@@ -7,5 +7,6 @@ namespace DAL.Base.UnitOfWork.Repositories
     public interface IAttributeTypeUnitRepo : IBaseRepo<DAL.App.Entities.AttributeTypeUnit, AttributeTypeUnit>
     {
         Task<bool> AnyAsync(long unitId, long typeId);
+        Task<AttributeTypeUnit> NextOrDefaultAsync(long attributeTypeId, long nextToId);
     }
 }

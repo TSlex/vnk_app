@@ -7,5 +7,6 @@ namespace DAL.Base.UnitOfWork.Repositories
     public interface IAttributeTypeValueRepo : IBaseRepo<DAL.App.Entities.AttributeTypeValue, AttributeTypeValue>
     {
         Task<bool> AnyAsync(long valueId, long typeId);
+        Task<AttributeTypeValue> NextOrDefaultAsync(long attributeTypeId, long nextToId);
     }
 }

@@ -34,7 +34,7 @@ namespace BLL.App.Services
         {
             if (!await UnitOfWork.Templates.AnyAsync(id))
             {
-                throw new NotFoundException("Шаблон не найдет");
+                throw new NotFoundException("Тип не найдет");
             }
 
             var item = await UnitOfWork.AttributeTypes.GetDetailsByIdAsync(id, valuesCount, unitsCount);
@@ -208,7 +208,7 @@ namespace BLL.App.Services
                     if (attributeType.DefaultValueId == valuePatchDTO.Id)
                     {
                         var newDefaultValue =
-                            await UnitOfWork.AttributeTypeValues.NextOrDefaultAsync(attributeType.Id, valuePatchDTO.Id);
+                            await UnitOfWork.AttributeTypeValues.NextOrDefaultAsync(attributeType.Id, valuePatchDTO.Id.Value);
 
                         if (newDefaultValue == null)
                         {
@@ -219,7 +219,7 @@ namespace BLL.App.Services
                         await UnitOfWork.AttributeTypes.UpdateAsync(attributeType);
                     }
 
-                    var attributes = await UnitOfWork.OrderAttributes.GetAllByValueId(valuePatchDTO.Id);
+                    var attributes = await UnitOfWork.OrderAttributes.GetAllByValueId(valuePatchDTO.Id.Value);
 
                     foreach (var attribute in attributes)
                     {
@@ -271,25 +271,25 @@ namespace BLL.App.Services
 
                     unit = await UnitOfWork.AttributeTypeUnits.FirstOrDefaultAsync(unitPatchDTO.Id.Value);
 
-                    if (attributeType.DefaultValueId == unitPatchDTO.Id)
+                    if (attributeType.DefaultUnitId == unitPatchDTO.Id)
                     {
-                        var newDefaultValue =
-                            await UnitOfWork.AttributeTypeUnits.NextOrDefaultAsync(attributeType.Id, unitPatchDTO.Id);
+                        var newDefaultUnit =
+                            await UnitOfWork.AttributeTypeUnits.NextOrDefaultAsync(attributeType.Id, unitPatchDTO.Id.Value);
 
-                        if (newDefaultValue == null)
+                        if (newDefaultUnit == null)
                         {
                             throw new ValidationException("У типа должна быть единица измерения по умолчанию");
                         }
 
-                        attributeType.DefaultUnitId = newDefaultValue.Id;
+                        attributeType.DefaultUnitId = newDefaultUnit.Id;
                         await UnitOfWork.AttributeTypes.UpdateAsync(attributeType);
                     }
 
-                    var attributes = await UnitOfWork.OrderAttributes.GetAllByValueId(unitPatchDTO.Id);
+                    var attributes = await UnitOfWork.OrderAttributes.GetAllByUnitId(unitPatchDTO.Id.Value);
 
                     foreach (var attribute in attributes)
                     {
-                        attribute.ValueId = attributeType.DefaultValueId;
+                        attribute.UnitId = attributeType.DefaultUnitId;
                         await UnitOfWork.OrderAttributes.UpdateAsync(attribute);
                     }
 
@@ -312,10 +312,7 @@ namespace BLL.App.Services
                 throw new ValidationException("Нельзя удалить системный тип");
             }
             
-            var attributes = await UnitOfWork.Attributes.AnyByTypeIdAsync(attributeType.Id)
-                .AnyAsync();
-            
-            if (attributes)
+            if (await UnitOfWork.Attributes.AnyByTypeIdAsync(attributeType.Id))
             {
                 throw new ValidationException("Нельзя удалить используемый тип");
             }

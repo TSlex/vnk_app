@@ -8,5 +8,6 @@ namespace DAL.Base.UnitOfWork.Repositories
     public interface IAttributeRepo: IBaseRepo<DAL.App.Entities.Attribute, Attribute>
     {
         Task<Attribute> GetByIdWithType(long attributeId);
+        Task<bool> AnyByTypeIdAsync(long attributeTypeId);
     }
 }

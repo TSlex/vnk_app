@@ -8,6 +8,10 @@ namespace DAL.Base.UnitOfWork.Repositories
     public interface IOrderAttributeRepo: IBaseRepo<DAL.App.Entities.OrderAttribute, OrderAttribute>
     {
         Task<IEnumerable<OrderAttribute>> GetAllByOrderId(long id);
+        
+        Task<IEnumerable<OrderAttribute>> GetAllByValueId(long id);
+        Task<IEnumerable<OrderAttribute>> GetAllByUnitId(long id);
+
         Task<bool> AnyAsync(long id, long orderId);
         Task<int> CountByOrderIdAsync(long id);
     }
