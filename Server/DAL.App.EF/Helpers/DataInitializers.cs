@@ -190,7 +190,7 @@ namespace DAL.App.EF.Helpers
                     Name = "Дата",
                     DataType = AttributeDataType.Date,
                     SystemicType = true,
-                    DefaultCustomValue = ""
+                    DefaultCustomValue = "2021.01.01"
                 },
                 new()
                 {
@@ -204,7 +204,7 @@ namespace DAL.App.EF.Helpers
                     Name = "Дата со временем",
                     DataType = AttributeDataType.DateTime,
                     SystemicType = true,
-                    DefaultCustomValue = "false"
+                    DefaultCustomValue = "2021.01.01 12:00"
                 },
             };
 
