@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using DAL.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -55,7 +56,7 @@ namespace DAL.Base.UnitOfWork
 
             return MapToDTO(await query.FirstOrDefaultAsync());
         }
-        
+
         public virtual async Task<TDTO> FirstOrDefaultNoTrackAsync(long id)
         {
             var query = GetActualDataByIdAsQueryable(id).AsNoTracking();
@@ -75,7 +76,7 @@ namespace DAL.Base.UnitOfWork
                     DbContext.Entry(entity).State = EntityState.Detached;
                 }
             }
-            
+
             if (trackedEntity is IDomainEntitySoftUpdate softUpdate)
             {
                 softUpdate.MasterId = trackedEntity.Id;
@@ -150,14 +151,19 @@ namespace DAL.Base.UnitOfWork
         {
             var query = DbSet.AsQueryable();
 
-            if (IsEntitySoftDeletable())
+            if (IsEntitySoftDeletable() || IsEntitySoftUpdatable())
             {
-                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.DeletedAt == null);
-            }
+                ParameterExpression parameter = Expression.Parameter(typeof(TEntity));
 
-            if (IsEntitySoftUpdatable())
-            {
-                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.MasterId == null);
+                var predicate = Expression.Lambda<Func<TEntity, bool>>(
+                    Expression.Equal(
+                        Expression.Property(parameter, typeof(IDomainEntitySoftDelete).GetProperty("DeletedAt")!),
+                        Expression.Constant(null)
+                    ),
+                    parameter
+                );
+
+                query = query.Where(predicate);
             }
 
             return query;

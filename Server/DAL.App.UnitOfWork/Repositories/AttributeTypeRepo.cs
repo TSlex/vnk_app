@@ -11,17 +11,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.App.UnitOfWork.Repositories
 {
-    public class AttributeTypeRepo: BaseRepo<Entities.AttributeType, AttributeType, AppDbContext>, IAttributeTypeRepo
+    public class AttributeTypeRepo : BaseRepo<Entities.AttributeType, AttributeType, AppDbContext>, IAttributeTypeRepo
     {
         public AttributeTypeRepo(AppDbContext dbContext, IUniversalMapper mapper) : base(dbContext, mapper)
         {
         }
 
-        public async Task<IEnumerable<AttributeType>> GetAllAsync(int pageIndex, int itemsOnPage, SortOption byName, string? searchKey)
+        public async Task<IEnumerable<AttributeType>> GetAllAsync(int pageIndex, int itemsOnPage, SortOption byName,
+            string? searchKey)
         {
-            var query = GetActualDataAsQueryable()
-                .Include(at => at.Attributes!.Count(a => a.DeletedAt == null))
-                .AsQueryable();
+            var query = GetActualDataAsQueryable();
 
             query = query.WhereSuidConditions(searchKey);
 
@@ -34,7 +33,21 @@ namespace DAL.App.UnitOfWork.Repositories
 
             query = query.Skip(itemsOnPage * pageIndex).Take(itemsOnPage);
 
-            return (await query.ToListAsync()).Select(Mapper.Map<Entities.AttributeType, AttributeType>);
+            var attributeTypes = await query.Select(at => new AttributeType
+            {
+                Id = at.Id,
+                Name = at.Name,
+                DataType = (AttributeDataType) at.DataType,
+                SystemicType = at.SystemicType,
+                Attributes = at.Attributes!
+                    .Where(a => a.DeletedAt == null)
+                    .Select(a => new Attribute())
+                    .ToList(),
+                UsesDefinedUnits = at.UsesDefinedUnits,
+                UsesDefinedValues = at.UsesDefinedValues
+            }).ToListAsync();
+
+            return attributeTypes;
         }
 
         public async Task<long> CountAsync(string? searchKey)
@@ -46,18 +59,53 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<AttributeType> GetDetailsByIdAsync(long id, int valuesCount, int unitsCount)
         {
-            var query = GetActualDataByIdAsQueryable(id)
-                .Include(at => at.TypeUnits!.Where(u => u.DeletedAt == null).Take(unitsCount))
-                .Include(at => at.TypeValues!.Where(v => v.DeletedAt == null).Take(valuesCount))
-                .Include(at => at.Attributes!.Count(a => a.DeletedAt == null));
+            var query = GetActualDataByIdAsQueryable(id);
 
-            return Mapper.Map<Entities.AttributeType, AttributeType>(await query.FirstOrDefaultAsync());
+            var attributeType = await query.Select(at => new AttributeType
+            {
+                Id = at.Id,
+                Name = at.Name,
+                TypeUnits = at.TypeUnits!
+                    .Where(u => u.DeletedAt == null)
+                    .Select(u => new AttributeTypeUnit
+                    {
+                        Id = u.Id,
+                        Value = u.Value
+                    })
+                    .OrderBy(v => v.Id)
+                    .Take(unitsCount)
+                    .ToList(),
+                TypeValues = at.TypeValues!
+                    .Where(v => v.DeletedAt == null)
+                    .Select(v => new AttributeTypeValue
+                    {
+                        Id = v.Id,
+                        Value = v.Value
+                    })
+                    .OrderBy(v => v.Id)
+                    .Take(valuesCount)
+                    .ToList(),
+                DataType = (AttributeDataType) at.DataType,
+                SystemicType = at.SystemicType,
+                Attributes = at.Attributes!
+                    .Where(a => a.DeletedAt == null)
+                    .Select(a => new Attribute())
+                    .ToList(),
+                DefaultCustomValue = at.DefaultCustomValue ?? "???",
+                DefaultUnitId = at.DefaultUnitId,
+                DefaultValueId = at.DefaultValueId,
+                UsesDefinedUnits = at.UsesDefinedUnits,
+                UsesDefinedValues = at.UsesDefinedValues
+            }).FirstOrDefaultAsync();
+            
+            return attributeType;
         }
     }
-    
+
     internal static partial class Extensions
     {
-        internal static IQueryable<Entities.AttributeType> WhereSuidConditions(this IQueryable<Entities.AttributeType> query,
+        internal static IQueryable<Entities.AttributeType> WhereSuidConditions(
+            this IQueryable<Entities.AttributeType> query,
             string? searchKey)
         {
             if (!string.IsNullOrEmpty(searchKey))
