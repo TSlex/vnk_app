@@ -97,8 +97,21 @@ namespace DAL.App.UnitOfWork.Repositories
                 UsesDefinedUnits = at.UsesDefinedUnits,
                 UsesDefinedValues = at.UsesDefinedValues
             }).FirstOrDefaultAsync();
-            
+
             return attributeType;
+        }
+
+        public async Task<AttributeType> GetWithValuesAndUnits(long attributeTypeId)
+        {
+            return Mapper.Map<Entities.AttributeType, AttributeType>(await GetActualDataByIdAsQueryable(attributeTypeId)
+                .AsNoTracking()
+                .Include(at => at.TypeValues!
+                    .Where(v => v.DeletedAt == null)
+                    .OrderBy(v => v.Id))
+                .Include(at => at.TypeUnits!
+                    .Where(u => u.DeletedAt == null)
+                    .OrderBy(u => u.Id))
+                .FirstOrDefaultAsync());
         }
     }
 

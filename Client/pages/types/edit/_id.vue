@@ -77,7 +77,7 @@
                           model.defaultValueId === value.id ? "" : "-outline"
                         }}</v-icon
                       >
-                      <v-icon @click="editValue(i)">mdi-lead-pencil</v-icon>
+                      <v-icon @click="changeValue(i)">mdi-lead-pencil</v-icon>
                       <v-icon @click="removeValue(i)">mdi-delete</v-icon>
                     </span>
                   </template>
@@ -181,6 +181,7 @@ import { notEmpty, required } from "~/utils/form-validation";
 import { localize } from "~/utils/localizeDataType";
 import ValueAddDialog from "~/components/types/ValueAddDialog.vue";
 import UnitAddDialog from "~/components/types/UnitAddDialog.vue";
+import { PatchOption } from "~/models/Enums/PatchOption";
 
 @Component({
   components: {
@@ -201,6 +202,8 @@ export default class AttributeTypesEdit extends Vue {
     dataType: DataType.String,
     defaultValueId: 0,
     defaultUnitId: 0,
+    values: [],
+    units: [],
   };
 
   units: {
@@ -407,21 +410,44 @@ export default class AttributeTypesEdit extends Vue {
     this.$router.back();
   }
 
+  resolvePatchOption(item: any) {
+    if (item.id < 1) {
+      return PatchOption.Created;
+    }
+    if (item.deleted) {
+      return PatchOption.Deleted;
+    }
+    if (item.changed) {
+      return PatchOption.Updated;
+    }
+    return PatchOption.Unchanged;
+  }
+
   onSubmit() {
     if ((this.$refs.form as any).validate()) {
-      attributeTypesStore
-        .updateAttributeType({
-          model: this.model,
-          values: this.values,
-          units: this.units,
-        })
-        .then((suceeded) => {
-          if (suceeded) {
-            this.onCancel();
-          } else {
-            this.showError = true;
-          }
-        });
+      this.model.values = _.map(this.values, (value) => {
+        return {
+          id: value.id,
+          patchOption: this.resolvePatchOption(value),
+          value: value.value,
+        };
+      });
+
+      this.model.units = _.map(this.units, (unit) => {
+        return {
+          id: unit.id,
+          patchOption: this.resolvePatchOption(unit),
+          value: unit.value,
+        };
+      });
+
+      attributeTypesStore.updateAttributeType(this.model).then((suceeded) => {
+        if (suceeded) {
+          this.onCancel();
+        } else {
+          this.showError = true;
+        }
+      });
     }
   }
 

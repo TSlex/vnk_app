@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" class="text-center" v-if="loaded">
+  <v-row justify="center" class="text-center" v-if="loaded && order != null">
     <v-col cols="4" class="mt-4">
       <v-sheet rounded="lg" class="py-2">
         <v-container>
@@ -191,6 +191,12 @@ export default class OrderDetails extends Vue {
 
   onNavigateToAttribute(attributeId: number) {
     this.$router.push(`/attributes/${attributeId}`);
+  }
+
+  updated() {
+    if (!this.id) {
+      this.$router.back();
+    }
   }
 
   mounted() {

@@ -4,16 +4,12 @@ import { Inject } from "@nuxt/types/app";
 import { AttributesRepo } from "@/dal/AttributesRepo"
 import { AttributeTypesRepo } from "@/dal/AttributeTypesRepo"
 import { IdentityRepo } from "@/dal/IdentityRepo"
-import { AttributeTypeValuesRepo } from "~/dal/AttributeTypeValuesRepo";
-import { AttributeTypeUnitsRepo } from "~/dal/AttributeTypeUnitsRepo";
 import { TemplatesRepo } from "~/dal/TemplatesRepo";
 import { OrdersRepo } from "~/dal/OrdersRepo";
 
 interface IAppUnitofWork {
   attributes: AttributesRepo
   attributeTypes: AttributeTypesRepo,
-  attributeTypeValues: AttributeTypeValuesRepo,
-  attributeTypeUnits: AttributeTypeUnitsRepo,
   templates: TemplatesRepo,
   identity: IdentityRepo,
   orders: OrdersRepo
@@ -23,8 +19,6 @@ const AppUnitOfWork: Plugin = (ctx: Context, inject: Inject) => {
   const repositories: IAppUnitofWork = {
     attributes: new AttributesRepo(ctx.$axios),
     attributeTypes: new AttributeTypesRepo(ctx.$axios),
-    attributeTypeValues: new AttributeTypeValuesRepo(ctx.$axios),
-    attributeTypeUnits: new AttributeTypeUnitsRepo(ctx.$axios),
     templates: new TemplatesRepo(ctx.$axios),
     identity: new IdentityRepo(ctx.$axios),
     orders: new OrdersRepo(ctx.$axios)

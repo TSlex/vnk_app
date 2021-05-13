@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" class="text-center" v-if="loaded">
+  <v-row justify="center" class="text-center" v-if="loaded && attribute != null">
     <v-col cols="4" class="mt-4">
       <v-sheet rounded="lg" class="py-2">
         <div class="px-3 mb-2">
@@ -51,7 +51,7 @@
           <v-btn outlined text @click="onDelete">Удалить</v-btn>
         </v-container>
       </v-sheet>
-      <AttributeDeleteDialog v-model="deleteDialog" v-if="deleteDialog"/>
+      <AttributeDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
     </v-col>
   </v-row>
 </template>
@@ -64,13 +64,13 @@ import AttributeDeleteDialog from "~/components/attributes/AttributeDeleteDialog
 
 @Component({
   components: {
-    AttributeDeleteDialog
-  }
+    AttributeDeleteDialog,
+  },
 })
 export default class extends Vue {
   id!: number;
   loaded = false;
-  deleteDialog = false
+  deleteDialog = false;
 
   get attribute() {
     return attributesStore.selectedAttribute;
@@ -97,11 +97,17 @@ export default class extends Vue {
   }
 
   onDelete() {
-    this.deleteDialog = true
+    this.deleteDialog = true;
   }
 
   async asyncData({ params }: any) {
     return { id: params.id };
+  }
+
+  updated() {
+    if (!this.id) {
+      this.$router.back();
+    }
   }
 
   mounted() {

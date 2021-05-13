@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AppAPI._1._0;
 using AppAPI._1._0.Common;
@@ -81,63 +82,51 @@ namespace BLL.App.Services
                 DefaultCustomValue = attributeTypePostDTO.DefaultCustomValue,
                 UsesDefinedUnits = attributeTypePostDTO.UsesDefinedUnits,
                 UsesDefinedValues = attributeTypePostDTO.UsesDefinedValues,
+                TypeUnits = attributeTypePostDTO.Units.Select(s =>
+                    new AttributeTypeUnit {Value = s}).ToList(),
+                TypeValues = attributeTypePostDTO.Values.Select(s =>
+                    new AttributeTypeValue {Value = s}).ToList(),
             };
 
-            await UnitOfWork.AttributeTypes.AddAsync(attributeType);
+            var idCallBack = await UnitOfWork.AttributeTypes.AddAsync(attributeType);
+
             await UnitOfWork.SaveChangesAsync();
 
-            var values = attributeTypePostDTO.Values.Select(s =>
-                new AttributeTypeValue {Value = s, AttributeTypeId = attributeType.Id}).ToList();
-
+            attributeType.Id = idCallBack();
+            
             var hasValues = attributeTypePostDTO.UsesDefinedValues && attributeTypePostDTO.Values.Any();
             var hasUnits = attributeTypePostDTO.UsesDefinedUnits && attributeTypePostDTO.Units.Any();
 
-            if (hasValues)
+            AttributeType? typeWithValuesAndUnits = null;
+            
+            if (hasValues || hasUnits)
             {
-                foreach (var value in values)
-                {
-                    await UnitOfWork.AttributeTypeValues.AddAsync(value);
-                }
-
-                await UnitOfWork.SaveChangesAsync();
+                typeWithValuesAndUnits =
+                    await UnitOfWork.AttributeTypes.GetWithValuesAndUnits(attributeType.Id);
             }
 
-            var units = attributeTypePostDTO.Units.Select(s =>
-                new AttributeTypeUnit {Value = s, AttributeTypeId = attributeType.Id}).ToList();
-
-            if (hasUnits)
+            if (hasValues && typeWithValuesAndUnits != null)
             {
-                foreach (var unit in units)
-                {
-                    await UnitOfWork.AttributeTypeUnits.AddAsync(unit);
-                }
+                attributeType.DefaultValueId =
+                    typeWithValuesAndUnits.TypeValues!.ToArray()[attributeTypePostDTO.DefaultValueIndex].Id;
+            }
 
-                await UnitOfWork.SaveChangesAsync();
+            if (hasUnits && typeWithValuesAndUnits != null)
+            {
+                attributeType.DefaultUnitId =
+                    typeWithValuesAndUnits.TypeUnits!.ToArray()[attributeTypePostDTO.DefaultUnitIndex].Id;
             }
 
             if (hasValues || hasUnits)
             {
-                attributeType =
-                    await UnitOfWork.AttributeTypes.FirstOrDefaultAsync(attributeType.Id);
-            }
-
-            if (hasValues)
-            {
-                attributeType.DefaultValueId = values[attributeTypePostDTO.DefaultValueIndex].Id;
-            }
-
-            if (hasUnits)
-            {
-                attributeType.DefaultUnitId = units[attributeTypePostDTO.DefaultValueIndex].Id;
-            }
-
-            if (hasValues || hasUnits)
-            {
+                attributeType.TypeUnits = new List<AttributeTypeUnit>();
+                attributeType.TypeValues = new List<AttributeTypeValue>();
+                
                 await UnitOfWork.AttributeTypes.UpdateAsync(attributeType);
                 await UnitOfWork.SaveChangesAsync();
             }
 
-            return attributeType.Id;
+            return idCallBack();
         }
 
         public async Task UpdateAsync(long id, AttributeTypePatchDTO attributeTypePatchDTO)
@@ -157,7 +146,7 @@ namespace BLL.App.Services
             {
                 await HandleValuePatch(valuePatchDTO, attributeType);
             }
-            
+
             foreach (var unitPatchDTO in attributeTypePatchDTO.Units.OrderBy(dto => dto.PatchOption))
             {
                 await HandleUnitPatch(unitPatchDTO, attributeType);
@@ -208,7 +197,8 @@ namespace BLL.App.Services
                     if (attributeType.DefaultValueId == valuePatchDTO.Id)
                     {
                         var newDefaultValue =
-                            await UnitOfWork.AttributeTypeValues.NextOrDefaultAsync(attributeType.Id, valuePatchDTO.Id.Value);
+                            await UnitOfWork.AttributeTypeValues.NextOrDefaultAsync(attributeType.Id,
+                                valuePatchDTO.Id.Value);
 
                         if (newDefaultValue == null)
                         {
@@ -231,7 +221,7 @@ namespace BLL.App.Services
                     break;
             }
         }
-        
+
         private async Task HandleUnitPatch(AttributeTypeUnitPatchDTO unitPatchDTO, AttributeType attributeType)
         {
             AttributeTypeUnit unit;
@@ -274,7 +264,8 @@ namespace BLL.App.Services
                     if (attributeType.DefaultUnitId == unitPatchDTO.Id)
                     {
                         var newDefaultUnit =
-                            await UnitOfWork.AttributeTypeUnits.NextOrDefaultAsync(attributeType.Id, unitPatchDTO.Id.Value);
+                            await UnitOfWork.AttributeTypeUnits.NextOrDefaultAsync(attributeType.Id,
+                                unitPatchDTO.Id.Value);
 
                         if (newDefaultUnit == null)
                         {
@@ -301,28 +292,28 @@ namespace BLL.App.Services
         public async Task DeleteAsync(long id)
         {
             var attributeType = await UnitOfWork.AttributeTypes.FirstOrDefaultNoTrackAsync(id);
-            
+
             if (attributeType == null)
             {
                 throw new NotFoundException("Тип не найден");
             }
-            
+
             if (attributeType.SystemicType)
             {
                 throw new ValidationException("Нельзя удалить системный тип");
             }
-            
+
             if (await UnitOfWork.Attributes.AnyByTypeIdAsync(attributeType.Id))
             {
                 throw new ValidationException("Нельзя удалить используемый тип");
             }
-            
+
             await UnitOfWork.AttributeTypes.RemoveAsync(attributeType);
             await UnitOfWork.SaveChangesAsync();
         }
 
         #region Helpers
-        
+
         private static AttributeTypeGetDTO MapAttributeTypeToDTO(AttributeType at)
         {
             return new()
@@ -370,7 +361,8 @@ namespace BLL.App.Services
             };
         }
 
-        private async Task<AttributeType> ValidateAndReturnAttributeTypeAsync(long id, AttributeTypePatchDTO attributeTypePatchDTO)
+        private async Task<AttributeType> ValidateAndReturnAttributeTypeAsync(long id,
+            AttributeTypePatchDTO attributeTypePatchDTO)
         {
             if (id != attributeTypePatchDTO.Id)
             {

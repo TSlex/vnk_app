@@ -1,5 +1,9 @@
 <template>
-  <v-row justify="center" class="text-center" v-if="loaded">
+  <v-row
+    justify="center"
+    class="text-center"
+    v-if="loaded && attributeType != null"
+  >
     <v-col cols="4" class="mt-4">
       <v-sheet rounded="lg" class="py-2">
         <div class="px-3 mb-2">
@@ -42,7 +46,9 @@
           <v-divider></v-divider>
           <v-container>
             <v-btn outlined text class="mr-1" @click="onEdit">Изменить</v-btn>
-            <v-btn outlined text @click="onDelete">Удалить</v-btn>
+            <v-btn outlined text @click="onDelete" :disabled="!deletable"
+              >Удалить</v-btn
+            >
           </v-container>
         </template>
       </v-sheet>
@@ -142,16 +148,28 @@ export default class extends Vue {
     return this.attributeType!.dataType === DataType.DateTime;
   }
 
+  get deletable() {
+    return this.attributeType != null && this.attributeType.usedCount == 0;
+  }
+
   onEdit() {
     this.$router.push(`/types/edit/${this.id}`);
   }
 
   onDelete() {
-    this.deleteDialog = true;
+    if (this.deletable) {
+      this.deleteDialog = true;
+    }
   }
 
   async asyncData({ params }: any) {
     return { id: params.id };
+  }
+
+  updated() {
+    if (!this.id) {
+      this.$router.back();
+    }
   }
 
   mounted() {

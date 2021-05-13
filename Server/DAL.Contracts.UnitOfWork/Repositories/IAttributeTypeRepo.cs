@@ -11,5 +11,6 @@ namespace DAL.Base.UnitOfWork.Repositories
         Task<IEnumerable<AttributeType>> GetAllAsync(int pageIndex, int itemsOnPage, SortOption byName, string? searchKey);
         Task<long> CountAsync(string? searchKey);
         Task<AttributeType> GetDetailsByIdAsync(long id, int valuesCount, int unitsCount);
+        Task<AttributeType> GetWithValuesAndUnits(long attributeTypeId);
     }
 }

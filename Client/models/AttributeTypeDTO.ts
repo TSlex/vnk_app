@@ -1,3 +1,4 @@
+import { PatchOption } from './Enums/PatchOption';
 import { DataType } from "./Enums/DataType";
 
 export interface AttributeTypeGetDTO {
@@ -56,4 +57,18 @@ export interface AttributeTypePatchDTO {
   dataType: DataType;
   defaultValueId: number;
   defaultUnitId: number;
+  values: AttributeTypeValuePatchDTO[];
+  units: AttributeTypeUnitPatchDTO[];
+}
+
+export interface AttributeTypeValuePatchDTO {
+  value: string;
+  patchOption: PatchOption;
+  id: number | null;
+}
+
+export interface AttributeTypeUnitPatchDTO {
+  value: string;
+  patchOption: PatchOption;
+  id: number | null;
 }
