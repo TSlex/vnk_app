@@ -140,18 +140,17 @@ namespace BLL.App.Services
 
             attributeType.DataType = (DAL.App.DTO.Enums.AttributeDataType) attributeTypePatchDTO.DataType;
 
-            await UnitOfWork.AttributeTypes.UpdateAsync(attributeType);
-
             foreach (var valuePatchDTO in attributeTypePatchDTO.Values.OrderBy(dto => dto.PatchOption))
             {
                 await HandleValuePatch(valuePatchDTO, attributeType);
             }
-
+            
             foreach (var unitPatchDTO in attributeTypePatchDTO.Units.OrderBy(dto => dto.PatchOption))
             {
                 await HandleUnitPatch(unitPatchDTO, attributeType);
             }
 
+            await UnitOfWork.AttributeTypes.UpdateAsync(attributeType);
             await UnitOfWork.SaveChangesAsync();
         }
 
@@ -162,18 +161,18 @@ namespace BLL.App.Services
             switch (valuePatchDTO.PatchOption)
             {
                 case PatchOption.Updated:
-                    if (!(valuePatchDTO.Id.HasValue &&
-                          await UnitOfWork.AttributeTypeValues.AnyAsync(valuePatchDTO.Id.Value, attributeType.Id)))
-                    {
-                        throw new NotFoundException("Значение не найдено");
-                    }
-
-                    value = await UnitOfWork.AttributeTypeValues.FirstOrDefaultAsync(valuePatchDTO.Id.Value);
-
-                    value.Value = valuePatchDTO.Value;
-
-                    await UnitOfWork.AttributeTypeValues.UpdateAsync(value);
-                    break;
+                if (!(valuePatchDTO.Id.HasValue &&
+                      await UnitOfWork.AttributeTypeValues.AnyAsync(valuePatchDTO.Id.Value, attributeType.Id)))
+                {
+                    throw new NotFoundException("Значение не найдено");
+                }
+                
+                value = await UnitOfWork.AttributeTypeValues.FirstOrDefaultNoTrackAsync(valuePatchDTO.Id.Value);
+                
+                value.Value = valuePatchDTO.Value;
+                
+                await UnitOfWork.AttributeTypeValues.UpdateAsync(value);
+                break;
 
                 case PatchOption.Created:
                     value = new AttributeTypeValue
@@ -191,32 +190,31 @@ namespace BLL.App.Services
                     {
                         throw new NotFoundException("Значение не найдено");
                     }
-
+                
                     value = await UnitOfWork.AttributeTypeValues.FirstOrDefaultAsync(valuePatchDTO.Id.Value);
-
+                
                     if (attributeType.DefaultValueId == valuePatchDTO.Id)
                     {
                         var newDefaultValue =
                             await UnitOfWork.AttributeTypeValues.NextOrDefaultAsync(attributeType.Id,
                                 valuePatchDTO.Id.Value);
-
+                
                         if (newDefaultValue == null)
                         {
                             throw new ValidationException("У атрибута должно быть значение по умолчанию");
                         }
-
+                
                         attributeType.DefaultUnitId = newDefaultValue.Id;
-                        await UnitOfWork.AttributeTypes.UpdateAsync(attributeType);
                     }
-
+                
                     var attributes = await UnitOfWork.OrderAttributes.GetAllByValueId(valuePatchDTO.Id.Value);
-
+                
                     foreach (var attribute in attributes)
                     {
                         attribute.ValueId = attributeType.DefaultValueId;
                         await UnitOfWork.OrderAttributes.UpdateAsync(attribute);
                     }
-
+                
                     await UnitOfWork.AttributeTypeValues.RemoveAsync(value);
                     break;
             }
@@ -235,7 +233,7 @@ namespace BLL.App.Services
                         throw new NotFoundException("Единица измерения не найдена");
                     }
 
-                    unit = await UnitOfWork.AttributeTypeUnits.FirstOrDefaultAsync(unitPatchDTO.Id.Value);
+                    unit = await UnitOfWork.AttributeTypeUnits.FirstOrDefaultNoTrackAsync(unitPatchDTO.Id.Value);
 
                     unit.Value = unitPatchDTO.Value;
 
@@ -273,7 +271,6 @@ namespace BLL.App.Services
                         }
 
                         attributeType.DefaultUnitId = newDefaultUnit.Id;
-                        await UnitOfWork.AttributeTypes.UpdateAsync(attributeType);
                     }
 
                     var attributes = await UnitOfWork.OrderAttributes.GetAllByUnitId(unitPatchDTO.Id.Value);

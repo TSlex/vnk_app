@@ -18,7 +18,7 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<bool> AnyAsync(long unitId, long typeId)
         {
-            return await DbSet.AnyAsync(unit => unit.Id == unitId && unit.AttributeTypeId == typeId);
+            return await GetActualDataByIdAsQueryable(unitId).AnyAsync(unit => unit.AttributeTypeId == typeId);
         }
 
         public async Task<AttributeTypeUnit> NextOrDefaultAsync(long attributeTypeId, long nextToId)
