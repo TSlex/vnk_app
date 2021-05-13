@@ -127,7 +127,7 @@ namespace BLL.App.Services
 
             await UnitOfWork.Orders.UpdateAsync(order);
 
-            var orderAttributesCount = await UnitOfWork.OrderAttributes.CountByOrderId(id);
+            var orderAttributesCount = await UnitOfWork.OrderAttributes.CountByOrderIdAsync(id);
 
             foreach (var attributePatchDTO in orderPatchDTO.Attributes.OrderBy(dto => dto.PatchOption))
             {

@@ -123,7 +123,7 @@ namespace BLL.App.Services
 
                     case PatchOption.Deleted:
                         if (!(attributePatchDTO.Id.HasValue &&
-                              await UnitOfWork.TemplateAttributes.AnyAsync(attributePatchDTO.Id.Value)))
+                              await UnitOfWork.TemplateAttributes.AnyAsync(attributePatchDTO.Id.Value, id)))
                         {
                             throw new NotFoundException("Атрибут не найден");
                         }

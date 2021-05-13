@@ -53,8 +53,8 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> Create(TemplatePostDTO templatePostDTO)
         {
-            var orderId = await _bll.Templates.CreateAsync(templatePostDTO);
-            return CreatedAtAction(nameof(GetById), await GetById(orderId));
+            var templateId = await _bll.Templates.CreateAsync(templatePostDTO);
+            return CreatedAtAction(nameof(GetById), await GetById(templateId));
         }
 
         [HttpPatch("{id}")]

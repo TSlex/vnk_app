@@ -9,6 +9,6 @@ namespace DAL.Base.UnitOfWork.Repositories
     {
         Task<IEnumerable<OrderAttribute>> GetAllByOrderId(long id);
         Task<bool> AnyAsync(long id, long orderId);
-        Task<int> CountByOrderId(long id);
+        Task<int> CountByOrderIdAsync(long id);
     }
 }

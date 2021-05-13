@@ -26,7 +26,7 @@ namespace DAL.App.UnitOfWork.Repositories
             return await DbSet.AnyAsync(oa => oa.Id == id && oa.OrderId == orderId && oa.DeletedAt == null);
         }
 
-        public async Task<int> CountByOrderId(long orderId)
+        public async Task<int> CountByOrderIdAsync(long orderId)
         {
             return await DbSet.CountAsync(oa => oa.OrderId == orderId && oa.DeletedAt == null);
         }

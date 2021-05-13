@@ -5,6 +5,7 @@ using AppAPI._1._0;
 using AppAPI._1._0.Common;
 using AppAPI._1._0.Enums;
 using AppAPI._1._0.Responses;
+using BLL.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,252 +23,270 @@ namespace Webapp.ApiControllers._1._0
     public class AttributeTypesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IAppBLL _bll;
 
-        public AttributeTypesController(AppDbContext context)
+        public AttributeTypesController(AppDbContext context, IAppBLL bll)
         {
             _context = context;
+            _bll = bll;
         }
 
         #region AttributeTypes
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>))]
-        public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage,
-            bool reversed, string? searchKey)
+        public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage, SortOption byName, string? searchKey)
         {
-            var typesQuery = _context.AttributeTypes
-                .Where(at => at.DeletedAt == null)
-                .Select(at => new AttributeTypeGetDTO
-                {
-                    Id = at.Id,
-                    Name = at.Name,
-                    DataType = (AttributeDataType) at.DataType,
-                    SystemicType = at.SystemicType,
-                    UsedCount = at.Attributes!.Count(a => a.DeletedAt == null),
-                    UsesDefinedUnits = at.UsesDefinedUnits,
-                    UsesDefinedValues = at.UsesDefinedValues
-                });
-
-            if (!string.IsNullOrEmpty(searchKey))
-            {
-                typesQuery = typesQuery.Where(at => at.Name.ToLower().Contains(searchKey.ToLower()));
-            }
-
-            typesQuery = typesQuery.OrderBy(at => at.Id);
-            typesQuery = reversed ? typesQuery.OrderByDescending(at => at.Name) : typesQuery.OrderBy(at => at.Name);
-
-            var items = new CollectionDTO<AttributeTypeGetDTO>
-            {
-                TotalCount = await _context.AttributeTypes.CountAsync(at => at.DeletedAt == null),
-                Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
-            };
+            // var typesQuery = _context.AttributeTypes
+            //     .Where(at => at.DeletedAt == null)
+            //     .Select(at => new AttributeTypeGetDTO
+            //     {
+            //         Id = at.Id,
+            //         Name = at.Name,
+            //         DataType = (AttributeDataType) at.DataType,
+            //         SystemicType = at.SystemicType,
+            //         UsedCount = at.Attributes!.Count(a => a.DeletedAt == null),
+            //         UsesDefinedUnits = at.UsesDefinedUnits,
+            //         UsesDefinedValues = at.UsesDefinedValues
+            //     });
+            //
+            // if (!string.IsNullOrEmpty(searchKey))
+            // {
+            //     typesQuery = typesQuery.Where(at => at.Name.ToLower().Contains(searchKey.ToLower()));
+            // }
+            //
+            // typesQuery = typesQuery.OrderBy(at => at.Id);
+            // typesQuery = reversed ? typesQuery.OrderByDescending(at => at.Name) : typesQuery.OrderBy(at => at.Name);
+            //
+            // var items = new CollectionDTO<AttributeTypeGetDTO>
+            // {
+            //     TotalCount = await _context.AttributeTypes.CountAsync(at => at.DeletedAt == null),
+            //     Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
+            // };
+            //
+            // return Ok(new ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>
+            // {
+            //     Data = items
+            // });
 
             return Ok(new ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>
             {
-                Data = items
+                Data = await _bll.AttributeTypes.GetAllAsync(pageIndex, itemsOnPage,
+                    byName, searchKey)
             });
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeTypeGetDetailsDTO>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeTypeDetailsGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetById(long id, int valuesCount, int unitsCount)
         {
-            var item = await _context.AttributeTypes
-                .Where(at => at.Id == id && at.DeletedAt == null)
-                .Select(at => new AttributeTypeGetDetailsDTO
-                {
-                    Id = at.Id,
-                    Name = at.Name,
-                    Units = at.TypeUnits!
-                        .Where(u => u.DeletedAt == null)
-                        .Select(u => new AttributeTypeUnitDetailsDTO
-                        {
-                            Id = u.Id,
-                            Value = u.Value
-                        }).OrderBy(u => u.Value)
-                        .Take(unitsCount)
-                        .ToList(),
-                    Values = at.TypeValues!
-                        .Where(v => v.DeletedAt == null)
-                        .Select(v => new AttributeTypeValueDetailsDTO
-                        {
-                            Id = v.Id,
-                            Value = v.Value
-                        }).OrderBy(v => v.Value)
-                        .Take(valuesCount)
-                        .ToList(),
-                    DataType = (AttributeDataType) at.DataType,
-                    SystemicType = at.SystemicType,
-                    UnitsCount = at.TypeUnits!.Count(u => u.DeletedAt == null),
-                    UsedCount = at.Attributes!.Count(a => a.DeletedAt == null),
-                    ValuesCount = at.TypeValues!.Count(v => v.DeletedAt == null),
-                    DefaultCustomValue = at.DefaultCustomValue ?? "???",
-                    DefaultUnitId = at.DefaultUnitId,
-                    DefaultValueId = at.DefaultValueId,
-                    UsesDefinedUnits = at.UsesDefinedUnits,
-                    UsesDefinedValues = at.UsesDefinedValues
-                }).FirstOrDefaultAsync();
-            if (item == null)
+            // var item = await _context.AttributeTypes
+            //     .Where(at => at.Id == id && at.DeletedAt == null)
+            //     .Select(at => new AttributeTypeGetDetailsDTO
+            //     {
+            //         Id = at.Id,
+            //         Name = at.Name,
+            //         Units = at.TypeUnits!
+            //             .Where(u => u.DeletedAt == null)
+            //             .Select(u => new AttributeTypeUnitDetailsDTO
+            //             {
+            //                 Id = u.Id,
+            //                 Value = u.Value
+            //             }).OrderBy(u => u.Value)
+            //             .Take(unitsCount)
+            //             .ToList(),
+            //         Values = at.TypeValues!
+            //             .Where(v => v.DeletedAt == null)
+            //             .Select(v => new AttributeTypeValueDetailsDTO
+            //             {
+            //                 Id = v.Id,
+            //                 Value = v.Value
+            //             }).OrderBy(v => v.Value)
+            //             .Take(valuesCount)
+            //             .ToList(),
+            //         DataType = (AttributeDataType) at.DataType,
+            //         SystemicType = at.SystemicType,
+            //         UnitsCount = at.TypeUnits!.Count(u => u.DeletedAt == null),
+            //         UsedCount = at.Attributes!.Count(a => a.DeletedAt == null),
+            //         ValuesCount = at.TypeValues!.Count(v => v.DeletedAt == null),
+            //         DefaultCustomValue = at.DefaultCustomValue ?? "???",
+            //         DefaultUnitId = at.DefaultUnitId,
+            //         DefaultValueId = at.DefaultValueId,
+            //         UsesDefinedUnits = at.UsesDefinedUnits,
+            //         UsesDefinedValues = at.UsesDefinedValues
+            //     }).FirstOrDefaultAsync();
+            // if (item == null)
+            // {
+            //     return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
+            // }
+            //
+            // return Ok(new ResponseDTO<AttributeTypeGetDetailsDTO>
+            // {
+            //     Data = item
+            // });
+            
+            return Ok(new ResponseDTO<AttributeTypeDetailsGetDTO>
             {
-                return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
-            }
-
-            return Ok(new ResponseDTO<AttributeTypeGetDetailsDTO>
-            {
-                Data = item
+                Data = await _bll.AttributeTypes.GetByIdAsync(id, valuesCount, unitsCount)
             });
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeGetDetailsDTO>))]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(ResponseDTO<AttributeTypeDetailsGetDTO>))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
-        public async Task<ActionResult> Create(AttributeTypePostDTO dto)
+        public async Task<ActionResult> Create(AttributeTypePostDTO attributeTypePostDTO)
         {
-            if (dto.DefaultCustomValue == null && (!dto.UsesDefinedValues || !dto.Values.Any()))
-            {
-                return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
-            }
-
-            if (dto.UsesDefinedValues && !dto.Values.Any())
-            {
-                return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
-            }
-
-            if (dto.UsesDefinedUnits && !dto.Units.Any())
-            {
-                return BadRequest(new ErrorResponseDTO("У атрибута должна быть единица измерения по умолчанию"));
-            }
-
-            if (dto.Units.Any() && (0 > dto.DefaultUnitIndex || dto.DefaultUnitIndex >= dto.Units.Count))
-            {
-                return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву единиц измерений"));
-            }
-
-            if (dto.Values.Any() && (0 > dto.DefaultValueIndex || dto.DefaultValueIndex >= dto.Values.Count))
-            {
-                return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву значений"));
-            }
-
-            var attributeType = new AttributeType()
-            {
-                Name = dto.Name,
-                DataType = (DAL.App.Entities.Enums.AttributeDataType) dto.DataType,
-                DefaultCustomValue = dto.DefaultCustomValue,
-                UsesDefinedUnits = dto.UsesDefinedUnits,
-                UsesDefinedValues = dto.UsesDefinedValues,
-            };
-
-            await _context.AttributeTypes.AddAsync(attributeType);
-            await _context.SaveChangesAsync();
-
-            var values = dto.Values.Select(s =>
-                new AttributeTypeValue {Value = s, AttributeTypeId = attributeType.Id}).ToList();
-
-            var hasValues = dto.UsesDefinedValues && dto.Values.Any();
-            var hasUnits = dto.UsesDefinedUnits && dto.Units.Any();
-
-            if (hasValues)
-            {
-                foreach (var value in values)
-                {
-                    await _context.TypeValues.AddAsync(value);
-                }
-
-                await _context.SaveChangesAsync();
-            }
-
-            var units = dto.Units.Select(s =>
-                new AttributeTypeUnit {Value = s, AttributeTypeId = attributeType.Id}).ToList();
-
-            if (hasUnits)
-            {
-                foreach (var unit in units)
-                {
-                    await _context.TypeUnits.AddAsync(unit);
-                }
-
-                await _context.SaveChangesAsync();
-            }
-
-            if (hasValues || hasUnits)
-            {
-                attributeType =
-                    await _context.AttributeTypes.FirstAsync(t => t.Id == attributeType.Id && t.DeletedAt == null);
-            }
-
-            if (hasValues)
-            {
-                attributeType.DefaultValueId = values[dto.DefaultValueIndex].Id;
-            }
-
-            if (hasUnits)
-            {
-                attributeType.DefaultUnitId = units[dto.DefaultValueIndex].Id;
-            }
-
-            if (hasValues || hasUnits)
-            {
-                _context.AttributeTypes.Update(attributeType);
-                await _context.SaveChangesAsync();
-            }
-
-            return CreatedAtAction(nameof(GetById), await GetById(attributeType.Id, 0, 0));
+            // if (dto.DefaultCustomValue == null && (!dto.UsesDefinedValues || !dto.Values.Any()))
+            // {
+            //     return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
+            // }
+            //
+            // if (dto.UsesDefinedValues && !dto.Values.Any())
+            // {
+            //     return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
+            // }
+            //
+            // if (dto.UsesDefinedUnits && !dto.Units.Any())
+            // {
+            //     return BadRequest(new ErrorResponseDTO("У атрибута должна быть единица измерения по умолчанию"));
+            // }
+            //
+            // if (dto.Units.Any() && (0 > dto.DefaultUnitIndex || dto.DefaultUnitIndex >= dto.Units.Count))
+            // {
+            //     return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву единиц измерений"));
+            // }
+            //
+            // if (dto.Values.Any() && (0 > dto.DefaultValueIndex || dto.DefaultValueIndex >= dto.Values.Count))
+            // {
+            //     return BadRequest(new ErrorResponseDTO("Индекс не соотвествует массиву значений"));
+            // }
+            //
+            // var attributeType = new AttributeType()
+            // {
+            //     Name = dto.Name,
+            //     DataType = (DAL.App.Entities.Enums.AttributeDataType) dto.DataType,
+            //     DefaultCustomValue = dto.DefaultCustomValue,
+            //     UsesDefinedUnits = dto.UsesDefinedUnits,
+            //     UsesDefinedValues = dto.UsesDefinedValues,
+            // };
+            //
+            // await _context.AttributeTypes.AddAsync(attributeType);
+            // await _context.SaveChangesAsync();
+            //
+            // var values = dto.Values.Select(s =>
+            //     new AttributeTypeValue {Value = s, AttributeTypeId = attributeType.Id}).ToList();
+            //
+            // var hasValues = dto.UsesDefinedValues && dto.Values.Any();
+            // var hasUnits = dto.UsesDefinedUnits && dto.Units.Any();
+            //
+            // if (hasValues)
+            // {
+            //     foreach (var value in values)
+            //     {
+            //         await _context.TypeValues.AddAsync(value);
+            //     }
+            //
+            //     await _context.SaveChangesAsync();
+            // }
+            //
+            // var units = dto.Units.Select(s =>
+            //     new AttributeTypeUnit {Value = s, AttributeTypeId = attributeType.Id}).ToList();
+            //
+            // if (hasUnits)
+            // {
+            //     foreach (var unit in units)
+            //     {
+            //         await _context.TypeUnits.AddAsync(unit);
+            //     }
+            //
+            //     await _context.SaveChangesAsync();
+            // }
+            //
+            // if (hasValues || hasUnits)
+            // {
+            //     attributeType =
+            //         await _context.AttributeTypes.FirstAsync(t => t.Id == attributeType.Id && t.DeletedAt == null);
+            // }
+            //
+            // if (hasValues)
+            // {
+            //     attributeType.DefaultValueId = values[dto.DefaultValueIndex].Id;
+            // }
+            //
+            // if (hasUnits)
+            // {
+            //     attributeType.DefaultUnitId = units[dto.DefaultValueIndex].Id;
+            // }
+            //
+            // if (hasValues || hasUnits)
+            // {
+            //     _context.AttributeTypes.Update(attributeType);
+            //     await _context.SaveChangesAsync();
+            // }
+            //
+            // return CreatedAtAction(nameof(GetById), await GetById(attributeType.Id, 0, 0));
+            
+            var typeId = await _bll.AttributeTypes.CreateAsync(attributeTypePostDTO);
+            return CreatedAtAction(nameof(GetById), await GetById(typeId, 0, 0));
         }
 
         [HttpPatch("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
-        public async Task<IActionResult> Update(long id, AttributeTypePatchDTO dto)
+        public async Task<IActionResult> Update(long id, AttributeTypePatchDTO attributeTypePatchDTO)
         {
-            if (id != dto.Id)
-            {
-                return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
-            }
-
-            var attributeType = await _context.AttributeTypes.FindAsync(id);
-
-            if (attributeType == null)
-            {
-                return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
-            }
-
-            if (attributeType.SystemicType)
-            {
-                return NotFound(new ErrorResponseDTO("Нельзя менять системный атрибут"));
-            }
-
-            if (dto.DefaultCustomValue == null && !attributeType.UsesDefinedValues)
-            {
-                return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
-            }
-
-            if (attributeType.UsesDefinedValues &&
-                await _context.TypeValues.FirstOrDefaultAsync(v => v.Id == dto.DefaultValueId && v.DeletedAt == null) ==
-                null)
-            {
-                return BadRequest(new ErrorResponseDTO("Неверный идентификатор значения по умолчанию"));
-            }
-
-            if (attributeType.UsesDefinedUnits &&
-                await _context.TypeUnits.FirstOrDefaultAsync(u => u.Id == dto.DefaultUnitId && u.DeletedAt == null) ==
-                null)
-            {
-                return BadRequest(new ErrorResponseDTO("Неверный идентификатор единицы измерения по умолчанию"));
-            }
-
-            attributeType.Name = dto.Name;
-            attributeType.DefaultCustomValue = dto.DefaultCustomValue;
-            attributeType.DefaultUnitId = dto.DefaultUnitId;
-            attributeType.DefaultValueId = dto.DefaultValueId;
-
-            attributeType.DataType = (DAL.App.Entities.Enums.AttributeDataType) dto.DataType;
-
-            _context.AttributeTypes.Update(attributeType);
-
-            await _context.SaveChangesAsync();
-
+            // if (id != dto.Id)
+            // {
+            //     return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
+            // }
+            //
+            // var attributeType = await _context.AttributeTypes.FindAsync(id);
+            //
+            // if (attributeType == null)
+            // {
+            //     return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
+            // }
+            //
+            // if (attributeType.SystemicType)
+            // {
+            //     return NotFound(new ErrorResponseDTO("Нельзя менять системный атрибут"));
+            // }
+            //
+            // if (dto.DefaultCustomValue == null && !attributeType.UsesDefinedValues)
+            // {
+            //     return BadRequest(new ErrorResponseDTO("У атрибута должно быть значение по умолчанию"));
+            // }
+            //
+            // if (attributeType.UsesDefinedValues &&
+            //     await _context.TypeValues.FirstOrDefaultAsync(v => v.Id == dto.DefaultValueId && v.DeletedAt == null) ==
+            //     null)
+            // {
+            //     return BadRequest(new ErrorResponseDTO("Неверный идентификатор значения по умолчанию"));
+            // }
+            //
+            // if (attributeType.UsesDefinedUnits &&
+            //     await _context.TypeUnits.FirstOrDefaultAsync(u => u.Id == dto.DefaultUnitId && u.DeletedAt == null) ==
+            //     null)
+            // {
+            //     return BadRequest(new ErrorResponseDTO("Неверный идентификатор единицы измерения по умолчанию"));
+            // }
+            //
+            // attributeType.Name = dto.Name;
+            // attributeType.DefaultCustomValue = dto.DefaultCustomValue;
+            // attributeType.DefaultUnitId = dto.DefaultUnitId;
+            // attributeType.DefaultValueId = dto.DefaultValueId;
+            //
+            // attributeType.DataType = (DAL.App.Entities.Enums.AttributeDataType) dto.DataType;
+            //
+            // _context.AttributeTypes.Update(attributeType);
+            //
+            // await _context.SaveChangesAsync();
+            //
+            // return NoContent();
+            
+            await _bll.AttributeTypes.UpdateAsync(id, attributeTypePatchDTO);
             return NoContent();
         }
 
@@ -277,29 +296,32 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorResponseDTO))]
         public async Task<IActionResult> Delete(long id)
         {
-            var attributeType = await _context.AttributeTypes.FindAsync(id);
-
-            if (attributeType == null)
-            {
-                return NotFound(new ErrorResponseDTO("Атрибут не найден"));
-            }
-
-            if (attributeType.SystemicType)
-            {
-                return BadRequest(new ErrorResponseDTO("Нельзя удалить системный тип"));
-            }
-
-            var attributes = await _context.Attributes.Where(a => a.AttributeTypeId == id && a.DeletedAt == null)
-                .AnyAsync();
-
-            if (attributes)
-            {
-                return BadRequest(new ErrorResponseDTO("Нельзя удалить используемый тип"));
-            }
-
-            _context.AttributeTypes.Remove(attributeType);
-            await _context.SaveChangesAsync();
-
+            // var attributeType = await _context.AttributeTypes.FindAsync(id);
+            //
+            // if (attributeType == null)
+            // {
+            //     return NotFound(new ErrorResponseDTO("Атрибут не найден"));
+            // }
+            //
+            // if (attributeType.SystemicType)
+            // {
+            //     return BadRequest(new ErrorResponseDTO("Нельзя удалить системный тип"));
+            // }
+            //
+            // var attributes = await _context.Attributes.Where(a => a.AttributeTypeId == id && a.DeletedAt == null)
+            //     .AnyAsync();
+            //
+            // if (attributes)
+            // {
+            //     return BadRequest(new ErrorResponseDTO("Нельзя удалить используемый тип"));
+            // }
+            //
+            // _context.AttributeTypes.Remove(attributeType);
+            // await _context.SaveChangesAsync();
+            //
+            // return NoContent();
+            
+            await _bll.AttributeTypes.DeleteAsync(id);
             return NoContent();
         }
 
