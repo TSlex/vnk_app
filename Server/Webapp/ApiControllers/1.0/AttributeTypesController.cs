@@ -37,38 +37,6 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>))]
         public async Task<ActionResult> GetAll(int pageIndex, int itemsOnPage, SortOption byName, string? searchKey)
         {
-            // var typesQuery = _context.AttributeTypes
-            //     .Where(at => at.DeletedAt == null)
-            //     .Select(at => new AttributeTypeGetDTO
-            //     {
-            //         Id = at.Id,
-            //         Name = at.Name,
-            //         DataType = (AttributeDataType) at.DataType,
-            //         SystemicType = at.SystemicType,
-            //         UsedCount = at.Attributes!.Count(a => a.DeletedAt == null),
-            //         UsesDefinedUnits = at.UsesDefinedUnits,
-            //         UsesDefinedValues = at.UsesDefinedValues
-            //     });
-            //
-            // if (!string.IsNullOrEmpty(searchKey))
-            // {
-            //     typesQuery = typesQuery.Where(at => at.Name.ToLower().Contains(searchKey.ToLower()));
-            // }
-            //
-            // typesQuery = typesQuery.OrderBy(at => at.Id);
-            // typesQuery = reversed ? typesQuery.OrderByDescending(at => at.Name) : typesQuery.OrderBy(at => at.Name);
-            //
-            // var items = new CollectionDTO<AttributeTypeGetDTO>
-            // {
-            //     TotalCount = await _context.AttributeTypes.CountAsync(at => at.DeletedAt == null),
-            //     Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
-            // };
-            //
-            // return Ok(new ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>
-            // {
-            //     Data = items
-            // });
-
             return Ok(new ResponseDTO<CollectionDTO<AttributeTypeGetDTO>>
             {
                 Data = await _bll.AttributeTypes.GetAllAsync(pageIndex, itemsOnPage,
@@ -81,51 +49,6 @@ namespace Webapp.ApiControllers._1._0
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetById(long id, int valuesCount, int unitsCount)
         {
-            // var item = await _context.AttributeTypes
-            //     .Where(at => at.Id == id && at.DeletedAt == null)
-            //     .Select(at => new AttributeTypeGetDetailsDTO
-            //     {
-            //         Id = at.Id,
-            //         Name = at.Name,
-            //         Units = at.TypeUnits!
-            //             .Where(u => u.DeletedAt == null)
-            //             .Select(u => new AttributeTypeUnitDetailsDTO
-            //             {
-            //                 Id = u.Id,
-            //                 Value = u.Value
-            //             }).OrderBy(u => u.Value)
-            //             .Take(unitsCount)
-            //             .ToList(),
-            //         Values = at.TypeValues!
-            //             .Where(v => v.DeletedAt == null)
-            //             .Select(v => new AttributeTypeValueDetailsDTO
-            //             {
-            //                 Id = v.Id,
-            //                 Value = v.Value
-            //             }).OrderBy(v => v.Value)
-            //             .Take(valuesCount)
-            //             .ToList(),
-            //         DataType = (AttributeDataType) at.DataType,
-            //         SystemicType = at.SystemicType,
-            //         UnitsCount = at.TypeUnits!.Count(u => u.DeletedAt == null),
-            //         UsedCount = at.Attributes!.Count(a => a.DeletedAt == null),
-            //         ValuesCount = at.TypeValues!.Count(v => v.DeletedAt == null),
-            //         DefaultCustomValue = at.DefaultCustomValue ?? "???",
-            //         DefaultUnitId = at.DefaultUnitId,
-            //         DefaultValueId = at.DefaultValueId,
-            //         UsesDefinedUnits = at.UsesDefinedUnits,
-            //         UsesDefinedValues = at.UsesDefinedValues
-            //     }).FirstOrDefaultAsync();
-            // if (item == null)
-            // {
-            //     return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
-            // }
-            //
-            // return Ok(new ResponseDTO<AttributeTypeGetDetailsDTO>
-            // {
-            //     Data = item
-            // });
-            
             return Ok(new ResponseDTO<AttributeTypeDetailsGetDTO>
             {
                 Data = await _bll.AttributeTypes.GetByIdAsync(id, valuesCount, unitsCount)

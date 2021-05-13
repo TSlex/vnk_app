@@ -143,19 +143,7 @@ namespace DAL.Base.UnitOfWork
 
         protected IQueryable<TEntity> GetActualDataByIdAsQueryable(long id)
         {
-            var query = DbSet.Where(e => e.Id == id);
-
-            if (IsEntitySoftDeletable())
-            {
-                query = query.Where(e => (e as IDomainEntitySoftDelete)!.DeletedAt == null);
-            }
-
-            if (IsEntitySoftUpdatable())
-            {
-                query = query.Where(e => (e as IDomainEntitySoftUpdate)!.MasterId == null);
-            }
-
-            return query;
+            return GetActualDataAsQueryable().Where(e => e.Id == id);
         }
 
         protected IQueryable<TEntity> GetActualDataAsQueryable()

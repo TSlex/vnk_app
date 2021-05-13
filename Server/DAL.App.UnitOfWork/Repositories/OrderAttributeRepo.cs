@@ -18,17 +18,27 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<IEnumerable<OrderAttribute>> GetAllByOrderId(long id)
         {
-            return (await DbSet.Where(oa => oa.OrderId == id).ToListAsync()).Select(MapToDTO);
+            return (await GetActualDataAsQueryable().Where(oa => oa.OrderId == id).ToListAsync()).Select(MapToDTO);
+        }
+
+        public async Task<IEnumerable<OrderAttribute>> GetAllByValueId(long id)
+        {
+            return (await GetActualDataAsQueryable().Where(oa => oa.OrderId == id).ToListAsync()).Select(MapToDTO);
+        }
+
+        public async Task<IEnumerable<OrderAttribute>> GetAllByUnitId(long id)
+        {
+            return (await GetActualDataAsQueryable().Where(oa => oa.OrderId == id).ToListAsync()).Select(MapToDTO);
         }
 
         public async Task<bool> AnyAsync(long id, long orderId)
         {
-            return await DbSet.AnyAsync(oa => oa.Id == id && oa.OrderId == orderId && oa.DeletedAt == null);
+            return await GetActualDataAsQueryable().AnyAsync(oa => oa.Id == id && oa.OrderId == orderId);
         }
 
         public async Task<int> CountByOrderIdAsync(long orderId)
         {
-            return await DbSet.CountAsync(oa => oa.OrderId == orderId && oa.DeletedAt == null);
+            return await GetActualDataAsQueryable().CountAsync(oa => oa.OrderId == orderId);
         }
     }
 }

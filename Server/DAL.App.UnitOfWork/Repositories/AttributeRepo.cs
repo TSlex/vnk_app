@@ -17,10 +17,14 @@ namespace DAL.App.UnitOfWork.Repositories
         public async Task<Attribute> GetByIdWithType(long attributeId)
         {
             return MapToDTO(
-                await DbSet
-                    .Include(a => a.AttributeType)
-                    .FirstOrDefaultAsync(a => a.Id == attributeId)
+                await GetActualDataByIdAsQueryable(attributeId)
+                    .Include(a => a.AttributeType).FirstOrDefaultAsync()
             );
+        }
+
+        public async Task<bool> AnyByTypeIdAsync(long attributeTypeId)
+        {
+            return await GetActualDataAsQueryable().AnyAsync(a => a.AttributeTypeId == attributeTypeId);
         }
     }
 }
