@@ -4,6 +4,7 @@ using AppAPI._1._0.Common;
 using AppAPI._1._0.Enums;
 using AppAPI._1._0.Responses;
 using BLL.Contracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +15,7 @@ namespace Webapp.ApiControllers._1._0
     [Route("api/v{version:apiVersion}/[controller]")]
     [Consumes("application/json")]
     [Produces("application/json")]
-    // [Authorize(Roles = "User, Administrator, Root")]
+    [Authorize(Roles = "User, Administrator, Root")]
     public class AttributeTypesController : ControllerBase
     {
         private readonly IAppBLL _bll;
