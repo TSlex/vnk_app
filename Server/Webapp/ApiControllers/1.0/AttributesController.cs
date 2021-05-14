@@ -1,15 +1,11 @@
-using System.Linq;
 using System.Threading.Tasks;
 using AppAPI._1._0;
 using AppAPI._1._0.Common;
 using AppAPI._1._0.Enums;
 using AppAPI._1._0.Responses;
-using BLL.App;
+using BLL.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DAL.App.EF;
-using Attribute = DAL.App.Entities.Attribute;
 
 namespace Webapp.ApiControllers._1._0
 {
@@ -21,9 +17,9 @@ namespace Webapp.ApiControllers._1._0
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User, Administrator, Root")]
     public class AttributesController : ControllerBase
     {
-        private readonly AppBLL _bll;
+        private readonly IAppBLL _bll;
 
-        public AttributesController(AppBLL bll)
+        public AttributesController(IAppBLL bll)
         {
             _bll = bll;
         }
@@ -38,56 +34,6 @@ namespace Webapp.ApiControllers._1._0
                 Data = await _bll.Attributes.GetAllAsync(pageIndex, itemsOnPage,
                     byName, byType, searchKey)
             });
-            
-            // var typesQuery = _context.Attributes
-            //     .Where(a => a.DeletedAt == null)
-            //     .Select(a => new AttributeGetDTO
-            //     {
-            //         Id = a.Id,
-            //         Name = a.Name,
-            //         Type = a.AttributeType!.Name,
-            //         TypeId = a.AttributeTypeId,
-            //         DataType = (AttributeDataType) a.AttributeType!.DataType,
-            //         UsesDefinedUnits = a.AttributeType!.UsesDefinedUnits,
-            //         UsesDefinedValues = a.AttributeType!.UsesDefinedValues
-            //     });
-            //
-            // if (!string.IsNullOrEmpty(searchKey))
-            // {
-            //     typesQuery = typesQuery.Where(
-            //         a =>
-            //             a.Name.ToLower().Contains(searchKey.ToLower()) ||
-            //             a.Type.ToLower().Contains(searchKey.ToLower())
-            //     );
-            // }
-            //
-            // typesQuery = typesQuery.OrderBy(at => at.Id);
-            //
-            // typesQuery = byName switch
-            // {
-            //     SortOption.True => typesQuery.OrderBy(at => at.Name),
-            //     SortOption.Reversed => typesQuery.OrderByDescending(at => at.Name),
-            //     _ => typesQuery
-            // };
-            //
-            // typesQuery = byType switch
-            // {
-            //     SortOption.True => typesQuery.OrderBy(at => at.Type),
-            //     SortOption.Reversed => typesQuery.OrderByDescending(at => at.Type),
-            //     _ => typesQuery
-            // };
-            //
-            //
-            // var items = new CollectionDTO<AttributeGetDTO>
-            // {
-            //     TotalCount = await _context.Attributes.CountAsync(a => a.DeletedAt == null),
-            //     Items = await typesQuery.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync()
-            // };
-            //
-            // return Ok(new ResponseDTO<CollectionDTO<AttributeGetDTO>>
-            // {
-            //     Data = items
-            // });
         }
 
         [HttpGet("{id}")]
@@ -99,34 +45,6 @@ namespace Webapp.ApiControllers._1._0
             {
                 Data = await _bll.Attributes.GetByIdAsync(id)
             });
-            
-            // var item = await _context.Attributes
-            //     .Where(a => a.Id == id)
-            //     .Select(a => new AttributeGetDetailsDTO
-            //     {
-            //         Id = a.Id,
-            //         Name = a.Name,
-            //         UsedCount = a.OrderAttributes!.Count(oa => oa.DeletedAt == null),
-            //         Type = a.AttributeType!.Name,
-            //         TypeId = a.AttributeTypeId,
-            //         DataType = (AttributeDataType) a.AttributeType!.DataType,
-            //         DefaultUnit = a.AttributeType!.TypeUnits!
-            //             .Where(u => u.Id == a.AttributeType!.DefaultUnitId)
-            //             .Select(u => u.Value).FirstOrDefault(),
-            //         DefaultValue = a.AttributeType!.TypeValues!
-            //             .Where(v => v.Id == a.AttributeType!.DefaultValueId)
-            //             .Select(v => v.Value).FirstOrDefault() ?? a.AttributeType!.DefaultCustomValue,
-            //     }).FirstOrDefaultAsync();
-            //
-            // if (item == null)
-            // {
-            //     return NotFound(new ErrorResponseDTO("Aтрибут не найдет"));
-            // }
-            //
-            // return Ok(new ResponseDTO<AttributeGetDetailsDTO>
-            // {
-            //     Data = item
-            // });
         }
 
         [HttpPost]
@@ -137,25 +55,6 @@ namespace Webapp.ApiControllers._1._0
         {
             var attributeId = await _bll.Attributes.CreateAsync(attributePostDTO);
             return CreatedAtAction(nameof(GetById), await GetById(attributeId));
-            
-            // var type = await _context.AttributeTypes.FirstOrDefaultAsync(at =>
-            //     at.Id == dto.AttributeTypeId && at.DeletedAt == null);
-            //
-            // if (type == null)
-            // {
-            //     return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
-            // }
-            //
-            // var attribute = new Attribute()
-            // {
-            //     Name = dto.Name,
-            //     AttributeTypeId = dto.AttributeTypeId
-            // };
-            //
-            // await _context.Attributes.AddAsync(attribute);
-            // await _context.SaveChangesAsync();
-            //
-            // return CreatedAtAction(nameof(GetById), await GetById(attribute.Id));
         }
 
         [HttpPatch("{id}")]
@@ -166,51 +65,6 @@ namespace Webapp.ApiControllers._1._0
         {
             await _bll.Attributes.UpdateAsync(id, attributePatchDTO);
             return NoContent();
-            
-            // if (id != dto.Id)
-            // {
-            //     return BadRequest(new ErrorResponseDTO("Идентификаторы должны совпадать"));
-            // }
-            //
-            // var type = await _context.AttributeTypes.FirstOrDefaultAsync(at =>
-            //     at.Id == dto.AttributeTypeId && at.DeletedAt == null);
-            //
-            // if (type == null)
-            // {
-            //     return NotFound(new ErrorResponseDTO("Тип атрибута не найдет"));
-            // }
-            //
-            // var attribute = await _context.Attributes
-            //     .Where(a => a.Id == id && a.DeletedAt == null)
-            //     .FirstOrDefaultAsync();
-            //
-            // if (attribute == null)
-            // {
-            //     return NotFound(new ErrorResponseDTO("Aтрибут не найдет"));
-            // }
-            //
-            // var orderAttributes = await _context.OrderAttributes
-            //     .Where(oa => oa.AttributeId == id && oa.DeletedAt == null)
-            //     .ToListAsync();
-            //
-            // attribute.Name = dto.Name;
-            //
-            // if (dto.AttributeTypeId != null)
-            // {
-            //     if (orderAttributes.Any(oa => oa.DeletedAt == null))
-            //     {
-            //         return BadRequest(
-            //             new ErrorResponseDTO("Нельзя изменить тип используемого атрибута"));
-            //     }
-            //
-            //     attribute.AttributeTypeId = dto.AttributeTypeId.Value;
-            // }
-            //
-            // _context.Attributes.Update(attribute);
-            //
-            // await _context.SaveChangesAsync();
-            //
-            // return NoContent();
         }
 
         [HttpDelete("{id}")]
@@ -221,25 +75,6 @@ namespace Webapp.ApiControllers._1._0
         {
             await _bll.Attributes.DeleteAsync(id);
             return NoContent();
-            // var attribute = await _context.Attributes.FindAsync(id);
-            //
-            // if (attribute == null)
-            // {
-            //     return NotFound(new ErrorResponseDTO("Атрибут не найден"));
-            // }
-            //
-            // var attributes = await _context.OrderAttributes.Where(oa => oa.AttributeId == id && oa.DeletedAt == null)
-            //     .AnyAsync();
-            //
-            // if (attributes)
-            // {
-            //     return BadRequest(new ErrorResponseDTO("Нельзя удалить используемый тип"));
-            // }
-            //
-            // _context.Attributes.Remove(attribute);
-            // await _context.SaveChangesAsync();
-            //
-            // return NoContent();
         }
     }
 }

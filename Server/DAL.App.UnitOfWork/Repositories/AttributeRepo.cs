@@ -63,9 +63,10 @@ namespace DAL.App.UnitOfWork.Repositories
                         Name = a.AttributeType!.Name,
                         DataType = a.AttributeType!.DataType,
                         TypeUnits = a.AttributeType!.TypeUnits!
-                            .Where(v => v.Id == a.AttributeType!.DefaultValueId).ToList(),
+                            .Where(u => u.Id == a.AttributeType!.DefaultUnitId).ToList(),
                         TypeValues = a.AttributeType!.TypeValues!
-                            .Where(v => v.Id == a.AttributeType!.DefaultValueId).ToList()
+                            .Where(v => v.Id == a.AttributeType!.DefaultValueId).ToList(),
+                        DefaultCustomValue = a.AttributeType!.DefaultCustomValue
                     }
                 })
                 .FirstOrDefaultAsync();

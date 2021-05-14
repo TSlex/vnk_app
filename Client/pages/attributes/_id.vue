@@ -48,7 +48,7 @@
         <v-divider></v-divider>
         <v-container>
           <v-btn outlined text class="mr-1" @click="onEdit">Изменить</v-btn>
-          <v-btn outlined text @click="onDelete">Удалить</v-btn>
+          <v-btn outlined text @click="onDelete" :disabled="!deletable">Удалить</v-btn>
         </v-container>
       </v-sheet>
       <AttributeDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
@@ -88,6 +88,10 @@ export default class extends Vue {
     return this.attribute!.dataType === DataType.DateTime;
   }
 
+  get deletable() {
+    return this.attribute != null && this.attribute.usedCount == 0;
+  }
+
   onNavigateToType() {
     this.$router.push(`/types/${this.attribute?.typeId}`);
   }
@@ -97,7 +101,9 @@ export default class extends Vue {
   }
 
   onDelete() {
-    this.deleteDialog = true;
+    if (this.deletable) {
+      this.deleteDialog = true;
+    }
   }
 
   async asyncData({ params }: any) {
