@@ -26,7 +26,7 @@ namespace BLL.App.Services
             return new CollectionDTO<AttributeGetDTO>()
             {
                 Items = items.Select(MapAttributeToGetDTO),
-                TotalCount = await UnitOfWork.Templates.CountAsync(searchKey)
+                TotalCount = await UnitOfWork.Attributes.CountAsync(searchKey)
             };
         }
 
@@ -82,7 +82,7 @@ namespace BLL.App.Services
             {
                 var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByAttributeIdAsync(id);
 
-                if (orderAttributes.Any)
+                if (orderAttributes.Any())
                 {
                     throw new ValidationException("Нельзя изменить тип используемого атрибута");
                 }
@@ -111,7 +111,7 @@ namespace BLL.App.Services
 
             var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByAttributeIdAsync(id);
 
-            if (orderAttributes.Any)
+            if (orderAttributes.Any())
             {
                 throw new ValidationException("Нельзя удалить используемый атрибут");
             }
@@ -146,12 +146,9 @@ namespace BLL.App.Services
                 Type = item.AttributeType!.Name,
                 TypeId = item.AttributeTypeId,
                 DataType = (AttributeDataType) item.AttributeType!.DataType,
-                DefaultUnit = item.AttributeType!.TypeUnits!
-                    .Where(u => u.Id == item.AttributeType!.DefaultUnitId)
-                    .Select(u => u.Value).FirstOrDefault(),
-                DefaultValue = item.AttributeType!.TypeValues!
-                    .Where(v => v.Id == item.AttributeType!.DefaultValueId)
-                    .Select(v => v.Value).FirstOrDefault() ?? item.AttributeType!.DefaultCustomValue,
+                DefaultUnit = item.AttributeType!.TypeUnits!.FirstOrDefault()?.Value ?? "",
+                DefaultValue = item.AttributeType!.TypeValues!.FirstOrDefault()?.Value ??
+                               item.AttributeType.DefaultCustomValue ?? "",
             };
         }
 

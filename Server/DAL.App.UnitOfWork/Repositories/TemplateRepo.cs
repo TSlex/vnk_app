@@ -27,10 +27,12 @@ namespace DAL.App.UnitOfWork.Repositories
 
             query = query.WhereSuidConditions(searchKey);
 
+            query = query.OrderBy(t => t.Id);
+
             query = byName switch
             {
-                SortOption.True => query.OrderBy(at => at.Name),
-                SortOption.Reversed => query.OrderByDescending(at => at.Name),
+                SortOption.True => query.OrderBy(t => t.Name),
+                SortOption.Reversed => query.OrderByDescending(t => t.Name),
                 _ => query
             };
 
@@ -41,9 +43,8 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<Template> GetByIdAsync(long id)
         {
-            var query = GetActualDataAsQueryable()
-                .IncludeAttributesFull()
-                .Where(o => o.Id == id);
+            var query = GetActualDataByIdAsQueryable(id)
+                .IncludeAttributesFull();
 
             return Mapper.Map<Entities.Template, Template>(await query.FirstOrDefaultAsync());
         }
