@@ -62,6 +62,8 @@ namespace DAL.App.UnitOfWork.Repositories
                 endDateTime, checkDateTime).CountAsync();
         }
 
+        #region History
+
         public async Task<IEnumerable<Order>> GetHistoryAsync(long id, int pageIndex, int itemsOnPage)
         {
             var query = DbSet.Where(o => o.Id == id || o.MasterId == id);
@@ -125,6 +127,8 @@ namespace DAL.App.UnitOfWork.Repositories
         {
             return await DbSet.CountAsync(o => o.Id == id || o.MasterId == id);
         }
+
+        #endregion
     }
 
     internal static partial class Extensions

@@ -10,7 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.App.UnitOfWork.Repositories
 {
-    public class TemplateAttributeRepo: BaseRepo<Entities.TemplateAttribute, TemplateAttribute, AppDbContext>, ITemplateAttributeRepo
+    public class TemplateAttributeRepo : BaseRepo<Entities.TemplateAttribute, TemplateAttribute, AppDbContext>,
+        ITemplateAttributeRepo
     {
         public TemplateAttributeRepo(AppDbContext dbContext, IUniversalMapper mapper) : base(dbContext, mapper)
         {
@@ -18,17 +19,20 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<int> CountByTemplateId(long templateId)
         {
-            return await DbSet.CountAsync(ta => ta.TemplateId == templateId);
+            return await GetActualDataAsQueryable()
+                .CountAsync(ta => ta.TemplateId == templateId);
         }
 
         public async Task<bool> AnyAsync(long id, long templateId)
         {
-            return await DbSet.AnyAsync(ta => ta.Id == id && ta.TemplateId == templateId);
+            return await GetActualDataAsQueryable()
+                .AnyAsync(ta => ta.Id == id && ta.TemplateId == templateId);
         }
 
         public async Task<IEnumerable<TemplateAttribute>> GetAllByTemplateId(long id)
         {
-            return (await DbSet.Where(ta => ta.TemplateId == id).ToListAsync()).Select(MapToDTO);
+            return (await GetActualDataAsQueryable()
+                .Where(ta => ta.TemplateId == id).ToListAsync()).Select(MapToDTO);
         }
     }
 }
