@@ -17,7 +17,7 @@ namespace AppAPI._1._0
         public bool UsesDefinedUnits { get; set; }
     }
 
-    public class AttributeGetDetailsDTO : DomainEntityId
+    public class AttributeDetailsGetDTO : DomainEntityId
     {
         public string Name { get; set; } = default!;
         public string Type { get; set; } = default!;

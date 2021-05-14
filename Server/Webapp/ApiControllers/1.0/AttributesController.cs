@@ -21,12 +21,10 @@ namespace Webapp.ApiControllers._1._0
     // [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "User, Administrator, Root")]
     public class AttributesController : ControllerBase
     {
-        private readonly AppDbContext _context;
         private readonly AppBLL _bll;
 
-        public AttributesController(AppDbContext context, AppBLL bll)
+        public AttributesController(AppBLL bll)
         {
-            _context = context;
             _bll = bll;
         }
 
@@ -93,11 +91,11 @@ namespace Webapp.ApiControllers._1._0
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeGetDetailsDTO>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResponseDTO<AttributeDetailsGetDTO>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorResponseDTO))]
         public async Task<ActionResult> GetById(long id)
         {
-            return Ok(new ResponseDTO<AttributeGetDetailsDTO>
+            return Ok(new ResponseDTO<AttributeDetailsGetDTO>
             {
                 Data = await _bll.Attributes.GetByIdAsync(id)
             });
