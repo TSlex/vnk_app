@@ -22,8 +22,7 @@ namespace DAL.App.UnitOfWork.Repositories
             string? searchKey)
         {
             var query = GetActualDataAsQueryable()
-                .IncludeAttributesFull()
-                .AsQueryable();
+                .IncludeAttributesFull();
 
             query = query.WhereSuidConditions(searchKey);
 
@@ -51,9 +50,9 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<long> CountAsync(string? searchKey)
         {
-            var templatesQuery = GetActualDataAsQueryable();
+            var query = GetActualDataAsQueryable();
 
-            return await templatesQuery.WhereSuidConditions(searchKey).CountAsync();
+            return await query.WhereSuidConditions(searchKey).CountAsync();
         }
     }
 

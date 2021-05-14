@@ -55,6 +55,7 @@ namespace DAL.App.UnitOfWork.Repositories
                     Id = a.Id,
                     Name = a.Name,
                     OrderAttributes = a.OrderAttributes!
+                        .Where(oa => oa.DeletedAt == null)
                         .Select(oa => new Entities.OrderAttribute())
                         .ToList(),
                     AttributeTypeId = a.AttributeTypeId,
@@ -84,7 +85,8 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<bool> AnyByTypeIdAsync(long attributeTypeId)
         {
-            return await GetActualDataAsQueryable().AnyAsync(a => a.AttributeTypeId == attributeTypeId);
+            return await GetActualDataAsQueryable()
+                .AnyAsync(a => a.AttributeTypeId == attributeTypeId && a.DeletedAt == null);
         }
 
         public async Task<long> CountAsync(string? searchKey)
@@ -104,9 +106,7 @@ namespace DAL.App.UnitOfWork.Repositories
             {
                 query = query.Where(a => a.Name.ToLower().Contains(searchKey.ToLower()));
             }
-
-            query = query.OrderBy(a => a.Id);
-
+            
             return query;
         }
     }

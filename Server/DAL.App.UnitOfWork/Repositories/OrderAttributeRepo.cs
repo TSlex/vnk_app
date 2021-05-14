@@ -43,7 +43,7 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<bool> AnyAsync(long id, long orderId)
         {
-            return await GetActualDataAsQueryable().AnyAsync(oa => oa.Id == id && oa.OrderId == orderId);
+            return await GetActualDataByIdAsQueryable(id).AnyAsync(oa => oa.OrderId == orderId);
         }
 
         public async Task<int> CountByOrderIdAsync(long orderId)

@@ -25,14 +25,14 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<bool> AnyAsync(long id, long templateId)
         {
-            return await GetActualDataAsQueryable()
-                .AnyAsync(ta => ta.Id == id && ta.TemplateId == templateId);
+            return await GetActualDataByIdAsQueryable(id)
+                .AnyAsync(ta => ta.TemplateId == templateId);
         }
 
-        public async Task<IEnumerable<TemplateAttribute>> GetAllByTemplateId(long id)
+        public async Task<IEnumerable<TemplateAttribute>> GetAllByTemplateId(long templateId)
         {
             return (await GetActualDataAsQueryable()
-                .Where(ta => ta.TemplateId == id).ToListAsync()).Select(MapToDTO);
+                .Where(ta => ta.TemplateId == templateId).ToListAsync()).Select(MapToDTO);
         }
     }
 }

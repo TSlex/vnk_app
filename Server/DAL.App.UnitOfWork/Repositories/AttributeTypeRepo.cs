@@ -23,6 +23,8 @@ namespace DAL.App.UnitOfWork.Repositories
             var query = GetActualDataAsQueryable();
 
             query = query.WhereSuidConditions(searchKey);
+            
+            query = query.OrderBy(at => at.Id);
 
             query = byName switch
             {
@@ -125,8 +127,6 @@ namespace DAL.App.UnitOfWork.Repositories
             {
                 query = query.Where(at => at.Name.ToLower().Contains(searchKey.ToLower()));
             }
-
-            query = query.OrderBy(at => at.Id);
 
             return query;
         }

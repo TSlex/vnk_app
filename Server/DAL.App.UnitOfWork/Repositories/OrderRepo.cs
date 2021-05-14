@@ -45,9 +45,8 @@ namespace DAL.App.UnitOfWork.Repositories
 
         public async Task<Order> GetByIdAsync(long id)
         {
-            var query = GetActualDataAsQueryable()
-                .IncludeAttributesFull()
-                .Where(o => o.Id == id);
+            var query = GetActualDataByIdAsQueryable(id)
+                .IncludeAttributesFull();
 
             return Mapper.Map<Entities.Order, Order>(await query.FirstOrDefaultAsync());
         }
@@ -58,8 +57,7 @@ namespace DAL.App.UnitOfWork.Repositories
             var ordersQuery = GetActualDataAsQueryable();
 
             return await ordersQuery.WhereSuidConditions(hasExecutionDate, completed, overdued, searchKey,
-                startDateTime,
-                endDateTime, checkDateTime).CountAsync();
+                startDateTime, endDateTime, checkDateTime).CountAsync();
         }
 
         #region History
