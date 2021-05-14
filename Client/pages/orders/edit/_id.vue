@@ -157,6 +157,11 @@ export default class OrderEdit extends Vue {
   attributes: {
     id: number | null;
     attribute: AttributeGetDTO;
+    initValue: {
+      customValue: string | null;
+      valueId: number | null;
+      unitId: number | null;
+    };
     value: {
       customValue: string | null;
       valueId: number | null;
@@ -221,6 +226,11 @@ export default class OrderEdit extends Vue {
         usesDefinedValues: false,
         usesDefinedUnits: false,
       },
+      initValue: {
+        customValue: "",
+        valueId: null,
+        unitId: null,
+      },
       value: {
         customValue: "",
         valueId: null,
@@ -262,7 +272,7 @@ export default class OrderEdit extends Vue {
     if (this.activeAutoComplete != null) {
       if ((this.$refs.form as any).validate()) {
         this.attributes[this.activeAutoComplete].changeMode = false;
-        this.activeAutoComplete;
+        this.activeAutoComplete = null;
       } else {
         return;
       }
@@ -307,6 +317,14 @@ export default class OrderEdit extends Vue {
       this.activeAutoComplete == null
     ) {
       this.model.attributes = _.map(this.attributes, (attribute) => {
+        if (
+          attribute.id != null &&
+          (attribute.initValue.customValue != attribute.value.customValue ||
+            attribute.initValue.valueId != attribute.value.valueId ||
+            attribute.initValue.unitId != attribute.value.unitId)
+        ) {
+          attribute.changed = true;
+        }
         return {
           id: attribute.id,
           patchOption: this.resolveAttribbutePatchOption(attribute),
@@ -356,6 +374,11 @@ export default class OrderEdit extends Vue {
                 dataType: attribute.dataType,
                 usesDefinedValues: attribute.usesDefinedValues,
                 usesDefinedUnits: attribute.usesDefinedUnits,
+              },
+              initValue: {
+                customValue: attribute.usesDefinedValues ? "" : attribute.value,
+                valueId: attribute.valueId,
+                unitId: attribute.unitId,
               },
               value: {
                 customValue: attribute.usesDefinedValues ? "" : attribute.value,

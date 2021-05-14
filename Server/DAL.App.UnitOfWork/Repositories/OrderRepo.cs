@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using DAL.App.DTO;
 using DAL.App.DTO.Enums;
@@ -23,7 +24,6 @@ namespace DAL.App.UnitOfWork.Repositories
             DateTime? startDateTime, DateTime? endDateTime, DateTime? checkDateTime)
         {
             var query = GetActualDataAsQueryable()
-                .IncludeAttributesFull()
                 .AsQueryable();
 
             query = query.WhereSuidConditions(hasExecutionDate, completed, overdued, searchKey, startDateTime,
@@ -40,15 +40,18 @@ namespace DAL.App.UnitOfWork.Repositories
 
             query = query.Skip(itemsOnPage * pageIndex).Take(itemsOnPage);
 
-            return (await query.ToListAsync()).Select(Mapper.Map<Entities.Order, Order>);
+            var orders = await query.Select(ProjectOrder()).ToListAsync();
+
+            return orders.Select(Mapper.Map<Entities.Order, Order>);
         }
 
         public async Task<Order> GetByIdAsync(long id)
         {
-            var query = GetActualDataByIdAsQueryable(id)
-                .IncludeAttributesFull();
+            var query = GetActualDataByIdAsQueryable(id);
 
-            return Mapper.Map<Entities.Order, Order>(await query.FirstOrDefaultAsync());
+            var order = await query.Select(ProjectOrder()).FirstOrDefaultAsync();
+
+            return Mapper.Map<Entities.Order, Order>(order);
         }
 
         public async Task<int> CountAsync(bool? hasExecutionDate, bool? completed, bool? overdued, string? searchKey,
@@ -127,6 +130,45 @@ namespace DAL.App.UnitOfWork.Repositories
         }
 
         #endregion
+
+        #region Helpers
+
+        private static Expression<Func<Entities.Order, Entities.Order>> ProjectOrder()
+        {
+            return o => new Entities.Order
+            {
+                Id = o.Id,
+                Name = o.Name,
+                Completed = o.Completed,
+                Notation = o.Notation,
+                ExecutionDateTime = o.ExecutionDateTime,
+                OrderAttributes = o.OrderAttributes!.Select(oa => new Entities.OrderAttribute
+                {
+                    Attribute = new Entities.Attribute
+                    {
+                        Name = oa.Attribute!.Name,
+                        AttributeType = new Entities.AttributeType
+                        {
+                            Name = oa.Attribute!.AttributeType!.Name,
+                            Id = oa.Attribute!.AttributeType.Id,
+                            DataType = oa.Attribute!.AttributeType!.DataType,
+                            UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedUnits,
+                            UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
+                        }
+                    },
+                    Id = oa.Id,
+                    Featured = oa.Featured,
+                    AttributeId = oa.AttributeId,
+                    Value = oa.Value,
+                    Unit = oa.Unit,
+                    UnitId = oa.UnitId,
+                    ValueId = oa.ValueId,
+                    CustomValue = oa.CustomValue,
+                }).ToList()
+            };
+        }
+
+        #endregion
     }
 
     internal static partial class Extensions
@@ -174,23 +216,6 @@ namespace DAL.App.UnitOfWork.Repositories
             }
 
             return query.Where(o => o.DeletedAt == null && o.MasterId == null);
-        }
-
-        internal static IQueryable<Entities.Order> IncludeAttributesFull(this IQueryable<Entities.Order> query)
-        {
-            return query
-                .Include(o => o.OrderAttributes!.Where(oa =>
-                    oa.DeletedAt == null))
-                .ThenInclude(oa => oa.Attribute)
-                .ThenInclude(a => a!.AttributeType)
-                .ThenInclude(t => t!.TypeValues!.Where(v =>
-                    v.DeletedAt == null))
-                .Include(o => o.OrderAttributes!.Where(oa =>
-                    oa.DeletedAt == null))
-                .ThenInclude(oa => oa.Attribute)
-                .ThenInclude(a => a!.AttributeType)
-                .ThenInclude(t => t!.TypeUnits!.Where(u =>
-                    u.DeletedAt == null));
         }
     }
 }
