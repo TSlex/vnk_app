@@ -82,7 +82,7 @@ namespace BLL.App.Services
             {
                 var orderAttributes = await UnitOfWork.OrderAttributes.GetAllByAttributeIdAsync(id);
 
-                if (orderAttributes.Any())
+                if (orderAttributes.Any() && attribute.AttributeTypeId != attributePatchDTO.AttributeTypeId)
                 {
                     throw new ValidationException("Нельзя изменить тип используемого атрибута");
                 }

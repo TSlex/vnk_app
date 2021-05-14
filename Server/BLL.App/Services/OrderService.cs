@@ -125,8 +125,6 @@ namespace BLL.App.Services
             order.Notation = orderPatchDTO.Notation;
             order.ExecutionDateTime = orderPatchDTO.ExecutionDateTime;
 
-            await UnitOfWork.Orders.UpdateAsync(order);
-
             var orderAttributesCount = await UnitOfWork.OrderAttributes.CountByOrderIdAsync(id);
 
             foreach (var attributePatchDTO in orderPatchDTO.Attributes.OrderBy(dto => dto.PatchOption))
@@ -195,6 +193,8 @@ namespace BLL.App.Services
             {
                 throw new ValidationException("В заказе должен быть как минимум один атрибут");
             }
+            
+            await UnitOfWork.Orders.UpdateAsync(order);
 
             await UnitOfWork.SaveChangesAsync();
         }
