@@ -5,6 +5,7 @@ using DAL.Base.UnitOfWork;
 using DAL.Base.UnitOfWork.Repositories;
 using DAL.Base.UnitOfWork.Repositories.Identity;
 using DAL.Contracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace DAL.App.UnitOfWork
 {
@@ -12,6 +13,7 @@ namespace DAL.App.UnitOfWork
     {
         public AppUnitOfWork(AppDbContext dbContext) : base(dbContext, new UniversalMapper())
         {
+            dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
         public IAttributeRepo Attributes => GetRepository<IAttributeRepo>(

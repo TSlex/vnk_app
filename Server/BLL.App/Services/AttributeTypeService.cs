@@ -366,7 +366,7 @@ namespace BLL.App.Services
                 throw new ValidationException("Идентификаторы должны совпадать");
             }
 
-            var attributeType = await UnitOfWork.AttributeTypes.FirstOrDefaultAsync(id);
+            var attributeType = await UnitOfWork.AttributeTypes.FirstOrDefaultNoTrackAsync(id);
 
             if (attributeType == null)
             {

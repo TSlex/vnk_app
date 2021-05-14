@@ -5,7 +5,7 @@ using DAL.Base.Entities;
 
 namespace DAL.App.Entities
 {
-    public class AttributeType : DomainEntityIdSoftDelete
+    public class AttributeType : DomainEntityIdSoftUpdate
     {
         public string Name { get; set; } = default!;
         public string? DefaultCustomValue { get; set; }

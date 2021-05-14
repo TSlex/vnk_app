@@ -3,7 +3,7 @@ using DAL.Base.Entities;
 
 namespace DAL.App.Entities
 {
-    public class AttributeTypeValue : DomainEntityIdSoftDelete
+    public class AttributeTypeValue : DomainEntityIdSoftUpdate
     {
         public string Value { get; set; } = default!;
 
