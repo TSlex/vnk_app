@@ -83,6 +83,11 @@ export default {
     }
   },
 
+  server:{
+    host: '0.0.0.0',
+    port: 6672,
+  },
+
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     plugins: [
