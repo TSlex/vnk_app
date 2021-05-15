@@ -138,6 +138,12 @@ export default class OrdersStore extends VuexModule {
   }
 
   @Mutation
+  ORDER_HISTORY_CLEARED() {
+    this.histryRecords = []
+    this.histryRecordsCount = 0
+  }
+
+  @Mutation
   ACTION_FAILED(error: string) {
     this.error = error
   }

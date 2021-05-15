@@ -12,6 +12,7 @@ export interface OrderGetDTO {
 
 export interface OrderAttributeGetDTO {
   id: number;
+  masterId: number | null;
   name: string;
   usesDefinedValues: boolean;
   usesDefinedUnits: boolean;

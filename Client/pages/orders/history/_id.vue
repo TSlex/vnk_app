@@ -32,143 +32,124 @@
             <v-chip v-else color="primary"> Запланирован </v-chip>
           </template>
           <template v-slot:expanded-item="{ item }">
-              <v-container>
-                <div
-                  class="d-flex justify-space-between mb-2"
-                  v-if="item.name"
-                >
-                  <span class="text-body-1"> <span></span>Номер заказа:</span>
-                  <span class="text-body-1">{{ item.name }}</span>
-                </div>
-                <div
-                  class="d-flex justify-space-between mb-2"
-                  v-if="item.executionDateTime"
-                >
-                  <span class="text-body-1">Дата заказа:</span>
-                  <span class="text-body-1">{{
-                    item.executionDateTime | formatDateTime
-                  }}</span>
-                </div>
-                <div class="d-flex justify-space-between mb-2">
-                  <span class="text-body-1">Состояние:</span>
-                  <v-chip small v-if="item.completed" color="success">
-                    Выполнен
-                  </v-chip>
-                  <v-chip small v-else-if="item.overdued" color="error">
-                    Просрочен
-                  </v-chip>
-                  <v-chip small v-else color="primary"> Запланирован </v-chip>
-                </div>
-              </v-container>
-              <v-divider></v-divider>
-              <v-container>
-                <v-expansion-panels accordion multiple hover flat>
-                  <v-expansion-panel
-                    v-for="attribute in item.attributes"
-                    :key="attribute.id"
-                  >
-                    <v-expansion-panel-header
-                      hide-actions
-                      class="pa-0 rounded-lg"
+            <td :colspan="isDateOrder ? 7 : 6">
+              <v-container class="px-10">
+                <v-container>
+                  <v-expansion-panels accordion multiple hover flat>
+                    <v-expansion-panel
+                      v-for="attribute in item.attributes"
+                      :key="attribute.id"
                     >
-                      <div class="d-flex justify-space-between">
-                        <span class="d-flex align-center">
-                          <v-icon class="text-body-1" v-if="attribute.featured"
-                            >mdi-star</v-icon
-                          >
-                          <v-icon class="text-body-1" v-else
-                            >mdi-star-outline</v-icon
-                          >
-                          <span class="ml-1 text-body-1"
-                            >{{ attribute.name }}:</span
-                          >
-                        </span>
-                        <span class="text-body-1">
-                          <template v-if="isBooleanType(attribute)">{{
-                            attribute.value | formatBoolean
-                          }}</template>
-                          <template v-else-if="isDateType(attribute)">{{
-                            attribute.value | formatDate
-                          }}</template>
-                          <template v-else-if="isDateTimeType(attribute)">{{
-                            attribute.value | formatDateTime
-                          }}</template>
-                          <template v-else>{{ attribute.value }}</template>
-                          <template v-if="attribute.usesDefinedUnits">{{
-                            attribute.unit
-                          }}</template>
-                        </span>
-                      </div>
-                    </v-expansion-panel-header>
-                    <v-expansion-panel-content
-                      class="expansion-panel-content_no_wrap mt-1 rounded-lg"
-                    >
-                      <v-container class="grey lighten-3">
-                        <div
-                          class="d-flex justify-space-between mb-2"
-                          v-if="item.name"
-                        >
-                          <span class="text-body-2">Атрибут:</span>
-                          <v-chip
-                            small
-                            @click.stop="
-                              onNavigateToAttribute(attribute.attributeId)
-                            "
-                            >{{ attribute.name }}</v-chip
-                          >
+                      <v-expansion-panel-header
+                        hide-actions
+                        :class="
+                          'pa-0 rounded-lg ' +
+                          getHistoryStatusClass(item.id, attribute)
+                        "
+                      >
+                        <div class="d-flex justify-space-between">
+                          <span class="d-flex align-center">
+                            <v-icon
+                              class="text-body-1"
+                              v-if="attribute.featured"
+                              >mdi-star</v-icon
+                            >
+                            <v-icon class="text-body-1" v-else
+                              >mdi-star-outline</v-icon
+                            >
+                            <span class="ml-1 text-body-1"
+                              >{{ attribute.name }}:</span
+                            >
+                          </span>
+                          <span class="text-body-1">
+                            <template v-if="isBooleanType(attribute)">{{
+                              attribute.value | formatBoolean
+                            }}</template>
+                            <template v-else-if="isDateType(attribute)">{{
+                              attribute.value | formatDate
+                            }}</template>
+                            <template v-else-if="isDateTimeType(attribute)">{{
+                              attribute.value | formatDateTime
+                            }}</template>
+                            <template v-else>{{ attribute.value }}</template>
+                            <template v-if="attribute.usesDefinedUnits">{{
+                              attribute.unit
+                            }}</template>
+                          </span>
                         </div>
-                        <div
-                          class="d-flex justify-space-between mb-2"
-                          v-if="item.name"
-                        >
-                          <span class="text-body-2">Тип атрибута:</span>
-                          <v-chip
-                            small
-                            @click.stop="onNavigateToType(attribute.typeId)"
-                            >{{ attribute.type }}</v-chip
+                      </v-expansion-panel-header>
+                      <v-expansion-panel-content
+                        class="expansion-panel-content_no_wrap mt-1 rounded-lg"
+                      >
+                        <v-container class="grey lighten-3">
+                          <div
+                            class="d-flex justify-space-between mb-2"
+                            v-if="item.name"
                           >
-                        </div>
-                        <div
-                          class="d-flex justify-space-between mb-2"
-                          v-if="item.name"
-                        >
-                          <span class="text-body-2">Формат:</span>
-                          <v-chip small>{{
-                            attribute.dataType | formatDataType
-                          }}</v-chip>
-                        </div>
-                        <div
-                          class="d-flex justify-space-between mb-2"
-                          v-if="item.name"
-                        >
-                          <span class="text-body-2">Значения определены:</span>
-                          <v-chip small>{{
-                            attribute.usesDefinedValues | formatBoolean
-                          }}</v-chip>
-                        </div>
-                        <div
-                          class="d-flex justify-space-between"
-                          v-if="item.name"
-                        >
-                          <span class="text-body-2"
-                            >Ед. измерения определены:</span
+                            <span class="text-body-2">Атрибут:</span>
+                            <v-chip
+                              small
+                              @click.stop="
+                                onNavigateToAttribute(attribute.attributeId)
+                              "
+                              >{{ attribute.name }}</v-chip
+                            >
+                          </div>
+                          <div
+                            class="d-flex justify-space-between mb-2"
+                            v-if="item.name"
                           >
-                          <v-chip small>{{
-                            attribute.usesDefinedUnits | formatBoolean
-                          }}</v-chip>
-                        </div>
-                      </v-container>
-                    </v-expansion-panel-content>
-                  </v-expansion-panel>
-                </v-expansion-panels>
-              </v-container>
-              <v-divider class="mt-n2"></v-divider>
-              <template v-if="item.notation">
-                <v-container class="d-flex justify-center my-3">
-                  <span>{{ item.notation }}</span>
+                            <span class="text-body-2">Тип атрибута:</span>
+                            <v-chip
+                              small
+                              @click.stop="onNavigateToType(attribute.typeId)"
+                              >{{ attribute.type }}</v-chip
+                            >
+                          </div>
+                          <div
+                            class="d-flex justify-space-between mb-2"
+                            v-if="item.name"
+                          >
+                            <span class="text-body-2">Формат:</span>
+                            <v-chip small>{{
+                              attribute.dataType | formatDataType
+                            }}</v-chip>
+                          </div>
+                          <div
+                            class="d-flex justify-space-between mb-2"
+                            v-if="item.name"
+                          >
+                            <span class="text-body-2"
+                              >Значения определены:</span
+                            >
+                            <v-chip small>{{
+                              attribute.usesDefinedValues | formatBoolean
+                            }}</v-chip>
+                          </div>
+                          <div
+                            class="d-flex justify-space-between"
+                            v-if="item.name"
+                          >
+                            <span class="text-body-2"
+                              >Ед. измерения определены:</span
+                            >
+                            <v-chip small>{{
+                              attribute.usesDefinedUnits | formatBoolean
+                            }}</v-chip>
+                          </div>
+                        </v-container>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
                 </v-container>
-                <v-divider></v-divider>
-              </template>
+                <template v-if="item.notation">
+                  <v-divider class="mt-n2"></v-divider>
+                  <v-container class="d-flex justify-center my-3">
+                    <span>{{ item.notation }}</span>
+                  </v-container>
+                </template>
+              </v-container>
+            </td>
           </template>
         </v-data-table>
         <v-pagination
@@ -184,6 +165,8 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "nuxt-property-decorator";
+import { DataType } from "~/models/Enums/DataType";
+import { OrderAttributeGetDTO, OrderHistoryDTO } from "~/models/OrderDTO";
 import { ordersStore } from "~/store";
 
 @Component({})
@@ -193,14 +176,15 @@ export default class OrderHistory extends Vue {
   isMounted = false;
   currentPage = 1;
 
+  dateTimeHeader = {
+    text: "Дата исполнения",
+    value: "date",
+    align: "center",
+    sortable: false,
+  };
+
   headers = [
     { text: "Номер заказа", value: "name", align: "left", sortable: false },
-    {
-      text: "Дата исполнения",
-      value: "date",
-      align: "center",
-      sortable: false,
-    },
     { text: "Создан", value: "createdAt", align: "center", sortable: false },
     { text: "Изменен", value: "changedAt", align: "center", sortable: false },
     { text: "Инициатор", value: "changedBy", align: "center", sortable: false },
@@ -231,6 +215,56 @@ export default class OrderHistory extends Vue {
     return { id: params.id };
   }
 
+  get isDateOrder() {
+    return this.order?.executionDateTime != null;
+  }
+
+  getHistoryStatusClass(orderId: Number, attribute: OrderAttributeGetDTO) {
+    let orderIndex = this.orders.findIndex((order) => order.id == orderId);
+
+    let previousOrder =
+      this.orders.length > orderIndex + 1 ? this.orders[orderIndex + 1] : null;
+    let nextOrder = orderIndex - 1 > 0 ? this.orders[orderIndex - 1] : null;
+
+    if (previousOrder != null) {
+      let prevAtt = this.getOrderAttribute(previousOrder, attribute);
+
+      if (
+        prevAtt != null &&
+        (prevAtt.value != attribute.value || prevAtt.unit != attribute.unit)
+      ) {
+        return "primary--text";
+      }
+    }
+
+    // return "text-decoration-line-through error--text"
+    // return "success--text"
+    // return "primary--text"
+    return "";
+  }
+
+  getOrderAttribute(order: OrderHistoryDTO, attribute: OrderAttributeGetDTO) {
+    return order.attributes.find(
+      (a) =>
+        a.id == attribute.id ||
+        (a.masterId != null && a.masterId == attribute.masterId) ||
+        a.id == attribute.masterId ||
+        (a.masterId != null && a.masterId == attribute.id)
+    );
+  }
+
+  isBooleanType(attribute: OrderAttributeGetDTO) {
+    return attribute.dataType === DataType.Boolean;
+  }
+
+  isDateType(attribute: OrderAttributeGetDTO) {
+    return attribute.dataType === DataType.Date;
+  }
+
+  isDateTimeType(attribute: OrderAttributeGetDTO) {
+    return attribute.dataType === DataType.DateTime;
+  }
+
   @Watch("currentPage")
   fetchHistory() {
     this.fetched = false;
@@ -256,9 +290,15 @@ export default class OrderHistory extends Vue {
       checkDatetime: null,
     });
 
+    ordersStore.context.commit("ORDER_HISTORY_CLEARED");
+
     if (!order) {
       this.$router.back();
       return;
+    }
+
+    if (this.isDateOrder) {
+      this.headers.splice(1, 0, this.dateTimeHeader);
     }
 
     this.fetchHistory();
