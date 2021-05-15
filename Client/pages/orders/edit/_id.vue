@@ -124,7 +124,7 @@
 import { Component, Vue } from "nuxt-property-decorator";
 import { ordersStore } from "~/store";
 import { notEmpty, required } from "~/utils/form-validation";
-import { OrderPatchDTO } from "~/models/OrderDTO";
+import { OrderAttributeGetDTO, OrderPatchDTO } from "~/models/OrderDTO";
 import AttributeSellect from "~/components/common/AttributeSellect.vue";
 import AttributeValueSellect from "~/components/common/AttributeValueSellect.vue";
 import { AttributeGetDTO } from "~/models/AttributeDTO";

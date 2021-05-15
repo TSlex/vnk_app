@@ -313,17 +313,18 @@ namespace BLL.App.Services
             {
                 Id = oa.Id,
                 Featured = oa.Featured,
-                Name = oa.Attribute!.Name,
-                Type = oa.Attribute!.AttributeType!.Name,
-                TypeId = oa.Attribute!.AttributeType.Id,
+                Name = oa.Attribute?.Name ?? "",
+                Type = oa.Attribute?.AttributeType?.Name ?? "",
+                TypeId = oa.Attribute?.AttributeType?.Id ?? 0,
                 AttributeId = oa.AttributeId,
-                DataType = (AttributeDataType) oa.Attribute!.AttributeType!.DataType,
+                DataType = (AttributeDataType) (oa.Attribute?.AttributeType?.DataType ?? 0),
                 Value = oa.Value?.Value ?? oa.CustomValue ?? "",
                 Unit = oa.Unit?.Value ?? "",
                 UnitId = oa.UnitId,
                 ValueId = oa.ValueId,
-                UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedUnits,
-                UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
+                UsesDefinedUnits = oa.Attribute?.AttributeType?.UsesDefinedUnits ?? false,
+                UsesDefinedValues = oa.Attribute?.AttributeType?.UsesDefinedValues ?? false,
+                MasterId = oa.MasterId
             };
         }
 

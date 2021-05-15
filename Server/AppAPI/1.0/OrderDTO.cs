@@ -55,6 +55,8 @@ namespace AppAPI._1._0
         public AttributeDataType DataType { get; set; }
 
         public bool Featured { get; set; }
+        
+        public long? MasterId { get; set; }
     }
 
     #endregion

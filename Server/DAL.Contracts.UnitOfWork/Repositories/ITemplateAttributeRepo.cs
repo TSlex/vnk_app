@@ -9,6 +9,6 @@ namespace DAL.Base.UnitOfWork.Repositories
     {
         Task<int> CountByTemplateId(long id);
         Task<bool> AnyAsync(long id, long templateId);
-        Task<IEnumerable<TemplateAttribute>> GetAllByTemplateId(long templateId);
+        Task<IEnumerable<TemplateAttribute>> GetAllByTemplateId(long id);
     }
 }

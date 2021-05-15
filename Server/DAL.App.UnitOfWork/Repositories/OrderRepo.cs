@@ -74,31 +74,32 @@ namespace DAL.App.UnitOfWork.Repositories
             var orders = await query.Skip(pageIndex * itemsOnPage).Take(itemsOnPage).ToListAsync();
 
             var orderAttributes = await DbContext.OrderAttributes
-                // .Include(oa => oa.Attribute)
-                // .ThenInclude(a => a!.AttributeType)
-                // .ThenInclude(t => t!.TypeValues)
-                // .Include(oa => oa.Attribute)
-                // .ThenInclude(a => a!.AttributeType)
-                // .ThenInclude(t => t!.TypeUnits)
-                .Where(oa => oa.OrderId == id).ToListAsync();
-
-            var orderAttributesId = orderAttributes.Select(oa => oa.AttributeId);
-            var attributes = await DbContext.Attributes.Where(a => orderAttributesId.Contains(a.Id)).ToListAsync();
-
-            var attributeTypesId = attributes.Select(a => a.AttributeTypeId);
-            var types = await DbContext.AttributeTypes
-                .Where(t => attributeTypesId.Contains(t.Id))
-                .Include(t => t.TypeValues)
-                .Include(t => t.TypeUnits)
+                .Include(oa => oa.Value)
+                .Include(oa => oa.Unit)
+                .Where(oa => oa.OrderId == id)
                 .ToListAsync();
 
+            var attributesId = orderAttributes.Select(oa => oa.AttributeId).ToList();
+            var attributes = await DbContext.Attributes
+                .Where(a =>
+                    attributesId.Contains(a.Id) ||
+                    a.MasterId.HasValue && attributesId.Contains(a.MasterId.Value))
+                .ToListAsync();
+
+            var typesId = attributes.Select(a => a.AttributeTypeId).ToList();
+            var types = await DbContext.AttributeTypes
+                .Where(t =>
+                    typesId.Contains(t.Id) ||
+                    t.MasterId.HasValue && typesId.Contains(t.MasterId.Value)
+                )
+                .ToListAsync();
 
             foreach (var order in orders)
             {
                 order.OrderAttributes = orderAttributes
                     .Where(oa =>
-                        oa.ChangedAt <= order.ChangedAt &&
-                        (!oa.DeletedAt.HasValue || oa.DeletedAt >= order.ChangedAt || oa.DeletedAt >= order.DeletedAt)
+                        !(oa.ChangedAt > order.ChangedAt ||
+                          oa.DeletedAt <= order.ChangedAt)
                     )
                     .ToList();
 
@@ -106,17 +107,21 @@ namespace DAL.App.UnitOfWork.Repositories
                 {
                     orderAttribute.Attribute = attributes
                         .FirstOrDefault(a =>
-                            a.ChangedAt <= orderAttribute.ChangedAt &&
-                            (!a.DeletedAt.HasValue || a.DeletedAt >= orderAttribute.ChangedAt ||
-                             a.DeletedAt >= orderAttribute.DeletedAt));
+                            (a.Id == orderAttribute.AttributeId ||
+                             a.MasterId.HasValue && a.MasterId.Value == orderAttribute.AttributeId) &&
+                            a.ChangedAt <= order.ChangedAt &&
+                            (!a.DeletedAt.HasValue || a.DeletedAt >= order.ChangedAt ||
+                             a.DeletedAt >= order.DeletedAt));
 
                     if (orderAttribute.Attribute != null)
                     {
                         orderAttribute.Attribute.AttributeType = types
                             .FirstOrDefault(t =>
-                                t.ChangedAt <= orderAttribute.Attribute.ChangedAt &&
-                                (!t.DeletedAt.HasValue || t.DeletedAt >= orderAttribute.Attribute.ChangedAt ||
-                                 t.DeletedAt >= orderAttribute.Attribute.DeletedAt));
+                                (t.Id == orderAttribute.Attribute.AttributeTypeId ||
+                                 t.MasterId.HasValue && t.MasterId.Value == orderAttribute.Attribute.AttributeTypeId) &&
+                                t.ChangedAt <= order.ChangedAt &&
+                                (!t.DeletedAt.HasValue || t.DeletedAt >= order.ChangedAt ||
+                                 t.DeletedAt >= order.DeletedAt));
                     }
                 }
             }
@@ -142,29 +147,31 @@ namespace DAL.App.UnitOfWork.Repositories
                 Completed = o.Completed,
                 Notation = o.Notation,
                 ExecutionDateTime = o.ExecutionDateTime,
-                OrderAttributes = o.OrderAttributes!.Select(oa => new Entities.OrderAttribute
-                {
-                    Attribute = new Entities.Attribute
+                OrderAttributes = o.OrderAttributes!
+                    .Where(oa => oa.DeletedAt == null)
+                    .Select(oa => new Entities.OrderAttribute
                     {
-                        Name = oa.Attribute!.Name,
-                        AttributeType = new Entities.AttributeType
+                        Attribute = new Entities.Attribute
                         {
-                            Name = oa.Attribute!.AttributeType!.Name,
-                            Id = oa.Attribute!.AttributeType.Id,
-                            DataType = oa.Attribute!.AttributeType!.DataType,
-                            UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedUnits,
-                            UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
-                        }
-                    },
-                    Id = oa.Id,
-                    Featured = oa.Featured,
-                    AttributeId = oa.AttributeId,
-                    Value = oa.Value,
-                    Unit = oa.Unit,
-                    UnitId = oa.UnitId,
-                    ValueId = oa.ValueId,
-                    CustomValue = oa.CustomValue,
-                }).ToList()
+                            Name = oa.Attribute!.Name,
+                            AttributeType = new Entities.AttributeType
+                            {
+                                Name = oa.Attribute!.AttributeType!.Name,
+                                Id = oa.Attribute!.AttributeType.Id,
+                                DataType = oa.Attribute!.AttributeType!.DataType,
+                                UsesDefinedUnits = oa.Attribute!.AttributeType!.UsesDefinedUnits,
+                                UsesDefinedValues = oa.Attribute!.AttributeType!.UsesDefinedValues
+                            }
+                        },
+                        Id = oa.Id,
+                        Featured = oa.Featured,
+                        AttributeId = oa.AttributeId,
+                        Value = oa.Value,
+                        Unit = oa.Unit,
+                        UnitId = oa.UnitId,
+                        ValueId = oa.ValueId,
+                        CustomValue = oa.CustomValue,
+                    }).ToList()
             };
         }
 

@@ -76,18 +76,6 @@ namespace DAL.App.EF
                 entityWithMetaData.ChangedBy = entityWithMetaData.CreatedBy;
             }
 
-            var deletedEntities = ChangeTracker.Entries().Where(x => x.State == EntityState.Deleted);
-
-            foreach (var entityEntry in deletedEntities)
-            {
-                if (entityEntry.Entity is not IDomainEntitySoftDelete softDeleteEntity) continue;
-
-                softDeleteEntity.DeletedAt = now;
-                softDeleteEntity.DeletedBy = _userProvider.CurrentName;
-
-                entityEntry.State = EntityState.Modified;
-            }
-
             var updatedEntities = ChangeTracker.Entries().Where(x => x.State == EntityState.Modified);
 
             foreach (var entityEntry in updatedEntities)
@@ -101,6 +89,18 @@ namespace DAL.App.EF
 
                 entityEntry.Property(nameof(entityWithMetaData.CreatedAt)).IsModified = false;
                 entityEntry.Property(nameof(entityWithMetaData.CreatedBy)).IsModified = false;
+            }
+            
+            var deletedEntities = ChangeTracker.Entries().Where(x => x.State == EntityState.Deleted);
+
+            foreach (var entityEntry in deletedEntities)
+            {
+                if (entityEntry.Entity is not IDomainEntitySoftDelete softDeleteEntity) continue;
+
+                softDeleteEntity.DeletedAt = now;
+                softDeleteEntity.DeletedBy = _userProvider.CurrentName;
+
+                entityEntry.State = EntityState.Modified;
             }
         }
 
