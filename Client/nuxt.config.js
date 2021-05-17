@@ -60,8 +60,9 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseUrl: "https://localhost:5001/api/v1/",
-    https: true
+    // baseUrl: "https://localhost:5001/api/v1/",
+    baseUrl: "http://80.66.248.96:3300/api/v1/",
+    https: false
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
