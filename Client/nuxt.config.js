@@ -1,6 +1,9 @@
 import colors from 'vuetify/es5/util/colors'
 import webpack from 'webpack'
 
+import path from 'path'
+import fs from 'fs'
+
 export default {
   ssr: false,
   // Global page headers: https://go.nuxtjs.dev/config-head
@@ -48,7 +51,8 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/pwa',
   ],
 
   moment: {
@@ -63,6 +67,23 @@ export default {
     // baseUrl: "https://localhost:5001/api/v1/",
     baseUrl: "http://80.66.248.96:3300/api/v1/",
     https: false
+  },
+
+  pwa: {
+    manifest: {
+      name: 'Учет заказов',
+      lang: 'ru',
+      useWebmanifestExtension: false,
+      theme_color: '#1976d2',
+      display: 'standalone',
+    },
+    workbox: {
+      dev: process.env.NODE_ENV !== 'production'
+    }
+  },
+
+  loading: {
+    color: '#1976d2'
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
@@ -84,9 +105,13 @@ export default {
     }
   },
 
-  // server:{
-  //   host: '0.0.0.0',
-  //   port: 6672,
+  // server: {
+  //   //   host: '0.0.0.0',
+  //   //   port: 6672,
+  //   https: {
+  //     key: fs.readFileSync(path.resolve(__dirname, 'localhost.key')),
+  //     cert: fs.readFileSync(path.resolve(__dirname, 'localhost.crt'))
+  //   }
   // },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
