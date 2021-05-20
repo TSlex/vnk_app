@@ -52,7 +52,7 @@ export default {
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    '@nuxtjs/pwa',
+    // '@nuxtjs/pwa',
   ],
 
   moment: {
@@ -64,21 +64,25 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    // baseUrl: "https://localhost:5001/api/v1/",
-    baseUrl: "http://80.66.248.96:3300/api/v1/",
+    baseUrl: "https://localhost:5001/api/v1/",
+    // baseUrl: "http://80.66.248.96:3300/api/v1/",
     https: false
   },
 
   pwa: {
     manifest: {
       name: 'Учет заказов',
+      short_name: 'Учет заказов',
+      start_url: "/",
       lang: 'ru',
       useWebmanifestExtension: false,
       theme_color: '#1976d2',
+      background_color: '#ffffff',
       display: 'standalone',
     },
     workbox: {
-      dev: process.env.NODE_ENV !== 'production'
+      // autoRegister: true,
+      // enabled: true
     }
   },
 

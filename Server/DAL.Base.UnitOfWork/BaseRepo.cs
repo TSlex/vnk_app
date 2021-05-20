@@ -66,7 +66,7 @@ namespace DAL.Base.UnitOfWork
 
         public virtual async Task UpdateAsync(TDTO dto)
         {
-            TEntity trackedEntity = await DbSet.FindAsync(dto.Id);
+            TEntity trackedEntity = await DbSet.FirstOrDefaultAsync(e => e.Id == dto.Id);
             TEntity entityToTrack = MapToEntity(dto);
 
             foreach (var entity in DbSet.Local)

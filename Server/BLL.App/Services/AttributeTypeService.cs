@@ -91,8 +91,8 @@ namespace BLL.App.Services
             var idCallBack = await UnitOfWork.AttributeTypes.AddAsync(attributeType);
 
             await UnitOfWork.SaveChangesAsync();
-
-            attributeType.Id = idCallBack();
+            
+            var cleanAttributeType = await UnitOfWork.AttributeTypes.FirstOrDefaultNoTrackAsync(idCallBack());
             
             var hasValues = attributeTypePostDTO.UsesDefinedValues && attributeTypePostDTO.Values.Any();
             var hasUnits = attributeTypePostDTO.UsesDefinedUnits && attributeTypePostDTO.Units.Any();
@@ -102,31 +102,28 @@ namespace BLL.App.Services
             if (hasValues || hasUnits)
             {
                 typeWithValuesAndUnits =
-                    await UnitOfWork.AttributeTypes.GetWithValuesAndUnits(attributeType.Id);
+                    await UnitOfWork.AttributeTypes.GetWithValuesAndUnits(cleanAttributeType.Id);
             }
 
             if (hasValues && typeWithValuesAndUnits != null)
             {
-                attributeType.DefaultValueId =
+                cleanAttributeType.DefaultValueId =
                     typeWithValuesAndUnits.TypeValues!.ToArray()[attributeTypePostDTO.DefaultValueIndex].Id;
             }
 
             if (hasUnits && typeWithValuesAndUnits != null)
             {
-                attributeType.DefaultUnitId =
+                cleanAttributeType.DefaultUnitId =
                     typeWithValuesAndUnits.TypeUnits!.ToArray()[attributeTypePostDTO.DefaultUnitIndex].Id;
             }
 
             if (hasValues || hasUnits)
             {
-                attributeType.TypeUnits = new List<AttributeTypeUnit>();
-                attributeType.TypeValues = new List<AttributeTypeValue>();
-                
-                await UnitOfWork.AttributeTypes.UpdateAsync(attributeType);
+                await UnitOfWork.AttributeTypes.UpdateAsync(cleanAttributeType);
                 await UnitOfWork.SaveChangesAsync();
             }
 
-            return idCallBack();
+            return cleanAttributeType.Id;
         }
 
         public async Task UpdateAsync(long id, AttributeTypePatchDTO attributeTypePatchDTO)
