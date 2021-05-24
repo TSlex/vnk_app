@@ -8,7 +8,7 @@
       <v-sheet rounded="lg" class="py-2">
         <div class="px-3 mb-2">
           <div class="d-flex justify-space-between mb-2">
-            <span>Название:</span><span>{{ attributeType.name }}</span>
+            <span>Название:</span><span>{{ attributeType.name | textTruncate(50) }}</span>
           </div>
           <div class="d-flex justify-space-between mb-2">
             <span>Формат данных:</span
@@ -38,7 +38,7 @@
               attributeType.defaultCustomValue | formatBoolean
             }}</span>
             <span v-else class="text-body-1">{{
-              attributeType.defaultCustomValue
+              attributeType.defaultCustomValue | textTruncate(50)
             }}</span>
           </div>
         </div>
@@ -73,7 +73,7 @@
               <span v-else-if="isBooleanFormat" class="text-body-1">{{
                 value.value | formatBoolean
               }}</span>
-              <span v-else class="text-body-1">{{ value.value }}</span>
+              <span v-else class="text-body-1">{{ value.value | textTruncate(50) }}</span>
               <v-chip v-if="attributeType.defaultValueId === value.id" small
                 >по умолчанию</v-chip
               >
@@ -93,7 +93,7 @@
             :key="unit.id"
           >
             <template>
-              <span class="text-body-1">{{ unit.value }}</span>
+              <span class="text-body-1">{{ unit.value | textTruncate(50)}}</span>
               <v-chip v-if="attributeType.defaultUnitId === unit.id" small
                 >по умолчанию</v-chip
               >

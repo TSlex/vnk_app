@@ -24,12 +24,17 @@
                 v-model="model.dataType"
                 :rules="rules.type"
               ></v-select>
-              <CustomValueField
-                :dataType="model.dataType"
+              <v-input
+                :rules="rules.defaultValue"
                 v-model="model.defaultCustomValue"
-                :label="`Значение по умолчанию`"
-                v-if="!model.usesDefinedValues"
-              />
+              >
+                <CustomValueField
+                  :dataType="model.dataType"
+                  v-model="model.defaultCustomValue"
+                  :label="`Значение по умолчанию`"
+                  v-if="!model.usesDefinedValues"
+                />
+              </v-input>
               <v-switch
                 label="Значения определены"
                 inset
@@ -62,7 +67,7 @@
                     <span v-else-if="isDateTimeFormat" class="text-body-1">{{
                       v | formatDateTime
                     }}</span>
-                    <span v-else class="text-body-1">{{ v }}</span>
+                    <span v-else class="text-body-1">{{ v  | textTruncate(50)}}</span>
                     <span>
                       <v-icon @click="featureValue(i)"
                         >mdi-star{{
@@ -101,7 +106,7 @@
                   :key="'unit' + u + i"
                 >
                   <template>
-                    <span class="text-body-1">{{ u }}</span>
+                    <span class="text-body-1">{{ u | textTruncate(50)}}</span>
                     <span>
                       <v-icon @click="featureUnit(i)"
                         >mdi-star{{
@@ -153,7 +158,7 @@ import CustomValueField from "~/components/common/CustomValueField.vue";
 import { AttributeTypePostDTO } from "~/models/AttributeTypeDTO";
 import ValueAddDialog from "~/components/types/ValueAddDialog.vue";
 import UnitAddDialog from "~/components/types/UnitAddDialog.vue";
-import { notEmpty, required } from "~/utils/form-validation";
+import { maxlength, notEmpty, required } from "~/utils/form-validation";
 
 @Component({
   components: {
@@ -176,10 +181,11 @@ export default class AttributeTypesCreate extends Vue {
   };
 
   rules = {
-    name: [required()],
+    name: [required(), maxlength(100)],
+    defaultValue: [required(), maxlength(200)],
     type: [required()],
-    values: [notEmpty()],
-    units: [notEmpty()],
+    values: [notEmpty(), maxlength(100)],
+    units: [notEmpty(), maxlength(100)],
   };
 
   value = { value: "", index: 0, changeMode: false };

@@ -30,6 +30,7 @@
           @click:row="openDetails"
           class="rounded-b-lg rounded-t-0"
         >
+          <template v-slot:[`item.name`]="{ item }"> {{item.name | textTruncate(50)}} </template>
           <template v-slot:[`item.type`]="{ item }">
             <v-chip color="blue" dark v-if="item.systemicType"
               >системный</v-chip
@@ -40,9 +41,7 @@
             <v-chip color="amber" v-if="item.usesDefinedValues"
               >с определенными значениями</v-chip
             >
-            <v-chip v-if="isSimpleType(item)"
-              >обычный</v-chip
-            >
+            <v-chip v-if="isSimpleType(item)">обычный</v-chip>
           </template>
           <template v-slot:[`item.actions`]>
             <v-icon> mdi-pencil </v-icon>
@@ -77,12 +76,14 @@ export default class AttributeTypesIndex extends Vue {
     { text: "Тип", sortable: false, value: "type", align: "right" },
   ];
 
-  isSimpleType(item: AttributeTypeGetDTO){
-    return !item.systemicType && !item.usesDefinedValues && !item.usesDefinedUnits
+  isSimpleType(item: AttributeTypeGetDTO) {
+    return (
+      !item.systemicType && !item.usesDefinedValues && !item.usesDefinedUnits
+    );
   }
 
-  get currentPageIndex(){
-    return (this.currentPage ?? 1) - 1
+  get currentPageIndex() {
+    return (this.currentPage ?? 1) - 1;
   }
 
   get attributeTypes() {
@@ -98,7 +99,7 @@ export default class AttributeTypesIndex extends Vue {
   }
 
   openDetails(item: AttributeTypeGetDTO) {
-    this.$router.push(`types/${item.id}`)
+    this.$router.push(`types/${item.id}`);
   }
 
   setOrdering(options: any) {

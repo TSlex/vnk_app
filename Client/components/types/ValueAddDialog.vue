@@ -7,11 +7,13 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-            <CustomValueField
-              :dataType="type"
-              v-model="newValue"
-              :label="`Значение поля`"
-            />
+            <v-input v-model="model" :rules="rules.value">
+              <CustomValueField
+                :dataType="type"
+                v-model="newValue"
+                :label="`Значение поля`"
+              />
+            </v-input>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -29,7 +31,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "nuxt-property-decorator";
 import { DataType } from "~/models/Enums/DataType";
-import { required } from "~/utils/form-validation";
+import { maxlength, required } from "~/utils/form-validation";
 import CustomValueField from "~/components/common/CustomValueField.vue";
 import { localize } from "~/utils/localizeDataType";
 
@@ -49,14 +51,14 @@ export default class ValueAddDialog extends Vue {
   type!: DataType;
 
   rules = {
-    value: [required()],
+    value: [required(), maxlength(200)],
   };
 
-  get newValue(){
-    return this.model
+  get newValue() {
+    return this.model;
   }
 
-  set newValue(value){
+  set newValue(value) {
     this.$emit("change", value);
   }
 
@@ -69,7 +71,7 @@ export default class ValueAddDialog extends Vue {
   }
 
   onClose() {
-    (this.$refs.form as any).resetValidation()
+    (this.$refs.form as any).resetValidation();
     this.active = false;
   }
 

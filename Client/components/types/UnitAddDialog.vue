@@ -28,7 +28,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from "nuxt-property-decorator";
-import { required } from "~/utils/form-validation";
+import { maxlength, required } from "~/utils/form-validation";
 
 @Component({
   components: {},
@@ -41,7 +41,7 @@ export default class UnitAddDialog extends Vue {
   model!: string;
 
   rules = {
-    value: [required()],
+    value: [required(), maxlength(200)],
   };
 
   get newValue() {

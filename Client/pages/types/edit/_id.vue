@@ -33,12 +33,17 @@
                 Внимание, при смене типа данных, возможно неправильное
                 отображение!
               </v-alert>
+               <v-input
+                :rules="rules.defaultCustomValue"
+                v-model="model.defaultCustomValue"
+              >
               <CustomValueField
                 v-if="useDefaultValues"
                 :dataType="model.dataType"
                 v-model="model.defaultCustomValue"
                 :label="`Значение по умолчанию`"
               />
+               </v-input>
               <template v-if="attributeType.usesDefinedValues">
                 <v-toolbar flat>
                   <v-btn text outlined large @click="valueDialog = true"
@@ -68,7 +73,7 @@
                     <span v-else-if="isBooleanFormat" class="text-body-1">{{
                       value.value | formatBoolean
                     }}</span>
-                    <span v-else class="text-body-1">{{ value.value }}</span>
+                    <span v-else class="text-body-1">{{ value.value | textTruncate(50)}}</span>
                     <span>
                       <v-icon
                         v-if="value.id != null"
@@ -91,7 +96,7 @@
                 </div>
                 <v-input :rules="rules.values" v-model="actualValues"></v-input>
                 <v-input
-                  :rules="rules.defautValue"
+                  :rules="rules.defaultValue"
                   v-model="model.defaultValueId"
                 ></v-input>
               </template>
@@ -115,7 +120,7 @@
                   :key="'unit:' + unit.value + i"
                 >
                   <template v-if="!unit.deleted">
-                    <span class="text-body-1">{{ unit.value }}</span>
+                    <span class="text-body-1">{{ unit.value | textTruncate(50) }}</span>
                     <span>
                       <v-icon
                         v-if="unit.id != null"
@@ -138,7 +143,7 @@
                 </div>
                 <v-input :rules="rules.units" v-model="actualUnits"></v-input>
                 <v-input
-                  :rules="rules.defautUnit"
+                  :rules="rules.defaultUnit"
                   v-model="model.defaultUnitId"
                 ></v-input>
               </template>
@@ -177,7 +182,7 @@ import { attributeTypesStore } from "~/store";
 import { DataType } from "~/models/Enums/DataType";
 import CustomValueField from "~/components/common/CustomValueField.vue";
 import { AttributeTypePatchDTO } from "~/models/AttributeTypeDTO";
-import { notEmpty, required } from "~/utils/form-validation";
+import { maxlength, notEmpty, required } from "~/utils/form-validation";
 import { localize } from "~/utils/localizeDataType";
 import ValueAddDialog from "~/components/types/ValueAddDialog.vue";
 import UnitAddDialog from "~/components/types/UnitAddDialog.vue";
@@ -233,15 +238,16 @@ export default class AttributeTypesEdit extends Vue {
   id!: number;
 
   rules = {
-    name: [required()],
+    name: [required(), maxlength(100)],
+    defaultCustomValue: [required(), maxlength(200)],
     type: [required()],
-    values: [notEmpty()],
-    units: [notEmpty()],
-    defautValue: [
+    values: [notEmpty(), maxlength(100)],
+    units: [notEmpty(), maxlength(100)],
+    defaultValue: [
       (value: string) =>
         Number(value) >= 0 || "Необходимо указать значение по умолчанию",
     ],
-    defautUnit: [
+    defaultUnit: [
       (value: string) =>
         Number(value) >= 0 ||
         "Необходимо указать единицу измерения по умолчанию",
