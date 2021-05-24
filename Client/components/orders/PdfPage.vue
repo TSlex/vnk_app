@@ -4,29 +4,29 @@
       <h3 class="day" v-if="hasDate">Дата: {{ i | formatDate }}</h3>
       <h3 class="day" v-else>{{ i }}</h3>
       <table v-for="order in orders" :key="order.id" class="day-order">
-        <tr v-if="order.name" class="order-row">
+        <tr v-if="order.name" class="order-row small bold">
           <td class="align-left">Номер заказа:</td>
-          <td class="align-right">{{ order.name }}</td>
+          <td class="align-right">{{ order.name | textTruncate(50) }}</td>
         </tr>
-        <tr v-if="order.executionDateTime" class="order-row">
+        <tr v-if="order.executionDateTime" class="order-row small bold">
           <td class="align-left">Дата заказа:</td>
           <td class="align-right">
             {{ order.executionDateTime | formatDateTime }}
           </td>
         </tr>
-        <div class="order-row">
+        <tr class="order-row small bold">
           <td class="align-left">Состояние:</td>
           <td class="align-right" v-if="order.completed">Выполнен</td>
           <td class="align-right" v-else-if="order.overdued">Просрочен</td>
           <td class="align-right" v-else>Запланирован</td>
-        </div>
+        </tr>
         <template>
           <tr
             v-for="attribute in order.attributes"
             :key="attribute.id"
-            class="order-row"
+            class="order-row small"
           >
-            <td class="align-left">{{ attribute.name }}:</td>
+            <td class="align-left">{{ attribute.name | textTruncate(40) }}:</td>
             <td class="align-right">
               <template v-if="isBooleanType(attribute)">{{
                 attribute.value | formatBoolean
@@ -37,16 +37,20 @@
               <template v-else-if="isDateTimeType(attribute)">{{
                 attribute.value | formatDateTime
               }}</template>
-              <template v-else>{{ attribute.value }}</template>
+              <template v-else>{{
+                attribute.value | textTruncate(30)
+              }}</template>
               <template v-if="attribute.usesDefinedUnits">{{
-                attribute.unit
+                attribute.unit | textTruncate(20)
               }}</template>
             </td>
           </tr>
         </template>
         <template v-if="order.notation">
-          <tr>
-            <td class="align-center">{{ order.notation }}</td>
+          <tr class="order-row small">
+            <td class="align-center text-break" style="padding: 5px">
+              {{ order.notation }}
+            </td>
           </tr>
         </template>
       </table>
@@ -121,19 +125,30 @@ export default class PDFPage extends Vue {
     margin: 5px auto;
     margin-bottom: 10px;
     // padding: 5px;
-    border: 1px solid grey;
+    // border: 1px solid grey;
     width: 80%;
 
     .order-row {
       display: flex;
       justify-content: space-between;
+      padding: 2px 5px;
+      &.small {
+        font-size: 12px;
+      }
+      &.bold {
+        font-weight: bold;
+      }
     }
   }
 }
 
-table,
-tr {
+table {
   border: 1px solid gray;
+  border-collapse: collapse !important;
+}
+
+tr {
+  border-top: 1px solid gray;
   border-collapse: collapse !important;
 }
 
@@ -152,5 +167,10 @@ td {
   &.align-center {
     text-align: center;
   }
+}
+
+.text-break {
+  word-wrap: break-word !important;
+  word-break: break-word !important;
 }
 </style>

@@ -14,7 +14,7 @@ export class BaseRepo {
   }
 
   async serverOnline() {
-    const response = await this._get<EmptyResponseDTO>("", undefined, {timeout: 500})
+    const response = await this._get<EmptyResponseDTO>("", undefined, {timeout: 2000})
     return !!response
   }
 

@@ -10,7 +10,9 @@
           <v-container>
             <div class="d-flex justify-space-between mb-2" v-if="order.name">
               <span class="text-body-1">Номер заказа:</span>
-              <span class="text-body-1">{{ order.name }}</span>
+              <span class="text-body-1">{{
+                order.name | textTruncate(30)
+              }}</span>
             </div>
             <div class="d-flex justify-space-between mb-2">
               <span class="text-body-1">Дата заказа:</span>
@@ -20,7 +22,9 @@
             </div>
             <div class="d-flex justify-space-between mb-2">
               <span class="text-body-1">Состояние:</span>
-              <v-chip small v-if="order.completed" color="success"> Выполнен </v-chip>
+              <v-chip small v-if="order.completed" color="success">
+                Выполнен
+              </v-chip>
               <v-chip small v-else-if="order.overdued" color="error">
                 Просрочен
               </v-chip>
@@ -34,7 +38,9 @@
               v-for="attribute in order.attributes"
               :key="attribute.id"
             >
-              <span class="text-body-1">{{ attribute.name }}:</span>
+              <span class="text-body-1"
+                >{{ attribute.name | textTruncate(30) }}:</span
+              >
               <span class="text-body-1">
                 <template v-if="isBooleanType(attribute)">{{
                   attribute.value | formatBoolean
@@ -45,9 +51,11 @@
                 <template v-else-if="isDateTimeType(attribute)">{{
                   attribute.value | formatDateTime
                 }}</template>
-                <template v-else>{{ attribute.value }}</template>
+                <template v-else>{{
+                  attribute.value | textTruncate(20)
+                }}</template>
                 <template v-if="attribute.usesDefinedUnits">{{
-                  attribute.unit
+                  attribute.unit | textTruncate(15)
                 }}</template>
               </span>
             </div>
@@ -55,11 +63,14 @@
           <v-divider class="mt-n2"></v-divider>
           <template v-if="order.notation">
             <v-container class="d-flex justify-center my-3">
-              <span>{{ order.notation }}</span>
+              <span class="text-break">{{ order.notation | textTruncate(200)}}</span>
             </v-container>
             <v-divider></v-divider>
           </template>
-          <v-container class="d-flex justify-space-between" v-if="isAdministrator">
+          <v-container
+            class="d-flex justify-space-between"
+            v-if="isAdministrator"
+          >
             <v-btn outlined text large @click="onCheck(order)">Отметить</v-btn>
             <v-btn outlined text large @click="onDetails(order.id)"
               >Подробнее</v-btn

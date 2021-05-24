@@ -76,17 +76,23 @@ export default class CalendarMenu extends Vue {
   }
 
   formatFeaturedAttributesInline(attributes: OrderAttributeGetDTO[]) {
-    return attributes
+    let text = attributes
       .map((attribute) => {
-        let line = `${attribute.name?.toLocaleLowerCase()}: ${attribute.value?.toLocaleLowerCase()}`;
+        let line = `${this.formatText(attribute.name)}: ${this.formatText(attribute.value)}`;
 
         if (attribute.usesDefinedUnits) {
-          line += ` ${attribute.unit?.toLocaleLowerCase()}`;
+          line += ` ${this.formatText(attribute.unit)}`;
         }
 
         return line;
       })
       .join(", ");
+
+    return this.$options.filters!.textTruncate(text, 150)
+  }
+
+  formatText(value: string){
+    return this.$options.filters!.textTruncate(value.toLocaleLowerCase(), 30)
   }
 
   onOrderSellect(order: OrderGetDTO) {

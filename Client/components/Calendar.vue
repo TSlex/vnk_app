@@ -174,7 +174,7 @@ export default class Calendar extends Vue {
   }
 
   formatFeaturedAttributesInline(attributes: OrderAttributeGetDTO[]) {
-    return attributes
+    let text = attributes
       .map((attribute) => {
         let line = `${attribute.name?.toLocaleLowerCase()}: ${attribute.value?.toLocaleLowerCase()}`;
 
@@ -185,6 +185,8 @@ export default class Calendar extends Vue {
         return line;
       })
       .join(", ");
+
+      return this.$options.filters!.textTruncate(text, 150)
   }
 
   async onPrevMonth() {
