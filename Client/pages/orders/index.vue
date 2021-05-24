@@ -48,6 +48,9 @@
           @click:row="openDetails"
           class="rounded-b-lg rounded-t-0"
         >
+        <template v-slot:[`item.name`]="{ item }">
+            {{ item.name | textTruncate(40) }}
+          </template>
           <template v-slot:[`item.date`]="{ item }">
             {{ item.executionDateTime | formatDateTime }}
           </template>

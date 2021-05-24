@@ -4,24 +4,24 @@
       <CustomValueField
         :dataType="attributeType.dataType"
         v-model="customValue"
-        :label="label"
+        :label="label | textTruncate(50)"
         v-if="!attributeType.usesDefinedValues"
         class="ma-0"
       />
       <v-select
         v-else
         v-model="valueId"
-        :items="attributeType.values"
+        :items="values"
         item-text="value"
         item-value="id"
-        :label="label"
+        :label="label | textTruncate(50)"
         class="ma-0"
       ></v-select>
     </v-col>
     <v-col v-if="attributeType.usesDefinedUnits">
       <v-select
         v-model="unitId"
-        :items="attributeType.units"
+        :items="units"
         item-text="value"
         item-value="id"
         label="Ед. измерения"
@@ -59,6 +59,32 @@ export default class AttributeValueSellect extends Vue {
   fetched = false;
 
   attributeType!: AttributeTypeDetailsGetDTO;
+
+  get units() {
+    return _.map(this.attributeType.units, (unit) => {
+      //@ts-ignore
+      return {
+        id: unit.id,
+        value: this.$options.filters!.textTruncate(unit.value, 30),
+      };
+    });
+  }
+
+  get values() {
+    return _.map(this.attributeType.values, (value) => {
+      if (this.attributeType.usesDefinedUnits) {
+        return {
+          id: value.id,
+          value: this.$options.filters!.textTruncate(value.value, 30),
+        };
+      } else {
+        return {
+          id: value.id,
+          value: this.$options.filters!.textTruncate(value.value, 50),
+        };
+      }
+    });
+  }
 
   get customValue() {
     return this.value.customValue;

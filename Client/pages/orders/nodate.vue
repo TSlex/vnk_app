@@ -11,7 +11,7 @@
           >
         </v-container>
         <v-toolbar flat class="rounded-t-lg">
-          <v-btn outlined text large to="orders/create">Добавить</v-btn>
+          <v-btn outlined text large to="/orders/create">Добавить</v-btn>
           <v-btn
             outlined
             text
@@ -48,8 +48,8 @@
           @click:row="openDetails"
           class="rounded-b-lg rounded-t-0"
         >
-          <template v-slot:[`item.date`]="{ item }">
-            {{ item.executionDateTime | formatDateTime }}
+          <template v-slot:[`item.name`]="{ item }">
+            {{ item.name | textTruncate(40) }}
           </template>
           <template v-slot:[`item.status`]="{ item }">
             <v-chip v-if="item.completed" color="success"> Выполнен </v-chip>

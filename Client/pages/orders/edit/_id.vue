@@ -91,6 +91,7 @@
               <v-textarea
                 label="Примечание"
                 v-model="model.notation"
+                :rules="rules.notation"
                 rows="1"
               ></v-textarea>
               <!-- Completion switch -->
@@ -123,7 +124,7 @@
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
 import { ordersStore } from "~/store";
-import { notEmpty, required } from "~/utils/form-validation";
+import { maxlength, notEmpty, required } from "~/utils/form-validation";
 import { OrderAttributeGetDTO, OrderPatchDTO } from "~/models/OrderDTO";
 import AttributeSellect from "~/components/common/AttributeSellect.vue";
 import AttributeValueSellect from "~/components/common/AttributeValueSellect.vue";
@@ -174,12 +175,14 @@ export default class OrderEdit extends Vue {
   }[] = [];
 
   rules = {
-    name: [required()],
+    name: [required(), maxlength(100)],
     attributes: [
+      maxlength(30),
       (value: any[]) =>
         value.filter((item) => !item.deleted).length > 0 ||
         "В заказе должен быть как минимум один атрибут",
     ],
+    notation: [maxlength(1000)],
   };
 
   value = { value: "", index: 0, changeMode: false };

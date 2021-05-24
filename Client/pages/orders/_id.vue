@@ -1,11 +1,11 @@
 <template>
   <v-row justify="center" class="text-center" v-if="loaded && order != null">
-    <v-col cols="4" class="mt-4">
+    <v-col cols="5" class="mt-4">
       <v-sheet rounded="lg" class="py-2">
         <v-container>
           <div class="d-flex justify-space-between mb-2" v-if="order.name">
             <span class="text-body-1"> <span></span>Номер заказа:</span>
-            <span class="text-body-1">{{ order.name }}</span>
+            <span class="text-body-1">{{ order.name | textTruncate(50)}}</span>
           </div>
           <div class="d-flex justify-space-between mb-2" v-if="order.executionDateTime">
             <span class="text-body-1">Дата заказа:</span>
@@ -36,7 +36,7 @@
                   <span class="d-flex align-center">
                     <v-icon class="text-body-1" v-if="attribute.featured">mdi-star</v-icon>
                     <v-icon class="text-body-1" v-else>mdi-star-outline</v-icon>
-                    <span class="ml-1 text-body-1">{{ attribute.name }}:</span>
+                    <span class="ml-1 text-body-1">{{ attribute.name | textTruncate(30)}}:</span>
                   </span>
                   <span class="text-body-1">
                     <template v-if="isBooleanType(attribute)">{{
@@ -48,9 +48,9 @@
                     <template v-else-if="isDateTimeType(attribute)">{{
                       attribute.value | formatDateTime
                     }}</template>
-                    <template v-else>{{ attribute.value }}</template>
+                    <template v-else>{{ attribute.value| textTruncate(30) }}</template>
                     <template v-if="attribute.usesDefinedUnits">{{
-                      attribute.unit
+                      attribute.unit| textTruncate(20)
                     }}</template>
                   </span>
                 </div>
@@ -67,7 +67,7 @@
                     <v-chip
                       small
                       @click.stop="onNavigateToAttribute(attribute.attributeId)"
-                      >{{ attribute.name }}</v-chip
+                      >{{ attribute.name | textTruncate(50)}}</v-chip
                     >
                   </div>
                   <div
@@ -78,7 +78,7 @@
                     <v-chip
                       small
                       @click.stop="onNavigateToType(attribute.typeId)"
-                      >{{ attribute.type }}</v-chip
+                      >{{ attribute.type | textTruncate(50)}}</v-chip
                     >
                   </div>
                   <div
@@ -116,7 +116,7 @@
         <v-divider class="mt-n2"></v-divider>
         <template v-if="order.notation">
           <v-container class="d-flex justify-center my-3">
-            <span>{{ order.notation }}</span>
+            <span class="text-break">{{order.notation}}</span>
           </v-container>
           <v-divider></v-divider>
         </template>

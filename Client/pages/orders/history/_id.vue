@@ -3,7 +3,9 @@
     <v-col cols="8" class="mt-4">
       <template v-if="isMounted">
         <v-toolbar flat class="rounded-t-lg">
-          <v-toolbar-title> История заказа "{{ order.name }}" </v-toolbar-title>
+          <v-toolbar-title>
+            История заказа "{{ order.name | textTruncate(50) }}"
+          </v-toolbar-title>
         </v-toolbar>
         <v-data-table
           :loading="!fetched"
@@ -14,6 +16,9 @@
           show-expand
           class="rounded-b-lg rounded-t-0"
         >
+          <template v-slot:[`item.name`]="{ item }">
+            {{ item.name | textTruncate(50) }}
+          </template>
           <template v-slot:[`item.date`]="{ item }">
             {{ item.executionDateTime | formatDateTime }}
           </template>
@@ -58,7 +63,7 @@
                               >mdi-star-outline</v-icon
                             >
                             <span class="ml-1 text-body-1"
-                              >{{ attribute.name }}:</span
+                              >{{ attribute.name | textTruncate(50) }}:</span
                             >
                           </span>
                           <span class="text-body-1">
@@ -71,9 +76,11 @@
                             <template v-else-if="isDateTimeType(attribute)">{{
                               attribute.value | formatDateTime
                             }}</template>
-                            <template v-else>{{ attribute.value }}</template>
+                            <template v-else>{{
+                              attribute.value | textTruncate(40)
+                            }}</template>
                             <template v-if="attribute.usesDefinedUnits">{{
-                              attribute.unit
+                              attribute.unit | textTruncate(30)
                             }}</template>
                           </span>
                         </div>
@@ -145,7 +152,7 @@
                 <template v-if="item.notation">
                   <v-divider class="mt-n2"></v-divider>
                   <v-container class="d-flex justify-center my-3">
-                    <span>{{ item.notation }}</span>
+                    <span class="text-break">{{ item.notation }}</span>
                   </v-container>
                 </template>
               </v-container>
