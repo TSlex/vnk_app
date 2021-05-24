@@ -3,7 +3,10 @@
     <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
       <v-card>
         <v-card-title>
-          <span v-if="!isPersonal" class="headline">Изменить пароль пользователю "{{ fullName }}"</span>
+          <template v-if="!isPersonal">
+            <span class="headline">Изменить пароль пользователю</span>
+            <span class="subtitle-1">"{{ fullName | textTruncate(50) }}"</span>
+          </template>
           <span v-else class="headline">Сменить пароль</span>
         </v-card-title>
         <v-card-text>

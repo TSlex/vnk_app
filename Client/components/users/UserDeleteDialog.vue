@@ -4,8 +4,9 @@
       <v-card>
         <v-card-title>
           <span class="headline"
-            >Вы уверены, что хотите удалить "{{ fullName }}"?</span
+            >Вы уверены, что хотите удалить пользователя</span
           >
+          <span class="subtitle-1">"{{ fullName | textTruncate(50) }}?"</span>
         </v-card-title>
         <v-card-text>
           <v-container>

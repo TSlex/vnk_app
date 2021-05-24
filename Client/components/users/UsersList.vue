@@ -16,7 +16,7 @@
         >
           <v-list-item-content class="ma-0 pa-0">
             <div class="d-flex justify-space-between py-2">
-              <span class="text-body-1">{{ getFullname(user) }}</span>
+              <span class="text-body-1">{{ getFullname(user) | textTruncate(30) }}</span>
               <v-chip small>
                 <template>{{ user.roleLocalized }}</template>
               </v-chip>

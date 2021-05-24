@@ -3,7 +3,8 @@
     <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
       <v-card>
         <v-card-title>
-          <span class="headline">Сменить роль пользователю "{{ fullName }}"</span>
+          <span class="headline">Сменить роль пользователю</span>
+          <span class="subtitle-1">"{{ fullName | textTruncate(50) }}"</span>
         </v-card-title>
         <v-card-text>
           <v-container>
