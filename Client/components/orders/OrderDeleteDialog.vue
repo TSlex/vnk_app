@@ -1,13 +1,13 @@
 <template>
-  <v-dialog v-model="active" max-width="700px">
+  <v-dialog v-model="active" max-width="600px">
     <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
       <v-card>
-        <v-card-title>
-          <span class="headline"
-            >Вы уверены, что хотите удалить заказ "{{ order.name }}"?</span
-          >
+        <v-card-title class="two-lines">
+          <span class="headline">Вы уверены, что хотите удалить заказ</span>
+          <span class="subtitle-1">"{{ order.name | textTruncate(50) }}?"</span>
         </v-card-title>
-          <v-container class="px-10">
+        <v-card-text>
+          <v-container>
             <v-alert dense text type="error" v-if="showError">{{
               error
             }}</v-alert>
@@ -15,6 +15,7 @@
               Данное дейсвие не может быть отменено!
             </v-alert>
           </v-container>
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click.stop="onClose()"
@@ -69,7 +70,7 @@ export default class OrderDeleteDialog extends Vue {
     if ((this.$refs.form as any).validate()) {
       ordersStore.deleteOrder(this.id).then((succeeded) => {
         if (succeeded) {
-          this.$router.push("/orders")
+          this.$router.push("/orders");
         } else {
           this.showError = true;
         }

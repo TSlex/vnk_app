@@ -53,3 +53,11 @@
     display: none;
   }
 }
+
+
+.v-card__title {
+  &.two-lines{
+    flex-direction: column;
+    align-items: unset;
+  }
+}

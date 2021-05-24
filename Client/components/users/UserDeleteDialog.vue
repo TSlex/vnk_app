@@ -2,7 +2,7 @@
   <v-dialog v-model="active" max-width="600px">
     <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
       <v-card>
-        <v-card-title>
+        <v-card-title class="two-lines">
           <span class="headline"
             >Вы уверены, что хотите удалить пользователя</span
           >

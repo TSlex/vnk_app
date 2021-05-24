@@ -1,7 +1,7 @@
 <template>
   <v-btn v-if="isAuthenticated" rounded text large @click="onClick">
     <span class="text-h6 font-weight-medium mr-2">
-      {{ fullName }}
+      {{ fullName | textTruncate(25) }}
     </span>
     <v-chip v-if="isAdministrator" small class="primary text-caption">Администратор</v-chip>
     <v-chip v-if="isRoot" small class="warning text-caption">Супер Администратор</v-chip>

@@ -2,9 +2,10 @@
   <v-dialog v-model="active" max-width="600px">
     <v-form class="mt-6" @submit.prevent="onSubmit()" ref="form">
       <v-card>
-        <v-card-title>
-          <span class="headline"
-            >Вы уверены, что хотите удалить "{{ template.name }}"?</span
+        <v-card-title class="two-lines">
+          <span class="headline">Вы уверены, что хотите удалить шаблон</span>
+          <span class="subtitle-1"
+            >"{{ template.name | textTruncate(50) }}?"</span
           >
         </v-card-title>
         <v-card-text>
