@@ -29,6 +29,12 @@
           @click:row="openDetails"
           class="rounded-b-lg rounded-t-0"
         >
+          <template v-slot:[`item.name`]="{ item }">
+            {{ item.name | textTruncate(40) }}
+          </template>
+          <template v-slot:[`item.type`]="{ item }">
+            {{ item.type | textTruncate(30) }}
+          </template>
           <template v-slot:[`item.`]="{ item }">
             <v-chip color="lime" v-if="item.usesDefinedUnits"
               >с единицами измерения</v-chip
@@ -71,11 +77,11 @@ export default class AttributesIndex extends Vue {
     { text: "Название", value: "name", align: "left" },
     { text: "Тип атрибута", value: "type", align: "right" },
     { text: "Особенности типа", value: "", sortable: false, align: "right" },
-    { text: "Формат", value: "dataType", sortable: false, align: "right"},
+    { text: "Формат", value: "dataType", sortable: false, align: "right" },
   ];
 
-  get currentPageIndex(){
-    return (this.currentPage ?? 1) - 1
+  get currentPageIndex() {
+    return (this.currentPage ?? 1) - 1;
   }
 
   get attributes() {

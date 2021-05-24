@@ -51,7 +51,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { attributesStore, attributeTypesStore } from "~/store";
-import { isSellected, required } from "~/utils/form-validation";
+import { isSellected, maxlength, required } from "~/utils/form-validation";
 import { AttributePostDTO } from "~/models/AttributeDTO";
 
 @Component({
@@ -64,7 +64,7 @@ export default class AttributeTypesCreate extends Vue {
   };
 
   rules = {
-    name: [required()],
+    name: [required(), maxlength(100)],
     attribute: [isSellected()],
   };
 

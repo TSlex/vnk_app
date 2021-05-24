@@ -50,7 +50,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { attributesStore, attributeTypesStore } from "~/store";
-import { required } from "~/utils/form-validation";
+import { maxlength, required } from "~/utils/form-validation";
 import { AttributePatchDTO} from "~/models/AttributeDTO";
 
 @Component({
@@ -72,7 +72,7 @@ export default class AttributeTypesCreate extends Vue {
   }
 
   rules = {
-    name: [required()],
+    name: [required(), maxlength(100)],
     attribute: [
       (value?: { id: number; name: string }) =>
         (value != null && value.id > 0) || `Данное поле обязательно`,

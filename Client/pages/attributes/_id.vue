@@ -1,15 +1,19 @@
 <template>
-  <v-row justify="center" class="text-center" v-if="loaded && attribute != null">
+  <v-row
+    justify="center"
+    class="text-center"
+    v-if="loaded && attribute != null"
+  >
     <v-col cols="4" class="mt-4">
       <v-sheet rounded="lg" class="py-2">
         <div class="px-3 mb-2">
           <div class="d-flex justify-space-between mb-2">
-            <span>Название атрибута:</span><span>{{ attribute.name }}</span>
+            <span>Название атрибута:</span><span>{{ attribute.name  | textTruncate(50)}}</span>
           </div>
           <div class="d-flex justify-space-between mb-2">
             <span>Тип атрибута:</span
             ><v-chip small @click="onNavigateToType">{{
-              attribute.type
+              attribute.type | textTruncate(50)
             }}</v-chip>
           </div>
           <div class="d-flex justify-space-between mb-2">
@@ -29,7 +33,7 @@
                 attribute.defaultValue | formatBoolean
               }}</span>
               <span v-else class="text-body-1">{{
-                attribute.defaultValue
+                attribute.defaultValue | textTruncate(30)
               }}</span>
             </template>
           </div>
@@ -38,7 +42,7 @@
             v-if="attribute.defaultUnit"
           >
             <span>Единица измерения по умолчанию:</span
-            ><span>{{ attribute.defaultUnit }}</span>
+            ><span>{{ attribute.defaultUnit  | textTruncate(30)}}</span>
           </div>
           <div class="d-flex justify-space-between mb-2">
             <span>Количество использований:</span
@@ -48,7 +52,9 @@
         <v-divider></v-divider>
         <v-container>
           <v-btn outlined text class="mr-1" @click="onEdit">Изменить</v-btn>
-          <v-btn outlined text @click="onDelete" :disabled="!deletable">Удалить</v-btn>
+          <v-btn outlined text @click="onDelete" :disabled="!deletable"
+            >Удалить</v-btn
+          >
         </v-container>
       </v-sheet>
       <AttributeDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
