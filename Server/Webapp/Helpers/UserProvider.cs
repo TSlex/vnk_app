@@ -20,5 +20,8 @@ namespace WebApp.Helpers
 
         public string CurrentEmail => _httpContextAccessor.HttpContext?.User.Claims
             .Single(claim => claim.Type == ClaimTypes.Email).Value ?? "";
+        
+        public string CurrentId => _httpContextAccessor.HttpContext?.User.Claims
+            .Single(claim => claim.Type == ClaimTypes.NameIdentifier).Value ?? "";
     }
 }

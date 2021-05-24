@@ -54,6 +54,8 @@ namespace DAL.App.EF
         {
             ChangeTracker.DetectChanges();
             var now = DateTime.UtcNow;
+            var currentUserName = $"{_userProvider.CurrentId}:{_userProvider.CurrentName}";
+            currentUserName = _userProvider.CurrentId.Length > 0 ? currentUserName : "";
 
             var addedEntities = ChangeTracker.Entries().Where(x => x.State == EntityState.Added);
 
@@ -65,12 +67,12 @@ namespace DAL.App.EF
                     softUpdateEntity.MasterId != null)
                 {
                     softUpdateEntity.DeletedAt = now;
-                    softUpdateEntity.DeletedBy = _userProvider.CurrentName;
+                    softUpdateEntity.DeletedBy = currentUserName;
                     continue;
                 }
 
                 entityWithMetaData.CreatedAt = now;
-                entityWithMetaData.CreatedBy = _userProvider.CurrentName;
+                entityWithMetaData.CreatedBy = currentUserName;
 
                 entityWithMetaData.ChangedAt = entityWithMetaData.CreatedAt;
                 entityWithMetaData.ChangedBy = entityWithMetaData.CreatedBy;
@@ -83,7 +85,7 @@ namespace DAL.App.EF
                 if (!(entityEntry.Entity is IDomainEntityMetadata entityWithMetaData)) continue;
 
                 entityWithMetaData.ChangedAt = now;
-                entityWithMetaData.ChangedBy = _userProvider.CurrentName;
+                entityWithMetaData.ChangedBy = currentUserName;
 
                 if (entityEntry.Entity is IDomainEntitySoftUpdate) continue;
 
@@ -98,7 +100,7 @@ namespace DAL.App.EF
                 if (entityEntry.Entity is not IDomainEntitySoftDelete softDeleteEntity) continue;
 
                 softDeleteEntity.DeletedAt = now;
-                softDeleteEntity.DeletedBy = _userProvider.CurrentName;
+                softDeleteEntity.DeletedBy = currentUserName;
 
                 entityEntry.State = EntityState.Modified;
             }

@@ -7,5 +7,6 @@ namespace DAL.Contracts
         ClaimsPrincipal? CurrentUser { get;  }
         string CurrentName { get;  }
         string CurrentEmail { get;  }
+        string CurrentId { get;  }
     }
 }
