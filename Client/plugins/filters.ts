@@ -9,6 +9,16 @@ const filtersPlugin: Plugin = (ctx: Context) => {
   context = ctx
 }
 
+Vue.filter("textTruncate", function (value: string, maxlength: number = 0) {
+  if (typeof value !== "string" || maxlength < 0) return value;
+
+  if (value.length > maxlength){
+    return value.substr(0, maxlength) + "...";
+  }
+
+  return value;
+})
+
 Vue.filter('formatDate', function (value: any) {
   if (value) {
     return context.$moment(String(value)).format('MMMM Do YYYY')

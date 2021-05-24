@@ -12,16 +12,20 @@
       </template>
       <div class="py-6">
         <div class="d-flex justify-space-between">
-          <span>Имя:</span><span>{{ userData.firstName }}</span>
+          <span>Имя:</span
+          ><span>{{ userData.firstName | textTruncate(30) }}</span>
         </div>
         <div class="d-flex justify-space-between">
-          <span>Фамилия:</span><span>{{ userData.lastName }}</span>
+          <span>Фамилия:</span
+          ><span>{{ userData.lastName | textTruncate(30) }}</span>
         </div>
         <div class="d-flex justify-space-between">
-          <span>Эл.адрес:</span><span>{{ userData.email }}</span>
+          <span>Эл.адрес:</span
+          ><span>{{ userData.email | textTruncate(30) }}</span>
         </div>
         <div class="d-flex justify-space-between">
-          <span>Роль:</span><span>{{ userData.roleLocalized }}</span>
+          <span>Роль:</span
+          ><span>{{ userData.roleLocalized | textTruncate(30) }}</span>
         </div>
       </div>
       <v-divider></v-divider>
@@ -59,7 +63,10 @@
     </template>
     <UserRoleDialog v-model="roleChangeDialog" v-if="roleChangeDialog" />
     <UserDataDialog v-model="changeDialog" v-if="changeDialog" />
-    <UserPasswordDialog v-model="passwordChangeDialog" v-if="passwordChangeDialog" />
+    <UserPasswordDialog
+      v-model="passwordChangeDialog"
+      v-if="passwordChangeDialog"
+    />
     <UserDeleteDialog v-model="deleteDialog" v-if="deleteDialog" />
   </v-col>
 </template>
@@ -78,7 +85,7 @@ import UserDeleteDialog from "~/components/users/UserDeleteDialog.vue";
     UserRoleDialog,
     UserDataDialog,
     UserPasswordDialog,
-    UserDeleteDialog
+    UserDeleteDialog,
   },
 })
 export default class UserData extends Vue {
@@ -89,7 +96,10 @@ export default class UserData extends Vue {
   deleteDialog = false;
 
   get isPersonal() {
-    return !(usersStore.selectedUser && usersStore.selectedUser.id != identityStore.userData?.id);
+    return !(
+      usersStore.selectedUser &&
+      usersStore.selectedUser.id != identityStore.userData?.id
+    );
   }
 
   get isCurrentUserSellected() {
