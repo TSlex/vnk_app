@@ -156,14 +156,11 @@ export default class ExportDialog extends Vue {
     // @ts-ignore
     let pdf = await generatePdf(this.$refs.pdfPage.$refs.pdfContent);
 
-    var string = pdf.output("datauristring");
-    var embed = "<embed width='100%' height='100%' src='" + string + "'/>";
+    pdf.setProperties({
+      title: "Отчет за " + this.$options.filters!.formatDateTime(this.$moment()),
+    })
 
-    var x = window.open()!;
-
-    x.document.open();
-    x.document.write(embed);
-    x.document.close();
+    pdf.output("dataurlnewwindow");
   }
 
   async onSubmit() {
