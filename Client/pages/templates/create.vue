@@ -37,28 +37,24 @@
               >
                 <template v-if="attribute.changeMode">
                   <AttributeSellect v-model="attribute.model" />
-                      <div class="ml-4">
-                        <v-btn text outlined @click="onSubmitAttribute(i)"
-                          >OK</v-btn
-                        >
-                        <v-btn text outlined @click="onCancelAttribute(i)"
-                        >X</v-btn
-                      >
-                      </div>
+                  <div class="ml-4">
+                    <v-btn text outlined @click="onSubmitAttribute(i)"
+                      >OK</v-btn
+                    >
+                    <v-btn text outlined @click="onCancelAttribute(i)">X</v-btn>
+                  </div>
                 </template>
                 <template v-else>
                   <v-list-item class="grey lighten-5">
                     <v-list-item-content>
-                      <v-list-item-title
-                        v-text="attribute.model.name"
-                      ></v-list-item-title>
+                      <v-list-item-title>{{
+                        attribute.model.name | textTruncate(50)
+                      }}</v-list-item-title>
                       <v-divider class="mb-2 mt-1"></v-divider>
                       <v-list-item-subtitle>
-                        <v-chip
-                          small
-                          v-text="attribute.model.type"
-                          class="mr-2"
-                        ></v-chip
+                        <v-chip small class="mr-2">{{
+                          attribute.model.type | textTruncate(40)
+                        }}</v-chip
                         ><v-chip small outlined>{{
                           attribute.model.dataType | formatDataType
                         }}</v-chip>
@@ -97,8 +93,8 @@
 
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
-import { attributeTypesStore, templatesStore } from "~/store";
-import { notEmpty, required } from "~/utils/form-validation";
+import { templatesStore } from "~/store";
+import { maxlength, required } from "~/utils/form-validation";
 import { TemplatePostDTO } from "~/models/TemplateDTO";
 import AttributeSellect from "~/components/common/AttributeSellect.vue";
 import { AttributeGetDTO } from "~/models/AttributeDTO";
@@ -122,8 +118,13 @@ export default class TemplateCreate extends Vue {
   }[] = [];
 
   rules = {
-    name: [required()],
-    attributes: [(value: any[]) => value.filter((item) => !item.deleted).length > 0 || "В шаблоне должен быть как минимум один атрибут"],
+    name: [required(), maxlength(100)],
+    attributes: [
+      maxlength(30),
+      (value: any[]) =>
+        value.filter((item) => !item.deleted).length > 0 ||
+        "В шаблоне должен быть как минимум один атрибут",
+    ],
   };
 
   value = { value: "", index: 0, changeMode: false };
@@ -207,7 +208,10 @@ export default class TemplateCreate extends Vue {
   }
 
   onSubmit() {
-    if ((this.$refs.form as any).validate() && this.activeAutoComplete == null) {
+    if (
+      (this.$refs.form as any).validate() &&
+      this.activeAutoComplete == null
+    ) {
       this.model.attributes = _.map(this.attributes, (attribute) => {
         return {
           attributeId: attribute.model.id,

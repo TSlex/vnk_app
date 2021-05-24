@@ -47,16 +47,14 @@
                   <template v-else>
                     <v-list-item class="grey lighten-5">
                       <v-list-item-content>
-                        <v-list-item-title
-                          v-text="attribute.attribute.name"
-                        ></v-list-item-title>
+                        <v-list-item-title>{{
+                          attribute.attribute.name | textTruncate(50)
+                        }}</v-list-item-title>
                         <v-divider class="mb-2 mt-1"></v-divider>
                         <v-list-item-subtitle>
-                          <v-chip
-                            small
-                            v-text="attribute.attribute.type"
-                            class="mr-2"
-                          ></v-chip
+                          <v-chip small class="mr-2">{{
+                            attribute.attribute.type | textTruncate(40)
+                          }}</v-chip
                           ><v-chip small outlined>{{
                             attribute.attribute.dataType | formatDataType
                           }}</v-chip>
@@ -105,7 +103,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "nuxt-property-decorator";
-import { notEmpty, required } from "~/utils/form-validation";
+import { maxlength, notEmpty, required } from "~/utils/form-validation";
 import { TemplatePatchDTO } from "~/models/TemplateDTO";
 import AttributeSellect from "~/components/common/AttributeSellect.vue";
 import { AttributeGetDTO } from "~/models/AttributeDTO";
@@ -137,8 +135,9 @@ export default class TemplatesEdit extends Vue {
   }[] = [];
 
   rules = {
-    name: [required()],
+    name: [required(), maxlength(100)],
     attributes: [
+      maxlength(30),
       (value: any[]) =>
         value.filter((item) => !item.deleted).length > 0 ||
         "В шаблоне должен быть как минимум один атрибут",
@@ -274,14 +273,13 @@ export default class TemplatesEdit extends Vue {
         };
       });
 
-      templatesStore
-        .updateTemplate(this.model).then((suceeded) => {
-          if (suceeded) {
-            this.onCancel();
-          } else {
-            this.showError = true;
-          }
-        });
+      templatesStore.updateTemplate(this.model).then((suceeded) => {
+        if (suceeded) {
+          this.onCancel();
+        } else {
+          this.showError = true;
+        }
+      });
     }
   }
 

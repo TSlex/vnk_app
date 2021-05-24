@@ -38,7 +38,7 @@
                       <v-expansion-panel>
                         <v-expansion-panel-header class="text-center">
                           <span class="text-h5"
-                            >Шаблон "{{ template.name }}"</span
+                            >Шаблон "{{ template.name | textTruncate(30)}}"</span
                           >
                         </v-expansion-panel-header>
                         <v-expansion-panel-content
@@ -63,7 +63,7 @@
                               >
                                 <div class="d-flex justify-space-between">
                                   <span class="text-body-1">{{
-                                    attribute.name
+                                    attribute.name | textTruncate(50)
                                   }}</span>
                                   <span class="text-body-1">
                                     <v-icon v-if="attribute.featured"
@@ -88,7 +88,7 @@
                                           attribute.attributeId
                                         )
                                       "
-                                      >{{ attribute.name }}</v-chip
+                                      >{{ attribute.name | textTruncate(50)}}</v-chip
                                     >
                                   </div>
                                   <div
@@ -102,7 +102,7 @@
                                       @click.stop="
                                         onNavigateToType(attribute.typeId)
                                       "
-                                      >{{ attribute.type }}</v-chip
+                                      >{{ attribute.type | textTruncate(50)}}</v-chip
                                     >
                                   </div>
                                   <div
