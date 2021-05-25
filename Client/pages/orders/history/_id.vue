@@ -174,6 +174,7 @@
 import { Component, Vue, Watch } from "nuxt-property-decorator";
 import { DataType } from "~/models/Enums/DataType";
 import { OrderAttributeGetDTO, OrderHistoryDTO } from "~/models/OrderDTO";
+import { sortedIndex } from "~/node_modules/@types/lodash";
 import { ordersStore } from "~/store";
 
 @Component({})
@@ -227,11 +228,14 @@ export default class OrderHistory extends Vue {
   }
 
   getHistoryStatusClass(orderId: Number, attribute: OrderAttributeGetDTO) {
-    let orderIndex = this.orders.findIndex((order) => order.id == orderId);
+    if (attribute.wasDeleted) {
+      return "text-decoration-line-through error--text";
+    }
+
+    let orderIndex = this.orders.findIndex((order: any) => order.id == orderId);
 
     let previousOrder =
       this.orders.length > orderIndex + 1 ? this.orders[orderIndex + 1] : null;
-    let nextOrder = orderIndex - 1 > 0 ? this.orders[orderIndex - 1] : null;
 
     if (previousOrder != null) {
       let prevAtt = this.getOrderAttribute(previousOrder, attribute);
@@ -241,12 +245,11 @@ export default class OrderHistory extends Vue {
         (prevAtt.value != attribute.value || prevAtt.unit != attribute.unit)
       ) {
         return "primary--text";
+      } else if (prevAtt == null) {
+        return "success--text";
       }
     }
 
-    // return "text-decoration-line-through error--text"
-    // return "success--text"
-    // return "primary--text"
     return "";
   }
 

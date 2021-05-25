@@ -3,7 +3,7 @@ import { $ctx } from "@/utils/vue-context"
 import { config } from 'vuex-module-decorators'
 import { CollectionDTO } from '~/models/Common/CollectionDTO'
 import { SortOption } from '~/models/Enums/SortOption'
-import { OrderGetDTO, OrderPostDTO, OrderPatchDTO, OrderHistoryDTO, OrderCompletionPatchDTO } from '~/models/OrderDTO'
+import { OrderGetDTO, OrderPostDTO, OrderPatchDTO, OrderHistoryDTO, OrderCompletionPatchDTO, OrderAttributeGetDTO } from '~/models/OrderDTO'
 
 config.rawError = true
 
@@ -133,8 +133,44 @@ export default class OrdersStore extends VuexModule {
 
   @Mutation
   ORDER_HISTORY_FETCHED(collection: CollectionDTO<OrderHistoryDTO>) {
-    this.histryRecords = collection.items
+
+    var records = _.orderBy(collection.items, (order) => order.changedAt)
+
+    records.forEach((order, oIndex, oArr) => {
+      order.attributes.forEach((att) => {
+
+        let nextOrder = oArr.length > oIndex + 1 ? oArr[oIndex + 1] : null;
+
+        if (nextOrder != null && !att.wasDeleted) {
+          let nextAtt = nextOrder.attributes.find(
+            (a) =>
+              a.id == att.id ||
+              (a.masterId != null && a.masterId == att.masterId) ||
+              a.id == att.masterId ||
+              (a.masterId != null && a.masterId == att.id)
+          );
+
+          if (nextAtt == null) {
+            nextAtt = { ...att, wasDeleted: true }
+            nextOrder.attributes.push(nextAtt)
+          }
+        }
+
+      })
+    })
+
+    this.histryRecords = _.orderBy([...records], "changedAt", "desc")
     this.histryRecordsCount = collection.totalCount
+  }
+
+  getOrderAttribute(order: OrderHistoryDTO, attribute: OrderAttributeGetDTO) {
+    return order.attributes.find(
+      (a) =>
+        a.id == attribute.id ||
+        (a.masterId != null && a.masterId == attribute.masterId) ||
+        a.id == attribute.masterId ||
+        (a.masterId != null && a.masterId == attribute.id)
+    );
   }
 
   @Mutation
@@ -267,7 +303,7 @@ export default class OrdersStore extends VuexModule {
 
       this.context.commit("CLEAR_ERROR")
       this.context.commit("ORDER_UPDATED", model)
-      this.context.dispatch("getOrder", {id: model.id, checkDatetime: null})
+      this.context.dispatch("getOrder", { id: model.id, checkDatetime: null })
       return true
     }
   }
@@ -284,7 +320,7 @@ export default class OrdersStore extends VuexModule {
 
       this.context.commit("CLEAR_ERROR")
       this.context.commit("ORDER_COMPLETION_UPDATED", model)
-      this.context.dispatch("getOrder", {id: model.id, checkDatetime: null})
+      this.context.dispatch("getOrder", { id: model.id, checkDatetime: null })
       return true
     }
   }

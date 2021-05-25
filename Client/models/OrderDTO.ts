@@ -25,6 +25,8 @@ export interface OrderAttributeGetDTO {
   type: string;
   dataType: number;
   featured: boolean;
+
+  wasDeleted?: boolean | undefined;
 }
 
 export interface OrderPostDTO {
