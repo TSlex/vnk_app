@@ -262,6 +262,11 @@ export default class templatesIndex extends Vue {
   }
 
   mounted() {
+    let page = Number(this.$route.query.page);
+    if (!isNaN(page) && page > 0) {
+      this.currentPage = page;
+    }
+
     this.fetchtemplates();
   }
 
@@ -284,6 +289,19 @@ export default class templatesIndex extends Vue {
   @Watch("byType")
   updateWatcher() {
     this.fetchtemplates();
+  }
+
+  @Watch("currentPage")
+  updatePageQuery() {
+    this.$router.push({path: this.$route.path, query: { ...this.$route.query, page: this.currentPage.toString() }})
+  }
+
+  @Watch("$route.query.page")
+  updatePage(){
+    let page = Number(this.$route.query.page);
+    if (!isNaN(page) && page > 0) {
+      this.currentPage = page;
+    }
   }
 }
 </script>

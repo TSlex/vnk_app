@@ -116,7 +116,16 @@ export default class AttributesIndex extends Vue {
     }
   }
 
+  async asyncData({ params }: any) {
+    return { page: params.page };
+  }
+
   mounted() {
+    let page = Number(this.$route.query.page);
+    if (!isNaN(page) && page > 0) {
+      this.currentPage = page;
+    }
+
     this.fetchAttributes();
   }
 
@@ -139,6 +148,19 @@ export default class AttributesIndex extends Vue {
   @Watch("byType")
   updateWatcher() {
     this.fetchAttributes();
+  }
+
+  @Watch("currentPage")
+  updatePageQuery() {
+    this.$router.push({path: this.$route.path, query: { ...this.$route.query, page: this.currentPage.toString() }})
+  }
+
+  @Watch("$route.query.page")
+  updatePage(){
+    let page = Number(this.$route.query.page);
+    if (!isNaN(page) && page > 0) {
+      this.currentPage = page;
+    }
   }
 }
 </script>

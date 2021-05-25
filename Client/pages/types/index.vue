@@ -30,7 +30,9 @@
           @click:row="openDetails"
           class="rounded-b-lg rounded-t-0"
         >
-          <template v-slot:[`item.name`]="{ item }"> {{item.name | textTruncate(50)}} </template>
+          <template v-slot:[`item.name`]="{ item }">
+            {{ item.name | textTruncate(50) }}
+          </template>
           <template v-slot:[`item.type`]="{ item }">
             <v-chip color="blue" dark v-if="item.systemicType"
               >системный</v-chip
@@ -107,6 +109,11 @@ export default class AttributeTypesIndex extends Vue {
   }
 
   mounted() {
+    let page = Number(this.$route.query.page);
+    if (!isNaN(page) && page > 0) {
+      this.currentPage = page;
+    }
+
     this.fetchTypes();
   }
 
@@ -128,6 +135,19 @@ export default class AttributeTypesIndex extends Vue {
   @Watch("byType")
   updateWatcher() {
     this.fetchTypes();
+  }
+
+  @Watch("currentPage")
+  updatePageQuery() {
+    this.$router.push({path: this.$route.path, query: { ...this.$route.query, page: this.currentPage.toString() }})
+  }
+
+  @Watch("$route.query.page")
+  updatePage(){
+    let page = Number(this.$route.query.page);
+    if (!isNaN(page) && page > 0) {
+      this.currentPage = page;
+    }
   }
 }
 </script>

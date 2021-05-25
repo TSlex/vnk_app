@@ -144,6 +144,11 @@ export default class ordersIndex extends Vue {
   }
 
   mounted() {
+    let page = Number(this.$route.query.page);
+    if (!isNaN(page) && page > 0) {
+      this.currentPage = page;
+    }
+
     this.fetchorders();
   }
 
@@ -167,6 +172,19 @@ export default class ordersIndex extends Vue {
   @Watch("filterModel")
   updateWatcher() {
     this.fetchorders();
+  }
+
+  @Watch("currentPage")
+  updatePageQuery() {
+    this.$router.push({path: this.$route.path, query: { ...this.$route.query, page: this.currentPage.toString() }})
+  }
+
+  @Watch("$route.query.page")
+  updatePage(){
+    let page = Number(this.$route.query.page);
+    if (!isNaN(page) && page > 0) {
+      this.currentPage = page;
+    }
   }
 }
 </script>
