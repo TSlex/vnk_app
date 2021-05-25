@@ -152,7 +152,13 @@
                 <template v-if="item.notation">
                   <v-divider class="mt-n2"></v-divider>
                   <v-container class="d-flex justify-center my-3">
-                    <span class="text-break">{{ item.notation }}</span>
+                    <span
+                      :class="
+                        'text-break' +
+                        ` ${getNotationClass(item.id, item.notation)}`
+                      "
+                      >{{ item.notation }}</span
+                    >
                   </v-container>
                 </template>
               </v-container>
@@ -225,6 +231,19 @@ export default class OrderHistory extends Vue {
 
   get isDateOrder() {
     return this.order?.executionDateTime != null;
+  }
+
+  getNotationClass(orderId: Number, notation: string) {
+    let orderIndex = this.orders.findIndex((order: any) => order.id == orderId);
+
+    let previousOrder =
+      this.orders.length > orderIndex + 1 ? this.orders[orderIndex + 1] : null;
+
+    if (previousOrder != null && previousOrder.notation != notation) {
+      return "primary--text";
+    } else {
+      return "";
+    }
   }
 
   getHistoryStatusClass(orderId: Number, attribute: OrderAttributeGetDTO) {
