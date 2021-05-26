@@ -233,6 +233,14 @@ export default class OrderHistory extends Vue {
     return this.order?.executionDateTime != null;
   }
 
+  onNavigateToType(typeId: number) {
+    this.$router.push(`/types/${typeId}`);
+  }
+
+  onNavigateToAttribute(attributeId: number) {
+    this.$router.push(`/attributes/${attributeId}`);
+  }
+
   getNotationClass(orderId: Number, notation: string) {
     let orderIndex = this.orders.findIndex((order: any) => order.id == orderId);
 

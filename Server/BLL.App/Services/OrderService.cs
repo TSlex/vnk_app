@@ -58,6 +58,14 @@ namespace BLL.App.Services
                 throw new NotFoundException("Заказ не найдет");
             }
 
+            // (await UnitOfWork.Orders.GetHistoryAsync(id, pageIndex, itemsOnPage)).ToList().ForEach(order =>
+            // {
+            //     order.OrderAttributes.ToList().ForEach(attribute =>
+            //     {
+            //         Console.WriteLine(attribute.Attribute.Name);
+            //     });
+            // });
+
             return new CollectionDTO<OrderHistoryGetDTO>()
             {
                 Items = (await UnitOfWork.Orders.GetHistoryAsync(id, pageIndex, itemsOnPage)).Select(item =>
@@ -309,6 +317,7 @@ namespace BLL.App.Services
 
         private static OrderAttributeGetDTO MapAttributesToDTO(OrderAttribute oa)
         {
+            // Console.WriteLine(oa.Attribute.Name);
             return new()
             {
                 Id = oa.Id,

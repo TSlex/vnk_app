@@ -41,6 +41,10 @@ namespace DAL.App.Mapper
         {
             config.CreateMap<TFirstObject, TSecondObject>();
             config.CreateMap<TSecondObject, TFirstObject>();
+            
+            //map to itself for deep copying
+            config.CreateMap<TFirstObject, TFirstObject>();
+            config.CreateMap<TSecondObject, TSecondObject>();
         }
     }
 }

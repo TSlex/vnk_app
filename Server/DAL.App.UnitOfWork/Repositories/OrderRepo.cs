@@ -101,20 +101,51 @@ namespace DAL.App.UnitOfWork.Repositories
                         !(oa.ChangedAt > order.ChangedAt ||
                           oa.DeletedAt <= order.ChangedAt)
                     )
+                    .Select(Mapper.Map<Entities.OrderAttribute, Entities.OrderAttribute>)
                     .ToList();
 
                 foreach (var orderAttribute in order.OrderAttributes)
                 {
+                    // attributes.Where(a =>
+                    //         a.Id == orderAttribute.AttributeId ||
+                    //         a.MasterId.HasValue && a.MasterId.Value == orderAttribute.AttributeId)
+                    //     .OrderByDescending(a => a.ChangedAt)
+                    //     .ToList().ForEach(a =>
+                    //     {
+                    //         Console.WriteLine("========");
+                    //         Console.WriteLine("Name " + a.Name);
+                    //         Console.WriteLine("OrderChanged " + order.ChangedAt);
+                    //         Console.WriteLine("AttChanged " + a.ChangedAt);
+                    //         Console.WriteLine("AttDeleted " + a.DeletedAt);
+                    //         Console.WriteLine("========");
+                    //     });
+
                     orderAttribute.Attribute = attributes
-                        .FirstOrDefault(a =>
+                        .OrderByDescending(a => a.ChangedAt)
+                        .Where(a =>
                             (a.Id == orderAttribute.AttributeId ||
                              a.MasterId.HasValue && a.MasterId.Value == orderAttribute.AttributeId) &&
                             !(a.ChangedAt > order.ChangedAt ||
-                              a.DeletedAt <= order.ChangedAt));
+                              a.DeletedAt <= order.ChangedAt))
+                        .Select(Mapper.Map<Entities.Attribute, Entities.Attribute>)
+                        .FirstOrDefault();
+
+                    // Console.WriteLine("======");
+                    // Console.WriteLine("Name " + att.Name);
+                    // Console.WriteLine("AttChanged " + att.ChangedAt);
+                    // Console.WriteLine("AttDeleted " + att.DeletedAt);
+                    // Console.WriteLine("OrderChanged " + order.ChangedAt);
+                    // Console.WriteLine("======");
+
+                    // orderAttribute.Attribute = att;
+
+                    // Console.WriteLine(orderAttribute.Attribute.Name);
+                    // Console.WriteLine(orderAttribute.GetHashCode());
 
                     if (orderAttribute.Attribute != null)
                     {
                         orderAttribute.Attribute.AttributeType = types
+                            .OrderByDescending(t => t.ChangedAt)
                             .FirstOrDefault(t =>
                                 (t.Id == orderAttribute.Attribute.AttributeTypeId ||
                                  t.MasterId.HasValue && t.MasterId.Value == orderAttribute.Attribute.AttributeTypeId) &&
@@ -123,6 +154,14 @@ namespace DAL.App.UnitOfWork.Repositories
                     }
                 }
             }
+            
+            // orders.ForEach(order =>
+            // {
+            //     order.OrderAttributes.ToList().ForEach(attribute =>
+            //     {
+            //         Console.WriteLine(attribute.Attribute.Name);
+            //     });
+            // });
 
             return orders.Select(MapToDTO);
         }

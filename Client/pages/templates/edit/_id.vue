@@ -42,6 +42,7 @@
                       <v-btn text outlined @click="onSubmitAttribute(i)"
                         >OK</v-btn
                       >
+                      <v-btn text outlined @click="onCancelAttribute(i)">X</v-btn>
                     </div>
                   </template>
                   <template v-else>
@@ -214,6 +215,11 @@ export default class TemplatesEdit extends Vue {
 
       this.activeAutoComplete = null;
     }
+  }
+
+  onCancelAttribute(index: number) {
+    this.onDeleteAttribute(index);
+    this.activeAutoComplete = null;
   }
 
   onEditAttribute(index: number) {
