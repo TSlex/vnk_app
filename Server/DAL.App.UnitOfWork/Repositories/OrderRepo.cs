@@ -106,20 +106,6 @@ namespace DAL.App.UnitOfWork.Repositories
 
                 foreach (var orderAttribute in order.OrderAttributes)
                 {
-                    // attributes.Where(a =>
-                    //         a.Id == orderAttribute.AttributeId ||
-                    //         a.MasterId.HasValue && a.MasterId.Value == orderAttribute.AttributeId)
-                    //     .OrderByDescending(a => a.ChangedAt)
-                    //     .ToList().ForEach(a =>
-                    //     {
-                    //         Console.WriteLine("========");
-                    //         Console.WriteLine("Name " + a.Name);
-                    //         Console.WriteLine("OrderChanged " + order.ChangedAt);
-                    //         Console.WriteLine("AttChanged " + a.ChangedAt);
-                    //         Console.WriteLine("AttDeleted " + a.DeletedAt);
-                    //         Console.WriteLine("========");
-                    //     });
-
                     orderAttribute.Attribute = attributes
                         .OrderByDescending(a => a.ChangedAt)
                         .Where(a =>
@@ -129,18 +115,6 @@ namespace DAL.App.UnitOfWork.Repositories
                               a.DeletedAt <= order.ChangedAt))
                         .Select(Mapper.Map<Entities.Attribute, Entities.Attribute>)
                         .FirstOrDefault();
-
-                    // Console.WriteLine("======");
-                    // Console.WriteLine("Name " + att.Name);
-                    // Console.WriteLine("AttChanged " + att.ChangedAt);
-                    // Console.WriteLine("AttDeleted " + att.DeletedAt);
-                    // Console.WriteLine("OrderChanged " + order.ChangedAt);
-                    // Console.WriteLine("======");
-
-                    // orderAttribute.Attribute = att;
-
-                    // Console.WriteLine(orderAttribute.Attribute.Name);
-                    // Console.WriteLine(orderAttribute.GetHashCode());
 
                     if (orderAttribute.Attribute != null)
                     {
@@ -154,14 +128,6 @@ namespace DAL.App.UnitOfWork.Repositories
                     }
                 }
             }
-            
-            // orders.ForEach(order =>
-            // {
-            //     order.OrderAttributes.ToList().ForEach(attribute =>
-            //     {
-            //         Console.WriteLine(attribute.Attribute.Name);
-            //     });
-            // });
 
             return orders.Select(MapToDTO);
         }

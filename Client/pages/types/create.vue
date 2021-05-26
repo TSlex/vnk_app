@@ -27,12 +27,12 @@
               <v-input
                 :rules="rules.defaultValue"
                 v-model="model.defaultCustomValue"
+                v-if="!model.usesDefinedValues"
               >
                 <CustomValueField
                   :dataType="model.dataType"
                   v-model="model.defaultCustomValue"
                   :label="`Значение по умолчанию`"
-                  v-if="!model.usesDefinedValues"
                 />
               </v-input>
               <v-switch

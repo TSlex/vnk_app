@@ -34,11 +34,11 @@
                 отображение!
               </v-alert>
                <v-input
+               v-if="useDefaultValues"
                 :rules="rules.defaultCustomValue"
                 v-model="model.defaultCustomValue"
               >
               <CustomValueField
-                v-if="useDefaultValues"
                 :dataType="model.dataType"
                 v-model="model.defaultCustomValue"
                 :label="`Значение по умолчанию`"
