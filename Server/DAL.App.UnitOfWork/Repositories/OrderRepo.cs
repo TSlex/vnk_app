@@ -109,9 +109,8 @@ namespace DAL.App.UnitOfWork.Repositories
                         .FirstOrDefault(a =>
                             (a.Id == orderAttribute.AttributeId ||
                              a.MasterId.HasValue && a.MasterId.Value == orderAttribute.AttributeId) &&
-                            a.ChangedAt <= order.ChangedAt &&
-                            (!a.DeletedAt.HasValue || a.DeletedAt >= order.ChangedAt ||
-                             a.DeletedAt >= order.DeletedAt));
+                            !(a.ChangedAt > order.ChangedAt ||
+                              a.DeletedAt <= order.ChangedAt));
 
                     if (orderAttribute.Attribute != null)
                     {
@@ -119,9 +118,8 @@ namespace DAL.App.UnitOfWork.Repositories
                             .FirstOrDefault(t =>
                                 (t.Id == orderAttribute.Attribute.AttributeTypeId ||
                                  t.MasterId.HasValue && t.MasterId.Value == orderAttribute.Attribute.AttributeTypeId) &&
-                                t.ChangedAt <= order.ChangedAt &&
-                                (!t.DeletedAt.HasValue || t.DeletedAt >= order.ChangedAt ||
-                                 t.DeletedAt >= order.DeletedAt));
+                                !(t.ChangedAt > order.ChangedAt ||
+                                  t.DeletedAt <= order.ChangedAt));
                     }
                 }
             }
