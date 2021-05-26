@@ -9,6 +9,7 @@ const adminRoutes = [
 ]
 
 const auth: Middleware = async (context: Context) => {
+  if (context.route.path.indexOf("/offline") != -1) return;
 
   if (identityStore.jwt == null) {
     await identityStore.initializeIdentity()
