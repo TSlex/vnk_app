@@ -27,6 +27,7 @@ namespace AppAPI._1._0
         public string Name { get; set; } = default!;
 
         public bool Completed { get; set; }
+        public bool Overdued { get; set; }
 
         public string? Notation { get; set; }
 

@@ -44,7 +44,7 @@ namespace BLL.App.Services
                 throw new NotFoundException("Заказ не найдет");
             }
 
-            checkDatetime ??= DateTime.UtcNow;
+            checkDatetime ??= DateTime.Now;
 
             var item = await UnitOfWork.Orders.GetByIdAsync(id);
 
@@ -67,6 +67,7 @@ namespace BLL.App.Services
                         MasterId = item.MasterId,
                         Name = item.Name,
                         Completed = item.Completed,
+                        Overdued = item.ExecutionDateTime.HasValue && item.ExecutionDateTime < DateTime.Now,
                         Notation = item.Notation,
                         ExecutionDateTime = item.ExecutionDateTime,
                         DeletedAt = item.DeletedAt,
