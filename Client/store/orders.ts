@@ -160,6 +160,7 @@ export default class OrdersStore extends VuexModule {
     })
 
     this.histryRecords = _.orderBy([...records], "changedAt", "desc")
+
     this.histryRecordsCount = collection.totalCount
   }
 
