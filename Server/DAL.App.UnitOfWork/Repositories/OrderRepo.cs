@@ -125,7 +125,12 @@ namespace DAL.App.UnitOfWork.Repositories
                                  t.MasterId.HasValue && t.MasterId.Value == orderAttribute.Attribute.AttributeTypeId) &&
                                 !(t.ChangedAt > order.ChangedAt ||
                                   t.DeletedAt <= order.ChangedAt));
+
+                        orderAttribute.Attribute.AttributeType!.Id = orderAttribute.Attribute.AttributeType.MasterId ??
+                                                                     orderAttribute.Attribute.AttributeType.Id;
                     }
+
+                    orderAttribute.AttributeId = orderAttribute.Attribute!.MasterId ?? orderAttribute.Attribute.Id;
                 }
             }
 
