@@ -78,29 +78,7 @@ namespace DAL.App.EF.Helpers
                     {
                         "Root"
                     }
-                },
-                new User
-                {
-                    FirstName = "Александр",
-                    LastName = "Иванов",
-                    Email = "admin@admin.com",
-                    Password = "Admin_123",
-                    RolesNames = new[]
-                    {
-                        "Administrator"
-                    }
-                },
-                new User
-                {
-                    FirstName = "Пользователь",
-                    LastName = "Обычный",
-                    Email = "user@user.com",
-                    Password = "Admin_123",
-                    RolesNames = new[]
-                    {
-                        "User"
-                    }
-                },
+                }
             };
 
             foreach (var user in users)
